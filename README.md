@@ -7,6 +7,12 @@ It uses OpenGL 3. Library is in **very early** development stage and should be u
 - The OpenGL Extension Wrangler Library ([GLEW](http://glew.sourceforge.net/))
 - An OpenGL helper library ([GLFW](http://www.glfw.org/))
 
+### Compilation
+To compile it under Linux:
+```bash
+g++ main.cpp -I $PATH_TO_LIB/src $PATH_TO_LIB/src/zdlib.cpp $PATH_TO_LIB/src/stb_image.cpp -lm -lGL -lGLU -lpthread -lglfw -lGLEW 
+```
+See Example below for more details or view [example makefile](example/makefile).
 
 ### Usage
 To use library include zdlib.h header: ```#include "zdlib.h"```
@@ -88,6 +94,12 @@ void zDrawImage(int64_t imgN, int32_t x, int32_t y, double x_scale, double y_sca
 Zimage_t zGetImage(int64_t imgN);
 ```
 
+### Example
+Example is simple multithreaded demo that reads image and shows random pixels on the screen. It also shows how to read user mouse input.
+
+<br/>
+
+![gif1](example/zdlib1.gif) ![gif2](example/zdlib3.gif)
 
 ### License
 Distributed under GNU General Public License v3.0. See: [LICENSE](LICENSE) file
