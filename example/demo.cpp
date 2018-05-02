@@ -18,6 +18,8 @@
 
 std::mutex drawMutex;
 
+bool keyPressed = false;
+
 bool isRunning = true;
 const zVector2<double> CENTER = { SCREEN_WIDTH/2.0F, SCREEN_HEIGHT/2.0F };
 
@@ -137,7 +139,9 @@ void drawParticles(std::vector<Particle*> *parts)
     std::this_thread::sleep_for
         ( std::chrono::milliseconds(10));
 
-    zClear();
+    // refresh screen only when key is not pressed
+    if (!keyPressed) zClear();
+
   }
 }
 
@@ -145,8 +149,9 @@ void breakImage(const char *name, std::vector<Particle*> *parts)
 {
   Zimage_t img = zGetImage(zLoadImage(name));
 
-  int x_offset = SCREEN_WIDTH/2  - img.w/2;
+  //int x_offset = SCREEN_WIDTH/2  - img.w/2;
   //int y_offset = SCREEN_HEIGHT/2 - img.h/2;
+  int x_offset = 0;
   int y_offset = 0;
 
   for (int y = 0; y < img.h; ++y)
@@ -170,7 +175,7 @@ int main(void)
     particles.push_back(new Particle({ (uint8_t)rand(), (uint8_t)rand(), (uint8_t)rand() }) );
   }
 
-  //breakImage("lena.png", &particles);
+  breakImage("lena.png", &particles);
 
   // create window
   zCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "ZDLib Demo", WINDOW_SCALE);
@@ -191,12 +196,15 @@ int main(void)
       mousePosition.x /= (double)WINDOW_SCALE;
       mousePosition.y /= (double)WINDOW_SCALE;
 
-      auto part = new Particle({ 255, 128, 20 });
+      auto part = new Particle({ (uint8_t)(rand()%255), (uint8_t)(rand()%128), (uint8_t)(rand()%20) });
       part->setPosition(mousePosition);
       particles.push_back(part);
 
       printf("Mouse position: %2.2f; %2.2f\n", mousePosition.x, mousePosition.y);
     }
+
+    // save state of spacebar key to global variable
+    keyPressed = zKey(ZKEY_ACTION);
 
     // swap buffers and polls window events
     zUpdate();
