@@ -1,18 +1,25 @@
 #include "zdlib.h"
 
+
 #ifndef STBI_MALLOC
 #define STBI_MALLOC(sz)           malloc(sz)
 #define STBI_REALLOC(p,newsz)     realloc(p,newsz)
 #define STBI_FREE(p)              free(p)
 #endif
 
-
+#define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image.h"
+#include "stb_image_write.h"
 
 static Zwindow_t *Zwindow = NULL;
 
 static Zimage_t *Zimages = NULL;
 static uint32_t ZimagesNumber = 0;
+
+#ifdef NO_X11
+static FILE *fb = NULL;
+typedef char GLchar;
+#endif
 
 /*
  * window
@@ -50,6 +57,11 @@ zPixel zRGB (uint8_t r, uint8_t g, uint8_t b)
   return { r, g, b, 255 };
 }
 
+zPixel zRGB (uint8_t c)
+{
+  return { c, c, c, 255 };
+}
+
 zPixel zRGBA(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
 {
   return { r, g, b, a };
@@ -57,20 +69,27 @@ zPixel zRGBA(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
 
 Zwindow_t *zCreateWindow(uint32_t w, uint32_t h, const char *name, uint8_t scale)
 {
+  // initialize Zwindow
+  Zwindow = new Zwindow_t();
+  Zwindow->width = w;
+  Zwindow->height = h;
+
+#ifndef NO_X11
   glfwInit();
 
   glfwWindowHint (GLFW_CONTEXT_VERSION_MAJOR, 3);
   glfwWindowHint (GLFW_CONTEXT_VERSION_MINOR, 0);
   glfwWindowHint (GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);  
+#else
+  w = FB_WIDTH;
+  h = FB_HEIGHT;
+#endif
 
-  // initialize Zwindow
-  Zwindow = new Zwindow_t();
-  Zwindow->width = w;
-  Zwindow->height = h;
   Zwindow->aspect = (double)(w)/(double)(h);
   Zwindow->name = name;
   Zwindow->buffer = new uint8_t[w*h*Z_COMPONENTS];
 
+#ifndef NO_X11
   // create window
   GLFWwindow *wnd = glfwCreateWindow(w*scale, h*scale, name, NULL, NULL);
   glfwMakeContextCurrent(wnd);
@@ -159,7 +178,10 @@ Zwindow_t *zCreateWindow(uint32_t w, uint32_t h, const char *name, uint8_t scale
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);  
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
+#else
+  fb = fopen(FB_FILE, "wb");
+  if (!fb) fprintf(stderr, "Cannot read framebuffer %s!\n", FB_FILE);
+#endif
   return Zwindow;
 }
 
@@ -175,17 +197,32 @@ Zwindow_t *zGetWindow()
 
 bool zIsOpen()
 {
+#ifndef NO_X11
   return !glfwWindowShouldClose(glfwGetCurrentContext());
+#else
+  return fb!=NULL;
+#endif
 }
 
 void zClear()
 {
-  if (Zwindow) memset(&Zwindow->buffer[0], 0, Zwindow->width*Zwindow->height*Z_COMPONENTS);
+  int w = Zwindow->width;
+  int h = Zwindow->height;
+
+#ifdef NO_X11
+  w = FB_WIDTH;
+  h = FB_HEIGHT;
+#endif
+
+  if (Zwindow) memset(&Zwindow->buffer[0], 0, w*h*Z_COMPONENTS);
+#ifndef NO_X11
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+#endif
 }
 
 void zUpdate()
 {
+#ifndef NO_X11
   // update texture
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, Zwindow->width, Zwindow->height, 0, 
                GL_RGB, GL_UNSIGNED_BYTE, &Zwindow->buffer[0]);  
@@ -204,16 +241,45 @@ void zUpdate()
 
   glfwPollEvents();
   glfwSwapBuffers(glfwGetCurrentContext());
+#else
+  const int SIZE = FB_WIDTH * FB_HEIGHT * Z_COMPONENTS;
+
+  //TODO: RGB to BGR
+  for (int i = 0; i < SIZE; i+=4)
+  {
+  }
+  
+  int written = fwrite(&Zwindow->buffer[0], sizeof(uint8_t), SIZE, fb);
+  fclose(fb);
+  fopen(FB_FILE, "wb");
+  if (written <= 0) 
+  {
+    fprintf(stderr, "Cannot write into frame buffer!\n");
+  } 
+  
+#endif
 }
 
+bool zScreenshot(const char *fName)
+{
+  return stbi_write_png(fName, Zwindow->width, Zwindow->height, Z_COMPONENTS, Zwindow->buffer, Zwindow->width*Z_COMPONENTS);
+}
 void zDrawPixel(uint16_t x, uint16_t y, zPixel c)
 {
   if (x >= Zwindow->width) return;
   if (y >= Zwindow->height) return;
 
-  Zwindow->buffer[y*Z_COMPONENTS*Zwindow->width + x*Z_COMPONENTS + 0] = c.r;
-  Zwindow->buffer[y*Z_COMPONENTS*Zwindow->width + x*Z_COMPONENTS + 1] = c.g;
-  Zwindow->buffer[y*Z_COMPONENTS*Zwindow->width + x*Z_COMPONENTS + 2] = c.b;  
+  int w = Zwindow->width;
+  int h = Zwindow->height;
+
+#ifdef NO_X11
+  w = FB_WIDTH;
+  h = FB_HEIGHT;
+#endif
+
+  Zwindow->buffer[y*Z_COMPONENTS*w + x*Z_COMPONENTS + 0] = c.r;
+  Zwindow->buffer[y*Z_COMPONENTS*w + x*Z_COMPONENTS + 1] = c.g;
+  Zwindow->buffer[y*Z_COMPONENTS*w + x*Z_COMPONENTS + 2] = c.b;  
 }
 
 void zFree()
@@ -228,33 +294,45 @@ void zFree()
     delete[] Zwindow->buffer;
     delete Zwindow;
   }
-   
+ 
+#ifndef NO_X11
   glfwDestroyWindow(glfwGetCurrentContext());
   glfwTerminate();
+#else
+  fclose(fb);
+#endif
 }
 
 int zKey(uint32_t key)
 {
+#ifndef NO_X11
   return glfwGetKey(glfwGetCurrentContext(), key);
+#else
+  return 0;
+#endif
 }
 
 zVector2<double> zGetMousePosition()
 {
   zVector2<double> pos;
+#ifndef NO_X11
   glfwGetCursorPos(glfwGetCurrentContext(), &pos.x, &pos.y);
+#endif
   return pos;
 }
 
 int zMouseButton(uint32_t btn)
 {
+#ifndef NO_X11
   return glfwGetMouseButton(glfwGetCurrentContext(), btn);
+#endif
 }
 
 /*
  * images
  */
 
-int64_t zLoadImage(const char *name)
+zimg zLoadImage(const char *name)
 {
   int64_t foundAt = -1;
   for (uint32_t i = 0; i < ZimagesNumber && foundAt < 0; i++)
@@ -281,6 +359,7 @@ int64_t zLoadImage(const char *name)
   {
     // data not loaded
     delete[] imgs;
+    fprintf(stderr, "Image %s cannot be loaded!\n", name);
     return -1;
   }
 
@@ -308,12 +387,12 @@ void zDrawImage(const char *name, int32_t x, int32_t y)
   zDrawImage(foundAt, x, y);  
 }
 
-void zDrawImage(int64_t imgN, int32_t x, int32_t y)
+void zDrawImage(zimg imgN, int32_t x, int32_t y)
 {
   zDrawImage(imgN, x, y, 1, 1);  
 }
 
-void zDrawImage(int64_t imgN, int32_t x, int32_t y, double x_scale, double y_scale)
+void zDrawImage(zimg imgN, int32_t x, int32_t y, double x_scale, double y_scale)
 {
   assert(imgN >= 0 && imgN < ZimagesNumber);
 
@@ -326,19 +405,27 @@ void zDrawImage(int64_t imgN, int32_t x, int32_t y, double x_scale, double y_sca
   if (x >= (int32_t)Zwindow->width)   return;
   if (y >= (int32_t)Zwindow->height)  return;
   if (y+img->h < 0)                   return;
+  
+  int w = Zwindow->width;
+  int h = Zwindow->height;
+
+#ifdef NO_X11
+  w = FB_WIDTH;
+  h = FB_HEIGHT;
+#endif
 
   int32_t i = 0, p;
-  for (i = 0, p = (x + (x_scale < 0 ? img->w : 0))*Z_COMPONENTS + y*Z_COMPONENTS*Zwindow->width; 
-      i < img->w * img->h * img->components && p < (int32_t)(Zwindow->width*Zwindow->height*Z_COMPONENTS);
+  for (i = 0, p = (x + (x_scale < 0 ? img->w : 0))*Z_COMPONENTS + y*Z_COMPONENTS*w; 
+      i < img->w * img->h * img->components && p < (int32_t)(w*h*Z_COMPONENTS);
       i += img->components, p += Z_COMPONENTS*((int)x_scale*10)/10)
   {
    
-    if (i != 0 && i/img->components % img->w == 0) p += (Zwindow->width-(img->w*((int)x_scale)))*Z_COMPONENTS;
+    if (i != 0 && i/img->components % img->w == 0) p += (w-(img->w*((int)x_scale)))*Z_COMPONENTS;
 
-    if ((i/img->components)%img->w + x < (int32_t)Zwindow->width
+    if ((i/img->components)%img->w + x < (int32_t)w
     &&  (i/img->components)%img->w + x >= 0) 
     {
-      if (p > 0 && img->data[i+3] != 0)
+      if (p > 0)
       {
         Zwindow->buffer[p+0] = img->data[i+0];
         Zwindow->buffer[p+1] = img->data[i+1];
@@ -346,20 +433,22 @@ void zDrawImage(int64_t imgN, int32_t x, int32_t y, double x_scale, double y_sca
       }
     }
   }
-  
+ 
+#ifndef NO_X11
   // update texture
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, Zwindow->width, Zwindow->height, 0, 
                GL_RGB, GL_UNSIGNED_BYTE, &Zwindow->buffer[0]);  
+#endif
 }
 
-Zimage_t zGetImage(int64_t imgN)
+Zimage_t zGetImage(zimg imgN)
 {
   assert(imgN >= 0 && imgN < ZimagesNumber);
 
   return Zimages[imgN];
 }
 
-int64_t zCreateImage(int w, int h, zPixel col)
+zimg zCreateImage(int w, int h, zPixel col)
 {
   const int comp = Z_COMPONENTS;
 
@@ -375,8 +464,8 @@ int64_t zCreateImage(int w, int h, zPixel col)
     &&  Zimages[i].data[0] == col.r
     &&  Zimages[i].data[1] == col.g
     &&  Zimages[i].data[2] == col.b) 
-    {
-      foundAt = i;
+    { // W T F
+      //  foundAt = i;
     }
 
   }
@@ -420,4 +509,21 @@ int64_t zCreateImage(int w, int h, zPixel col)
 
   return ZimagesNumber-1;
 
+}
+
+zimg zCreateImage(int w, int h)
+{
+  zPixel p = {0,0,0};
+  return zCreateImage(w, h, p);
+}
+
+void zSetImagePixel(zimg imgN, int32_t x, int32_t y, zPixel col)
+{
+  Zimage_t img = zGetImage(imgN);
+  img.data[(y*img.w + x) * img.components + 0] = col.r;
+  img.data[(y*img.w + x) * img.components + 1] = col.g;
+  img.data[(y*img.w + x) * img.components + 2] = col.b;
+  if (img.components > 3) {
+    img.data[(y*img.w + x) * img.components + 3] = col.a;
+  }
 }

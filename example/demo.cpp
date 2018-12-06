@@ -6,15 +6,17 @@
 #include "zdlib.h"
 
 // window buffer size
-#define SCREEN_WIDTH  320
-#define SCREEN_HEIGHT 240
+#define SCREEN_WIDTH  1920
+#define SCREEN_HEIGHT 1080
 
 // window scale size
-#define WINDOW_SCALE  2
+#define WINDOW_SCALE  1
 
-#define PARTICLES_N 100
+#define PARTICLES_N 1000
 
-#define INITIAL_V 2
+#define INITIAL_V 4
+
+zimg screen = zCreateImage(SCREEN_WIDTH, SCREEN_HEIGHT);
 
 std::mutex drawMutex;
 
@@ -32,6 +34,8 @@ double distancePower(zVector2<double> pos1, zVector2<double> pos2)
 {
   return (pow(pos1.x-pos2.x, 2) + pow(pos1.y-pos2.y, 2));
 }
+
+
 
 class Particle
 {
@@ -73,7 +77,7 @@ class Particle
       &&  position.y > 0 && position.y < SCREEN_HEIGHT)
       {
         // draw pixel to buffer
-        zDrawPixel(
+        zSetImagePixel(screen,
             (int)(position.x+0.5), 
             (int)(position.y+0.5), 
             color
@@ -114,14 +118,18 @@ void updateParticles(std::vector<Particle*> *parts)
   while (isRunning)
   {
     size_t partsN = parts->size();
-    for (int i = partsN-1; i >= 0; i--)
+    if (drawMutex.try_lock())
     {
-      parts->at(i)->update();
+      for (int i = partsN-1; i >= 0; i--)
+      {
+        parts->at(i)->update();
 
+      }
+      drawMutex.unlock();
     }
     
     std::this_thread::sleep_for
-        ( std::chrono::milliseconds(3));
+        ( std::chrono::milliseconds(1));
   }
 }
 
@@ -130,17 +138,21 @@ void drawParticles(std::vector<Particle*> *parts)
   while (isRunning)
   {
     size_t partsN = parts->size();
+    drawMutex.lock();
     for (int i = partsN-1; i >= 0; i--)
     {
       parts->at(i)->draw();
 
     }
+    drawMutex.unlock();
+
+    zDrawImage(screen, 0, 0);
     
     std::this_thread::sleep_for
-        ( std::chrono::milliseconds(10));
+        ( std::chrono::milliseconds(0));
 
     // refresh screen only when key is not pressed
-    if (!keyPressed) zClear();
+    //if (!keyPressed) zClear();
 
   }
 }
@@ -175,7 +187,7 @@ int main(void)
     particles.push_back(new Particle({ (uint8_t)rand(), (uint8_t)rand(), (uint8_t)rand() }) );
   }
 
-  breakImage("lena.png", &particles);
+  //breakImage("lena.png", &particles);
 
   // create window
   zCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "ZDLib Demo", WINDOW_SCALE);
