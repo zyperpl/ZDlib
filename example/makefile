@@ -1,11 +1,5 @@
-EXECUTABLE = zdlib_test
-
 CC         = g++
-FLAGS      = -std=c++17 -Wall -I ./src/ -ggdb $(EM_FLAGS)  -D DEBUG=1 -DNO_X11=0
-
-#EM_FLAGS   = -s USE_GLFW=3 -s DEMANGLE_SUPPORT=1 -s GL_FFP_ONLY=1 --preload-file img
-#EXECUTABLE = zdlib_test.js
-#CC	  = em++
+FLAGS      = -std=c++17 -Wall -I ./src/ -ggdb -O3 -D DEBUG=1 -DNO_X11=0
 
 LIBS       = -lstdc++ -lm -lGL -lGLU -lGLEW -lglfw -lX11 -lXxf86vm -lXrandr -lpthread -lXi -ldl -lXinerama -lXcursor
 
@@ -13,25 +7,36 @@ SRC_PATH   = .
 LIB_PATH   = ../src
 OBJ_PATH   = ./obj
 
-SOURCES  := $(wildcard $(SRC_PATH)/*.cpp $(LIB_PATH)/*.cpp)
+SOURCES  := $(wildcard $(LIB_PATH)/*.cpp)
 INCLUDES := $(wildcard $(SRC_PATH)/*.h $(LIB_PATH)/*.h)
-OBJECTS  := $(SOURCES:$(SRC_PATH)/%.cpp=$(OBJ_PATH)/%.o)
 
-$(EXECUTABLE): $(OBJECTS) 
+all: zdlib_demo_water zdlib_demo_orbits
+
+zdlib_demo_orbits: $(OBJ_PATH)/orbits.o 
 	@echo "Linking..."
-	$(CC) -o $@ $(OBJECTS) $(LIBS) $(FLAGS)
+	$(CC) -o $@ $(OBJ_PATH)/orbits.o $(SOURCES) $(LIBS) $(FLAGS)
 	@echo "Done!"
 
-$(OBJECTS): $(OBJ_PATH)/%.o: $(SRC_PATH)/%.cpp 
-	@echo "Compiling $@..."
-	$(CC) -I $(LIB_PATH) -c -o $@ $< $(FLAGS)
+$(OBJ_PATH)/orbits.o: $(SRC_PATH)/orbits.cpp
+	@echo "Compiling ORBITS..."
+	$(CC) -I $(LIB_PATH) -c -o $@ $< $(FLAGS) $(LIBS)
+
+
+zdlib_demo_water: $(OBJ_PATH)/water.o 
+	@echo "Linking..."
+	$(CC) -o $@ $(OBJ_PATH)/water.o $(SOURCES) $(LIBS) $(FLAGS)
+	@echo "Done!"
+
+$(OBJ_PATH)/water.o: $(SRC_PATH)/water.cpp
+	@echo "Compiling WATER..."
+	$(CC) -I $(LIB_PATH) -c -o $@ $< $(FLAGS) $(LIBS)
 
 .PHONY: clean run
 clean:
 	rm -rf obj/*
 	mkdir -p obj
-	rm $(EXECUTABLE)	
+	rm zdlib_demo_*	
 	@echo "Cleaned!"
 
 run:
-	make -j4 && ./${EXECUTABLE}
+	make -j4 && ./zdlib_demo_*

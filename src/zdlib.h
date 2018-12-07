@@ -83,6 +83,9 @@ struct zVector2
 {
   T x;
   T y;
+
+  zVector2() {}
+  zVector2(T xc, T yc) : x{xc}, y{yc} {};
 };
 
 template <class T>
@@ -91,6 +94,9 @@ struct zVector3
   T x;
   T y;
   T z;
+
+  zVector3() {}
+  zVector3(T xc, T yc, T zc) : x{xc}, y{yc}, z{zc} {};
 };
 
 /*
@@ -102,6 +108,9 @@ struct zPixel
   uint8_t g;
   uint8_t b;
   uint8_t a = 255;
+
+  zPixel() {}
+  zPixel(uint8_t rc, uint8_t gc, uint8_t bc, uint8_t ac = 255) : r{rc}, g{gc}, b{bc}, a{ac} {}
 };
 
 zPixel zRGB(uint8_t c);

@@ -270,7 +270,7 @@ void zDrawPixel(uint16_t x, uint16_t y, zPixel c)
   if (y >= Zwindow->height) return;
 
   int w = Zwindow->width;
-  int h = Zwindow->height;
+  //int h = Zwindow->height;
 
 #ifdef NO_X11
   w = FB_WIDTH;
