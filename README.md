@@ -1,9 +1,9 @@
 # ZDLib
-2D pixel drawing **single-file** library. Library creates window with **OpenGL context** and draws into OpenGL texture. 
-It uses OpenGL 3. Library is in **very early** development stage and should be used for simple applications.
+2D pixel drawing **single-file** library. Library creates window with **OpenGL3 context** and draws into OpenGL texture or can draw directly into TTY framebuffer. 
+ Library is in **very early** development stage and should be used for simple applications.
 
 ## Dependencies
-
+(for X11 rendering)
 - The OpenGL Extension Wrangler Library ([GLEW](http://glew.sourceforge.net/))
 - An OpenGL helper library ([GLFW](http://www.glfw.org/))
 
@@ -13,6 +13,7 @@ To compile it under Linux:
 g++ main.cpp -I $PATH_TO_LIB/src $PATH_TO_LIB/src/zdlib.cpp $PATH_TO_LIB/src/stb_image.cpp -lm -lGL -lGLU -lpthread -lglfw -lGLEW 
 ```
 See Example below for more details or view [example makefile](example/makefile).
+To compile it without X11 support use `-DNO_X11=1`.
 
 ### Usage
 To use library include zdlib.h header: ```#include "zdlib.h"```
@@ -20,7 +21,7 @@ Then you can use following functions:
 ```cpp
 Zwindow_t *zCreateWindow(uint32_t w, uint32_t h, const char *name, uint8_t scale = 1);
 ```
-Creates window with OpenGL context and shows it on the screen. 
+Creates window with OpenGL context and shows it on the screen or allocates framebuffer for TTY. 
 Parameters ```w``` and ```h``` sets screen buffer size, and ```scale``` sets multiplicity of screen buffer size as window size.
 ```name``` sets window title.
 It is possible to create multiple windows and change windows with commands:
