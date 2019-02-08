@@ -75,6 +75,7 @@ int main()
 
     // render
     zUpdate();
+    zRender();
 
     char fileName[255];
     sprintf(fileName, "water_effect_%03d.png", (int)(t));

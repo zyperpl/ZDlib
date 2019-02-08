@@ -32,6 +32,7 @@ SOFTWARE.
 #include <cstdlib>
 #include <string>
 #include <cstring>
+#include <cmath>
 #include <assert.h>
 
 //#define NO_X11
@@ -59,14 +60,16 @@ SOFTWARE.
 
 #else
 
+#undef Z_COMPONENTS
 #define Z_COMPONENTS 4
 
-#define ZKEY_LEFT    68
-#define ZKEY_RIGHT   67
-#define ZKEY_UP      65
-#define ZKEY_DOWN    66
-#define ZKEY_ACTION  32
-#define ZKEY_QUIT    27
+#include "/usr/include/linux/input-event-codes.h"
+#define ZKEY_LEFT    KEY_LEFT
+#define ZKEY_RIGHT   KEY_RIGHT
+#define ZKEY_UP      KEY_UP
+#define ZKEY_DOWN    KEY_DOWN
+#define ZKEY_ACTION  KEY_SPACE
+#define ZKEY_QUIT    KEY_ESC
 
 #define ZMOUSE_BUTTON_LEFT    0
 #define ZMOUSE_BUTTON_RIGHT   2
@@ -75,6 +78,14 @@ SOFTWARE.
 #define FB_FILE   "/dev/fb0"
 #define FB_WIDTH  1920
 #define FB_HEIGHT 1080
+
+#include <fcntl.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
+#define KB_FILE   "/dev/input/event9"
+#include "/usr/include/linux/input.h"
 
 #endif
 
@@ -86,6 +97,9 @@ struct zVector2
 
   zVector2() {}
   zVector2(T xc, T yc) : x{xc}, y{yc} {};
+  const zVector2<T> operator+(const zVector2<T> ov) { return { x + ov.x, y + ov.y }; }
+  const zVector2<T> operator-(const zVector2<T> ov) { return { x - ov.x, y - ov.y }; }
+  double distancePow(const zVector2<T> ov) { return pow(ov.x-x,2) + pow(ov.y-y,2); };
 };
 
 template <class T>
@@ -111,6 +125,57 @@ struct zPixel
 
   zPixel() {}
   zPixel(uint8_t rc, uint8_t gc, uint8_t bc, uint8_t ac = 255) : r{rc}, g{gc}, b{bc}, a{ac} {}
+
+  zPixel operator*(const uint8_t &v) { 
+    return { static_cast<uint8_t>(r*v), static_cast<uint8_t>(g*v), static_cast<uint8_t>(b*v) }; 
+  }
+  
+  zPixel operator*(const double &v) { 
+    return { static_cast<uint8_t>((double)r*v), static_cast<uint8_t>((double)g*v), static_cast<uint8_t>((double)b*v) }; 
+  }
+  
+  zPixel operator/(const double &v) { 
+    return { static_cast<uint8_t>((double)r/v), static_cast<uint8_t>((double)g/v), static_cast<uint8_t>((double)b/v) }; 
+  }
+
+  zPixel operator+(const zPixel &op) {
+    int nr = r+op.r; if (nr > 255) nr = 255;
+    int ng = g+op.g; if (ng > 255) ng = 255;
+    int nb = b+op.b; if (nb > 255) nb = 255;
+
+    return { static_cast<uint8_t>(nr), static_cast<uint8_t>(ng), static_cast<uint8_t>(nb) };
+  }
+  
+  zPixel operator-=(const int &v) { 
+    int nr = r-v; if (nr < 0) nr = 0;
+    int ng = g-v; if (ng < 0) ng = 0;
+    int nb = b-v; if (nb < 0) nb = 0;
+    r = nr; g = ng; b = nb;
+    return *this;
+  }
+  
+  zPixel operator-=(const zPixel &op) { 
+    int nr = r-op.r; if (nr < 0) nr = 0;
+    int ng = g-op.g; if (ng < 0) ng = 0;
+    int nb = b-op.b; if (nb < 0) nb = 0;
+    r = nr; g = ng; b = nb;
+    return *this;
+  }
+
+  zPixel operator-(const zPixel &op) {
+    int nr = r-op.r; if (nr < 0) nr = 0;
+    int ng = g-op.g; if (ng < 0) ng = 0;
+    int nb = b-op.b; if (nb < 0) nb = 0;
+    return zPixel(nr,ng,nb);
+  };
+
+  bool operator==(const zPixel &op) {
+    return r == op.r && g == op.g && b == op.b;
+  }
+  
+  bool operator!=(const zPixel &op) {
+    return r != op.r || g != op.g || b != op.b;
+  }
 };
 
 zPixel zRGB(uint8_t c);
@@ -142,14 +207,17 @@ void zClose();
 void zClear();
 
 void zUpdate();
+void zRender();
 
-bool zScreenshot(const char *fName);
+
 
 void zDrawPixel(uint16_t x, uint16_t y, zPixel c);
+void zDrawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, zPixel c);
 
 void zFree();
 
 int zKey(uint32_t key);
+uint32_t zLastCharacter();
 
 zVector2<double> zGetMousePosition();
 int zMouseButton(uint32_t btn);
@@ -169,12 +237,20 @@ typedef int64_t zimg;
 
 zimg zLoadImage(const char *name);
 void zDrawImage(const char *name, int32_t x, int32_t y);
-zimg zCreateImage(int w, int h, zPixel col);
-zimg zCreateImage(int w, int h);
+zimg zCreateImage(int w, int h, zPixel col, int comp = Z_COMPONENTS);
+zimg zCreateImage(int w, int h, int comp = Z_COMPONENTS);
 void zDrawImage(zimg imgN, int32_t x, int32_t y);
 void zDrawImage(zimg imgN, int32_t x, int32_t y, double x_scale, double y_scale);
 
+bool zSaveImage(zimg img, const char *fileName);
+
+zPixel zGetPixel(uint16_t x, uint16_t y);
+zPixel zGetPixel(double x, double y);
+zPixel zGetImagePixel(zimg img, uint16_t x, uint16_t y);
+
 void zSetImagePixel(zimg imgN, int32_t x, int32_t y, zPixel col);
+void zImageDrawImage(zimg target, zimg source, int32_t x, int32_t y);
+void zClearImage(zimg img);
 
 Zimage_t zGetImage(zimg imgN);
 

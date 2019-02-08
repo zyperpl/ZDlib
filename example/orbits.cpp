@@ -220,6 +220,7 @@ int main(void)
 
     // swap buffers and polls window events
     zUpdate();
+    zRender();
   }
   isRunning = false;
 
