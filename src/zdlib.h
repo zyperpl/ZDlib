@@ -40,7 +40,7 @@ SOFTWARE.
   #undef NO_X11
 #endif
 
-#define Z_COMPONENTS 3
+#define Z_COMPONENTS 4
 
 #ifndef NO_X11
 #include <GL/glew.h>
@@ -89,6 +89,30 @@ SOFTWARE.
 
 #endif
 
+#define ZAUDIO
+
+#ifdef ZAUDIO
+  #include <portaudio.h>
+  
+  #define ZVOICES_N     128
+  #define ZSAMPLE_RATE  44100
+  #define ZFRAMES       1024
+
+  typedef struct
+  {
+    float frequency;
+    float volume{0.1};
+    bool enabled{false};
+    long phase{0};
+  } Zvoice;
+
+  typedef struct
+  {
+    Zvoice voice[ZVOICES_N];
+  } ZaudioData;
+
+#endif
+
 template <class T>
 struct zVector2
 {
@@ -99,7 +123,10 @@ struct zVector2
   zVector2(T xc, T yc) : x{xc}, y{yc} {};
   const zVector2<T> operator+(const zVector2<T> ov) { return { x + ov.x, y + ov.y }; }
   const zVector2<T> operator-(const zVector2<T> ov) { return { x - ov.x, y - ov.y }; }
-  double distancePow(const zVector2<T> ov) { return pow(ov.x-x,2) + pow(ov.y-y,2); };
+  double distancePow(const zVector2<T> ov) { return pow(ov.x-x,2) + pow(ov.y-y,2); }
+  const zVector2<T> operator/=(const T v) { x=x/v; y=y/v; return *this; }
+  bool operator!=(const zVector2<T> ov) { return ov.x!=x || ov.y!=y; }
+  zVector2<T> operator*(const float &f) { return { x*f, y*f }; }
 };
 
 template <class T>
@@ -210,7 +237,6 @@ void zUpdate();
 void zRender();
 
 
-
 void zDrawPixel(uint16_t x, uint16_t y, zPixel c);
 void zDrawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, zPixel c);
 
@@ -254,3 +280,6 @@ void zClearImage(zimg img);
 
 Zimage_t zGetImage(zimg imgN);
 
+int zInitAudio(int channels = 1, long sampleRate = ZSAMPLE_RATE, long frames = ZFRAMES);
+Zvoice &zVoice(size_t id);
+float zAudioOutput(size_t idx);

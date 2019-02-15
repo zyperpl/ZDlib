@@ -29,6 +29,12 @@ static int keys[512] = {0};
 uint32_t charBuffer[CHAR_BUF_SIZE];
 uint32_t charBufferLastIdx = 0;
 
+#ifdef ZAUDIO
+  static ZaudioData audioData;
+  static PaStream *audioStream = nullptr;
+  static float audioOutputBuffer[ZFRAMES];
+#endif
+
 /*
  * window
  */
@@ -250,14 +256,18 @@ void zRender()
   /*glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, Zwindow->width, Zwindow->height, 0, 
                GL_RGB, GL_UNSIGNED_BYTE, &Zwindow->buffer[0]);  */
 
+  auto pixelFormat = GL_RGB;
+  if (Z_COMPONENTS > 3) pixelFormat = GL_RGBA;
+
   glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, Zwindow->width, Zwindow->height, 
-               GL_RGB, GL_UNSIGNED_BYTE, &Zwindow->buffer[0]);
+               pixelFormat, GL_UNSIGNED_BYTE, &Zwindow->buffer[0]);
 
   int width, height;
   glfwGetWindowSize(glfwGetCurrentContext(), &width, &height);
 
-  double r = double(width)/double(Zwindow->width);
-  double r2 = double(height)/double(Zwindow->height);
+  double r  = double(width)  / double(Zwindow->width);
+  double r2 = double(height) / double(Zwindow->height);
+
   if (r > r2) r = r2;
   int w = int(r*Zwindow->width);
   int h = int(r*Zwindow->height);
@@ -314,17 +324,17 @@ bool zSaveImage(zimg img, const char *fileName)
 
 void zDrawPixel(uint16_t x, uint16_t y, zPixel c)
 {
-  if (x >= Zwindow->width) return;
+  if (x >= Zwindow->width)  return;
   if (y >= Zwindow->height) return;
-
+  
   int w = Zwindow->width;
   int h = Zwindow->height;
-
+  
 #ifdef NO_X11
   w = FB_WIDTH;
   h = FB_HEIGHT;
 #endif
-
+  
   long long p = (x+y*w)*Z_COMPONENTS;
   Zwindow->buffer[p + 0] = c.r;
   Zwindow->buffer[p + 1] = c.g;
@@ -466,6 +476,11 @@ void zFree()
 #else
   fclose(fb);
   close(input);
+#endif
+
+#ifdef ZAUDIO
+  Pa_CloseStream(audioStream);
+  Pa_Terminate();
 #endif
 }
 
@@ -786,4 +801,72 @@ void zClose()
   fclose(fb);
   fb = NULL;
 #endif
+}
+
+
+
+
+static int zAudioCallback(const void *inputBuffer, void *outputBuffer,
+                          unsigned long frames,
+                          const PaStreamCallbackTimeInfo* timeInfo,
+                          PaStreamCallbackFlags statusFlags,
+                          void *userData)
+{
+  (void)(userData);
+
+  ZaudioData *data = static_cast<ZaudioData*>(userData);
+  float *out = static_cast<float*>(outputBuffer);
+
+  while (frames --> 0)
+  {
+    unsigned long f = ZFRAMES-frames-1;
+
+    *out = 0.0;
+
+    for (Zvoice &v : data->voice)
+    {
+      if (v.enabled)
+      {
+        float val = 2*M_PI*v.frequency*((float)(v.phase)/(float)(ZSAMPLE_RATE));
+        *out += std::sin(val)*v.volume;
+        v.phase ++;
+      }
+    }
+
+    audioOutputBuffer[f] = *out;
+
+    out++;
+  }
+    
+  return 0;
+}
+
+int zInitAudio(int channels, long sampleRate, long frames)
+{
+  // initialize audio
+  if (Pa_Initialize() != paNoError)
+  {
+    fprintf(stderr, "Error while initializing audio!\n");
+    return 1;
+  }
+
+
+  if (Pa_OpenDefaultStream(&audioStream, 0, channels, paFloat32, sampleRate, frames, zAudioCallback, &audioData))
+  {
+    fprintf(stderr, "Cannot open audio stream!\n");
+    return 2;
+  }
+  Pa_StartStream(audioStream);
+
+  return 0;
+}
+
+Zvoice &zVoice(size_t id)
+{
+  return audioData.voice[id];
+}
+
+float zAudioOutput(size_t idx)
+{
+  return audioOutputBuffer[idx];
 }
