@@ -66,20 +66,11 @@ const GLchar* fragmentSource = R"glsl(
     }
 )glsl";
 
-zPixel zRGB (uint8_t r, uint8_t g, uint8_t b)
-{
-  return { r, g, b, 255 };
-}
-
-zPixel zRGB (uint8_t c)
-{
-  return { c, c, c, 255 };
-}
-
-zPixel zRGBA(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
-{
-  return { r, g, b, a };
-}
+zPixel zRGB (uint8_t r, uint8_t g, uint8_t b)            { return zPixel(r, g, b, 255); }
+zPixel zRGB (uint8_t c)                                  { return zPixel(c, c, c, 255); }
+zPixel zRGBA(uint8_t r, uint8_t g, uint8_t b, uint8_t a) { return zPixel(r, g, b, a);   }
+zPixel zRGB (float r, float g, float b)                  { return zPixel(r*255,g*255,b*255, 255); }
+zPixel zRGB (double r, double g, double b)               { return zPixel(g*255,g*255,b*255, 255); }
 
 Zwindow_t *zCreateWindow(uint32_t w, uint32_t h, const char *name, uint8_t scale)
 {
@@ -87,6 +78,7 @@ Zwindow_t *zCreateWindow(uint32_t w, uint32_t h, const char *name, uint8_t scale
   Zwindow = new Zwindow_t();
   Zwindow->width = w;
   Zwindow->height = h;
+  Zwindow->components = Z_COMPONENTS;
 
 #ifndef NO_X11
   glfwInit();
@@ -233,7 +225,7 @@ bool zIsOpen()
 #endif
 }
 
-void zClear()
+void zClear(int mode)
 {
   int w = Zwindow->width;
   int h = Zwindow->height;
@@ -243,7 +235,10 @@ void zClear()
   h = FB_HEIGHT;
 #endif
 
-  if (Zwindow) memset(&Zwindow->buffer[0], 0, w*h*Z_COMPONENTS);
+  if (mode >= 1)
+  {
+    if (Zwindow) memset(&Zwindow->buffer[0], 0, w*h*Z_COMPONENTS);
+  }
 #ifndef NO_X11
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 #endif
@@ -278,7 +273,7 @@ void zRender()
 #else
   const int SIZE = FB_WIDTH * FB_HEIGHT * Z_COMPONENTS;
 
-  //TODO: RGB to BGR
+  // RGB to BGR
   #pragma omp parallel for
   for (int i = 0; i < SIZE; i+=Z_COMPONENTS)
   {
@@ -288,7 +283,7 @@ void zRender()
   }
   
   int written = fwrite(&Zwindow->buffer[0], sizeof(uint8_t), SIZE, fb);
-  fclose(fb); fopen(FB_FILE, "wb");
+  fclose(fb); fopen(FB_FILE, "wb"); // XXX
   if (written <= 0) 
   {
     fprintf(stderr, "Cannot write into frame buffer!\n");
@@ -322,140 +317,9 @@ bool zSaveImage(zimg img, const char *fileName)
                         image.data, image.w*image.components);
 }
 
-void zDrawPixel(uint16_t x, uint16_t y, zPixel c)
-{
-  if (x >= Zwindow->width)  return;
-  if (y >= Zwindow->height) return;
-  
-  int w = Zwindow->width;
-  int h = Zwindow->height;
-  
-#ifdef NO_X11
-  w = FB_WIDTH;
-  h = FB_HEIGHT;
-#endif
-  
-  long long p = (x+y*w)*Z_COMPONENTS;
-  Zwindow->buffer[p + 0] = c.r;
-  Zwindow->buffer[p + 1] = c.g;
-  Zwindow->buffer[p + 2] = c.b;  
-}
 
 
-void zDrawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, zPixel c)
-{
-  int w = Zwindow->width;
-  int h = Zwindow->height;
 
-#ifdef NO_X11
-  w = FB_WIDTH;
-  h = FB_HEIGHT;
-#endif
-
-  auto putPx = [w](int32_t x, int32_t y, zPixel c)
-  {
-    if (x < 0) return;
-    if (y < 0) return;
-    if (x >= Zwindow->width) return;
-    if (y >= Zwindow->height) return;
-
-    long long p = (x+y*w)*Z_COMPONENTS;
-    Zwindow->buffer[p + 0] = c.r;
-    Zwindow->buffer[p + 1] = c.g;
-    Zwindow->buffer[p + 2] = c.b;  
-  };
-
-	bool yLonger=false;
-	int incrementVal;
-
-	int shortLen=y2-y1;
-	int longLen=x2-x1;
-	if (abs(shortLen)>abs(longLen)) {
-		int swap=shortLen;
-		shortLen=longLen;
-		longLen=swap;
-		yLonger=true;
-	}
-
-	if (longLen<0) incrementVal=-1;
-	else incrementVal=1;
-
-	double divDiff;
-	if (shortLen==0) divDiff = longLen;
-	else divDiff = (double)longLen / (double)shortLen;
-	if (yLonger) 
-  {
-		for (int i=0; i != longLen; i += incrementVal) 
-    {
-			putPx(x1+(int)((double)i/divDiff),y1+i, c);
-		}
-	} else 
-  {
-		for (int i=0; i != longLen; i+=incrementVal) 
-    {
-			putPx(x1+i,y1+(int)((double)i/divDiff), c);
-		}
-	}
-}
-
-zPixel zGetPixel(uint16_t x, uint16_t y)
-{
-  if (x < 0 || y < 0) return zRGB(0);
-  if (x >= Zwindow->width) return zRGB(0);
-  if (y >= Zwindow->height) return zRGB(0);
-  
-  int w = Zwindow->width;
-  int h = Zwindow->height;
-
-#ifdef NO_X11
-  w = FB_WIDTH;
-  h = FB_HEIGHT;
-#endif
-  
-  zPixel ret;
-  const int idx = (x+y*w)*Z_COMPONENTS;
-  ret.r = Zwindow->buffer[idx+0];
-  ret.g = Zwindow->buffer[idx+1];
-  ret.b = Zwindow->buffer[idx+2];
-  if (Z_COMPONENTS > 3) ret.a = Zwindow->buffer[idx+3];
-  return ret;
-}
-
-zPixel zGetPixel(double x, double y)
-{
-  // linear interpolation
-  auto leftUp = zGetPixel((uint16_t)x, (uint16_t)y);
-  auto rightUp = zGetPixel((uint16_t)(x+.5), (uint16_t)(y));
-  auto leftDown = zGetPixel((uint16_t)x, (uint16_t)(y+0.5));
-  auto rightDown = zGetPixel((uint16_t)(x+.5), (uint16_t)(y+0.5));
-
-  double ratioX = x-(int)(x);
-  double ratioY = y-(int)(y);
-  
-  auto up = leftUp*(1.0-ratioX) + rightUp*ratioX;
-  auto down = leftDown*(1.0-ratioX) + rightDown*ratioX;
-
-  auto ret = up*(1.0-ratioY) + down*ratioY;
-
-  return ret;
-}
-
-zPixel zGetImagePixel(zimg img, uint16_t x, uint16_t y)
-{
-  if (x < 0 || y < 0) return zRGB(0);
-
-  auto image = zGetImage(img);
-  if (x >= image.w || y >= image.h) return zRGB(0);
-  
-  uint64_t p = (x+y*image.w)*image.components;
-  zPixel ret{
-    image.data[p+0],
-    image.components > 1 ? image.data[p+1] : image.data[p+0],
-    image.components > 2 ? image.data[p+2] : image.data[p+0],
-    image.components > 3 ? image.data[p+3] : image.data[p+0]
-  };
-  return ret;
-}
 
 void zFree()
 {
@@ -501,7 +365,7 @@ uint32_t zLastCharacter()
   return ch;
 }
 
-zVector2<double> zGetMousePosition()
+zVector2<double> zMousePosition()
 {
   zVector2<double> pos;
 #ifndef NO_X11
@@ -576,153 +440,6 @@ zimg zLoadImage(const char *name)
   return ZimagesNumber-1;
 }
 
-void zDrawImage(const char *name, int32_t x, int32_t y)
-{
-  int64_t foundAt = -1;
-  for (uint32_t i = 0; i < ZimagesNumber && foundAt < 0; i++)
-  {
-    if (Zimages[i].name == name) foundAt = i;
-  }
-  if (foundAt < 0)
-  {
-    foundAt = zLoadImage(name);
-    assert(foundAt >= 0);
-  }
-
-  zDrawImage(foundAt, x, y);  
-}
-
-void zDrawImage(zimg imgN, int32_t x, int32_t y)
-{
-  zDrawImage(imgN, x, y, 1, 1);  
-}
-
-void zDrawImage(zimg imgN, int32_t x, int32_t y, double x_scale, double y_scale)
-{
-  assert(imgN >= 0 && imgN < ZimagesNumber);
-
-  //TODO implement y_scale
-  (void)y_scale;
-
-  Zimage_t *img = &Zimages[imgN];
-  
-  //printf("%s: components=%d [0,0]=%d;%d;%d;%d\n", img->name, img->components, img->data[0+0], img->data[0+1], img->data[0+2], img->data[0+3]);
-
-  if (x+img->w < 0)                   return;
-  if (x >= (int32_t)Zwindow->width)   return;
-  if (y >= (int32_t)Zwindow->height)  return;
-  if (y+img->h < 0)                   return;
-  
-  int w = Zwindow->width;
-  int h = Zwindow->height;
-
-#ifdef NO_X11
-  w = FB_WIDTH;
-  h = FB_HEIGHT;
-#endif
-
-  auto *buf = Zwindow->buffer;
-
-  if ((x_scale == -1 || x_scale == 1) && y_scale == 1)
-  {
-    // legacy (probably faster)
-    
-    int i, p;
-    for (i = 0, p = (x + (x_scale < 0 ? img->w : 0))*Z_COMPONENTS + y*Z_COMPONENTS*w; 
-        i < img->w * img->h * img->components && p < (int32_t)(w*h*Z_COMPONENTS);
-        i += img->components, p += Z_COMPONENTS*((int)x_scale*10)/10)
-    {
-    
-      if (i != 0 && i/img->components % img->w == 0) p += (w-(img->w*((int)x_scale)))*Z_COMPONENTS;
-
-      if ((i/img->components)%img->w + x < (int32_t)w
-      &&  (i/img->components)%img->w + x >= 0) 
-      {
-        if (p > 0)
-        {
-          //TODO: implement alpha blending
-          //TODO: implement y-scale
-          if (img->components > 3 && img->data[i+3] == 0) continue;
-
-          Zwindow->buffer[p+0] = img->data[i+0];
-          Zwindow->buffer[p+1] = img->components > 1 ? img->data[i+1] : img->data[i+0];
-          Zwindow->buffer[p+2] = img->components > 2 ? img->data[i+2] : img->data[i+0];    
-        }
-      }
-    }
-  } else
-  {
-    // for different scales
-    
-    int niw = img->w*std::abs(x_scale);
-    int nih = img->h*std::abs(y_scale);
-
-    #pragma omp parallel for
-    for (int i = 0; i < niw*nih; i++)
-    {
-      int bx = i%niw;
-      int by = i/niw;
-
-      if (x+bx >= w) continue;
-      if (y+by >= h) continue;
-
-      if (x+bx < 0) continue;
-      if (y+by < 0) continue;
-
-      int ix = bx/std::abs(x_scale);
-      int iy = by/std::abs(y_scale);
-
-      if (x_scale < 0) ix = img->w-ix;
-      if (y_scale < 0) iy = img->h-iy;
-
-      int bufidx = (bx+by*w+(x+y*w))*Z_COMPONENTS;
-      int imgidx = (ix+iy*img->w)*img->components;
-
-      buf[bufidx + 0] = img->data[imgidx+0];
-      buf[bufidx + 1] = img->data[imgidx+1];
-      buf[bufidx + 2] = img->data[imgidx+2];
-    }
-  }
-
-}
-
-void zImageDrawImage(zimg target, zimg source, int32_t x, int32_t y)
-{
-  Zimage_t *t = &Zimages[target];
-  Zimage_t *s = &Zimages[source];
-  
-  if (x+s->w < 0)  return;
-  if (x >= t->w)   return;
-  if (y >= t->h)   return;
-  if (y+s->h < 0)  return;
-
-  double x_scale = 1.0, y_scale = 1.0;
-  
-  int i, p;
-  for (i = 0, p = (x + (x_scale < 0 ? s->w : 0))*t->components + y*t->components*t->w; 
-      i < s->w * s->h * s->components && p < (int32_t)(t->w*t->h*t->components);
-      i += s->components, p += t->components*((int)x_scale*10)/10)
-  {
-   
-    if (i != 0 && i/s->components % s->w == 0) p += (t->w-(s->w*((int)x_scale)))*t->components;
-
-    if ((i/s->components)%s->w + x < (int32_t)t->w
-    &&  (i/s->components)%s->w + x >= 0) 
-    {
-      if (p > 0)
-      {
-        //TODO: implement alpha blending
-        if (s->components > 3 && s->data[i+3] == 0) continue;
-
-        t->data[p+0] = s->data[i+0];
-        if (t->components > 1) t->data[p+1] = s->components > 1 ? s->data[i+1] : s->data[i+0];
-        if (t->components > 2) t->data[p+2] = s->components > 2 ? s->data[i+2] : s->data[i+0];    
-      }
-    }
-  }
-
-}
-
 Zimage_t zGetImage(zimg imgN)
 {
   assert(imgN >= 0 && imgN < ZimagesNumber);
@@ -773,17 +490,6 @@ zimg zCreateImage(int w, int h, int comp)
 {
   zPixel p(0,0,0);
   return zCreateImage(w, h, p, comp);
-}
-
-void zSetImagePixel(zimg imgN, int32_t x, int32_t y, zPixel col)
-{
-  Zimage_t img = zGetImage(imgN);
-  img.data[(y*img.w + x) * img.components + 0] = col.r;
-  img.data[(y*img.w + x) * img.components + 1] = col.g;
-  img.data[(y*img.w + x) * img.components + 2] = col.b;
-  if (img.components > 3) {
-    img.data[(y*img.w + x) * img.components + 3] = col.a;
-  }
 }
 
 void zClearImage(zimg img)
@@ -869,4 +575,293 @@ Zvoice &zVoice(size_t id)
 float zAudioOutput(size_t idx)
 {
   return audioOutputBuffer[idx];
+}
+
+
+void zDrawPixel(uint8_t *buffer, uint16_t w, uint16_t h, int components, uint16_t x, uint16_t y, const zPixel &color)
+{
+  long long p = (x+y*w)*components;
+  buffer[p + 0] = color.r;
+  if (components > 1) buffer[p + 1] = color.g;
+  if (components > 2) buffer[p + 2] = color.b;  
+  if (components > 3) buffer[p + 3] = color.a;
+}
+
+void zDrawPixel(zimg img, uint16_t x, uint16_t y, const zPixel &color)
+{
+  auto image = zGetImage(img);
+  if (x >= image.w) return;
+  if (y >= image.h) return;
+
+  zDrawPixel(image.data, image.w, image.h, image.components, x, y, color);
+}
+
+void zDrawPixel(Zwindow_t *wnd, uint16_t x, uint16_t y, const zPixel &color)
+{
+  if (x >= wnd->width)  return;
+  if (y >= wnd->height) return;
+
+  int w = wnd->width;
+  int h = wnd->height;
+  
+  #ifdef NO_X11
+    w = FB_WIDTH;
+    h = FB_HEIGHT;
+  #endif
+
+  zDrawPixel(wnd->buffer, w, h, wnd->components, x, y, color);
+}
+
+void zDrawPixel(uint16_t x, uint16_t y, const zPixel &color)
+{
+  zDrawPixel(Zwindow, x, y, color);
+}
+
+
+void zDrawImage(uint8_t *buffer, const uint16_t w, const uint16_t h, const int components, 
+                const uint16_t x, const uint16_t y, const zimg img, double xScale, double yScale)
+{
+  const Zimage_t *image = &Zimages[img];
+  
+  if (x+image->w < 0) return;
+  if (x >= w)         return;
+  if (y >= h)         return;
+  if (y+image->h < 0) return;
+  
+  const int niw = image->w * std::abs(xScale);
+  const int nih = image->h * std::abs(yScale);
+
+  #pragma omp parallel for
+  for (int i = 0; i < niw*nih; i++)
+  {
+    int bx = i%niw;
+    int by = i/niw;
+
+    if (x+bx >= w) continue;
+    if (y+by >= h) continue;
+
+    if (x+bx < 0) continue;
+    if (y+by < 0) continue;
+
+    int ix = bx/std::abs(xScale);
+    int iy = by/std::abs(yScale);
+
+    if (xScale < 0) ix = image->w-ix;
+    if (yScale < 0) iy = image->h-iy;
+
+    int bufidx = (bx+by*w+(x+y*w))*components;
+    int imgidx = (ix+iy*image->w)*image->components;
+
+    for (int c = 0; c < components; c++)
+    {
+      uint8_t v = 0;
+      
+      if (image->components > c) v = image->data[imgidx+c];
+
+      buffer[bufidx + c] = v;
+    }
+  }
+
+}
+
+void zDrawImage(zimg target, uint16_t x, uint16_t y, const zimg source, double xScale, double yScale)
+{
+  auto image = zGetImage(target);
+  
+  zDrawImage(image.data, image.w, image.h, image.components, x, y, source, xScale, yScale);
+}
+
+void zDrawImage(Zwindow_t *wnd, uint16_t x, uint16_t y, const zimg img, double xScale, double yScale)
+{
+  uint16_t w = wnd->width;
+  uint16_t h = wnd->height;
+
+  #ifdef NO_X11
+    w = FB_WIDTH;
+    h = FB_HEIGHT;
+  #endif
+
+  zDrawImage(wnd->buffer, w, h, wnd->components, x, y, img, xScale, yScale);
+}
+
+void zDrawImage(uint16_t x, uint16_t y, const zimg img, double xScale, double yScale)
+{
+  zDrawImage(Zwindow, x, y, img, xScale, yScale);
+}
+
+void zDrawImage(zimg target, uint16_t x, uint16_t y, const char *imgName, double xScale, double yScale)
+{
+  auto source = zLoadImage(imgName);
+  auto image = zGetImage(target);
+  zDrawImage(image.data, image.w, image.h, image.components, x, y, source, xScale, yScale);
+}
+
+void zDrawImage(Zwindow_t *wnd, uint16_t x, uint16_t y, const char *imgName, double xScale, double yScale)
+{
+  auto img = zLoadImage(imgName);
+  zDrawImage(wnd, x, y, img, xScale, yScale);
+}
+
+void zDrawImage(uint16_t x, uint16_t y, const char *imgName, double xScale, double yScale)
+{
+  zDrawImage(Zwindow, x, y, zLoadImage(imgName), xScale, yScale);
+}
+
+void zDrawLine(uint8_t *buffer, uint16_t w, uint16_t h, int components, 
+               uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, const zPixel &color)
+{
+  auto putPx = [w, h, components, buffer](int32_t x, int32_t y, zPixel c)
+  {
+    if (x < 0)  return;
+    if (y < 0)  return;
+    if (x >= w) return;
+    if (y >= h) return;
+
+    long long p = (x + y*w) * components;
+    buffer[p + 0] = c.r;
+    buffer[p + 1] = c.g;
+    buffer[p + 2] = c.b;  
+  };
+
+	bool yLonger = false;
+	int incrementVal;
+
+	int shortLen = y2-y1;
+	int longLen  = x2-x1;
+
+	if (abs(shortLen)>abs(longLen)) 
+  {
+		int swap=shortLen;
+		shortLen=longLen;
+		longLen=swap;
+		yLonger=true;
+	}
+
+	if (longLen<0) incrementVal = -1;
+	else incrementVal = 1;
+
+	double divDiff;
+	if (shortLen == 0) divDiff = longLen;
+	else divDiff = (double)longLen / (double)shortLen;
+	if (yLonger) 
+  {
+		for (int i = 0; i != longLen; i += incrementVal) 
+    {
+			putPx(x1 + (int)((double)i/divDiff), y1+i, color);
+		}
+	} else 
+  {
+		for (int i = 0; i != longLen; i += incrementVal) 
+    {
+			putPx(x1+i, y1 + (int)((double)i/divDiff), color);
+		}
+	}
+}
+
+
+void zDrawLine(zimg img, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, const zPixel &color)
+{
+  auto image = zGetImage(img);
+  zDrawLine(image.data, image.w, image.h, image.components, x1, y1, x2, y2, color);
+}
+
+void zDrawLine(Zwindow_t *wnd, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, const zPixel &color)
+{
+  int w = wnd->width;
+  int h = wnd->height;
+
+#ifdef NO_X11
+  w = FB_WIDTH;
+  h = FB_HEIGHT;
+#endif
+  zDrawLine(wnd->buffer, w, h, wnd->components, x1, y1, x2, y2, color);
+}
+
+void zDrawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, const zPixel &color)
+{
+  zDrawLine(Zwindow, x1, y1, x2, y2, color);
+}
+
+
+zPixel zGetPixel(const uint8_t *buffer, const uint8_t w, const uint8_t h, const uint8_t components, uint16_t x, uint16_t y)
+{
+  if (x < 0 || y < 0) return zRGB(0);
+  if (x >= w) return zRGB(0);
+  if (y >= h) return zRGB(0);
+  
+  zPixel ret;
+  const int idx = (x+y*w)*components;
+  ret.r = buffer[idx+0];
+  ret.g = components > 1 ? buffer[idx+1] : buffer[idx];
+  ret.b = components > 2 ? buffer[idx+2] : buffer[idx];
+  ret.a = components > 3 ? buffer[idx+3] : buffer[idx];
+  return ret;
+}
+
+zPixel zGetPixel(const Zwindow_t *wnd, const uint16_t x, const uint16_t y)
+{
+  int w = wnd->width;
+  int h = wnd->height;
+
+#ifdef NO_X11
+  w = FB_WIDTH;
+  h = FB_HEIGHT;
+#endif
+  
+  return zGetPixel(wnd->buffer, w, h, wnd->components, x, y);
+}
+
+zPixel zGetPixel(const uint16_t x, const uint16_t y)
+{
+  return zGetPixel(Zwindow, x, y);
+}
+
+zPixel zGetPixel(const zimg img, const uint16_t x, const uint16_t y)
+{
+  auto image = zGetImage(img);
+  return zGetPixel(image.data, image.w, image.h, image.components, x, y);
+}
+
+
+zPixel zGetPixel(const uint8_t *buffer, const uint8_t w, const uint8_t h, const uint8_t components, double x, double y)
+{
+  // linear interpolation
+  auto leftUp    = zGetPixel(buffer, w, h, components, (uint16_t)x,      (uint16_t)y);
+  auto rightUp   = zGetPixel(buffer, w, h, components, (uint16_t)(x+.5), (uint16_t)y);
+  auto leftDown  = zGetPixel(buffer, w, h, components, (uint16_t)x,      (uint16_t)(y+0.5));
+  auto rightDown = zGetPixel(buffer, w, h, components, (uint16_t)(x+.5), (uint16_t)(y+0.5));
+
+  double ratioX = x-(int)(x);
+  double ratioY = y-(int)(y);
+  
+  auto up   = leftUp   * (1.0-ratioX) + rightUp   * ratioX;
+  auto down = leftDown * (1.0-ratioX) + rightDown * ratioX;
+
+  auto ret = up * (1.0-ratioY) + down * ratioY;
+
+  return ret;
+}
+
+zPixel zGetPixel(const Zwindow_t *wnd, const double x, const double y)
+{
+  int w = wnd->width;
+  int h = wnd->height;
+
+#ifdef NO_X11
+  w = FB_WIDTH;
+  h = FB_HEIGHT;
+#endif
+  
+  return zGetPixel(wnd->buffer, w, h, wnd->components, x, y);
+}
+
+zPixel zGetPixel(const double x, const double y)
+{
+  return zGetPixel(Zwindow, x, y);
+}
+
+zPixel zGetPixel(const zimg img, const double x, const double y)
+{
+  auto image = zGetImage(img);
+  return zGetPixel(image.data, image.w, image.h, image.components, x, y);
 }

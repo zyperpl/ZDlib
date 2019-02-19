@@ -205,9 +205,11 @@ struct zPixel
   }
 };
 
-zPixel zRGB(uint8_t c);
+zPixel zRGB (uint8_t c);
 zPixel zRGB (uint8_t r, uint8_t g, uint8_t b);
 zPixel zRGBA(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
+zPixel zRGB (float r, float g, float b);
+zPixel zRGB (double r, double g, double b);
 
 /*
  * window
@@ -217,6 +219,7 @@ typedef struct
   uint32_t width;
   uint32_t height;
   double aspect;  
+  int components;
   const char *name;
 
   uint8_t *buffer;
@@ -231,21 +234,17 @@ bool zIsOpen();
 
 void zClose();
 
-void zClear();
+void zClear(int mode = 1);
 
 void zUpdate();
 void zRender();
-
-
-void zDrawPixel(uint16_t x, uint16_t y, zPixel c);
-void zDrawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, zPixel c);
 
 void zFree();
 
 int zKey(uint32_t key);
 uint32_t zLastCharacter();
 
-zVector2<double> zGetMousePosition();
+zVector2<double> zMousePosition();
 int zMouseButton(uint32_t btn);
 
 
@@ -262,24 +261,57 @@ typedef struct
 typedef int64_t zimg;
 
 zimg zLoadImage(const char *name);
-void zDrawImage(const char *name, int32_t x, int32_t y);
+//void zDrawImage(const char *name, int32_t x, int32_t y);
 zimg zCreateImage(int w, int h, zPixel col, int comp = Z_COMPONENTS);
 zimg zCreateImage(int w, int h, int comp = Z_COMPONENTS);
-void zDrawImage(zimg imgN, int32_t x, int32_t y);
-void zDrawImage(zimg imgN, int32_t x, int32_t y, double x_scale, double y_scale);
-
 bool zSaveImage(zimg img, const char *fileName);
-
-zPixel zGetPixel(uint16_t x, uint16_t y);
-zPixel zGetPixel(double x, double y);
-zPixel zGetImagePixel(zimg img, uint16_t x, uint16_t y);
-
 void zSetImagePixel(zimg imgN, int32_t x, int32_t y, zPixel col);
-void zImageDrawImage(zimg target, zimg source, int32_t x, int32_t y);
 void zClearImage(zimg img);
 
 Zimage_t zGetImage(zimg imgN);
 
+/*
+ * audio
+ */
 int zInitAudio(int channels = 1, long sampleRate = ZSAMPLE_RATE, long frames = ZFRAMES);
 Zvoice &zVoice(size_t id);
 float zAudioOutput(size_t idx);
+
+
+
+// drawing pixels
+void zDrawPixel(uint8_t *buffer, uint16_t w, uint16_t h, int components, uint16_t x, uint16_t y, const zPixel &color);
+void zDrawPixel(zimg img, uint16_t x, uint16_t y, const zPixel &color);
+void zDrawPixel(Zwindow_t *wnd, uint16_t x, uint16_t y, const zPixel &color);
+void zDrawPixel(uint16_t x, uint16_t y, const zPixel &color);
+
+
+// drawing images
+void zDrawImage(uint8_t *buffer, const uint16_t w, const uint16_t h, const int components, 
+                const uint16_t x, const uint16_t y, const zimg img, double xScale, double yScale);
+
+void zDrawImage(zimg target, uint16_t x, uint16_t y, const zimg source, double xScale = 1.0, double yScale = 1.0);
+void zDrawImage(Zwindow_t *wnd, uint16_t x, uint16_t y, const zimg img, double xScale = 1.0, double yScale = 1.0);
+void zDrawImage(uint16_t x, uint16_t y, const zimg img, double xScale = 1.0, double yScale = 1.0);
+void zDrawImage(zimg target, uint16_t x, uint16_t y, const char *imgName, double xScale = 1.0, double yScale = 1.0);
+void zDrawImage(Zwindow_t *wnd, uint16_t x, uint16_t y, const char *imgName, double xScale = 1.0, double yScale = 1.0);
+void zDrawImage(uint16_t x, uint16_t y, const char *imgName, double xScale = 1.0, double yScale = 1.0);
+
+
+// drawing lines
+void zDrawLine(uint8_t *buffer, uint16_t w, uint16_t h, int components, 
+               uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, const zPixel &color);
+void zDrawLine(zimg img, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, const zPixel &color);
+void zDrawLine(Zwindow_t *wnd, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, const zPixel &color);
+void zDrawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, const zPixel &color);
+
+// getting pixels
+zPixel zGetPixel(const uint8_t *buffer, const uint8_t w, const uint8_t h, const uint8_t components, uint16_t x, uint16_t y);
+zPixel zGetPixel(const Zwindow_t *wnd, const uint16_t x, const uint16_t y);
+zPixel zGetPixel(const uint16_t x, const uint16_t y);
+zPixel zGetPixel(const zimg img, const uint16_t x, const uint16_t y);
+
+zPixel zGetPixel(const uint8_t *buffer, const uint8_t w, const uint8_t h, const uint8_t components, double x, double y);
+zPixel zGetPixel(const Zwindow_t *wnd, const double x, const double y);
+zPixel zGetPixel(const double x, const double y);
+zPixel zGetPixel(const zimg img, const double x, const double y);

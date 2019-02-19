@@ -109,7 +109,7 @@ int main()
 
     zUpdate();
 
-    auto mousePosition = zGetMousePosition();
+    auto mousePosition = zMousePosition();
     world.mouse.x = mousePosition.x;
     world.mouse.y = mousePosition.y;
 
@@ -152,7 +152,7 @@ int main()
         int y0 = HEIGHT/2+zAudioOutput(i)*HEIGHT/2;
         int y1 = HEIGHT/2+zAudioOutput(i+1)*HEIGHT/2;
 
-        zDrawLine(x0,y0,x1,y1, audioDataColor);
+        zDrawLine(x0,y0, x1,y1, audioDataColor);
       }
     }
     zRender();

@@ -77,7 +77,7 @@ class Particle
       &&  position.y > 0 && position.y < SCREEN_HEIGHT)
       {
         // draw pixel to buffer
-        zSetImagePixel(screen,
+        zDrawPixel(screen,
             (int)(position.x+0.5), 
             (int)(position.y+0.5), 
             color
@@ -146,7 +146,7 @@ void drawParticles(std::vector<Particle*> *parts)
     }
     drawMutex.unlock();
 
-    zDrawImage(screen, 0, 0);
+    zDrawImage(0, 0, screen);
     
     std::this_thread::sleep_for
         ( std::chrono::milliseconds(0));
@@ -204,7 +204,7 @@ int main(void)
     // place pixels under mouse
     if (zMouseButton(ZMOUSE_BUTTON_LEFT))
     {
-      auto mousePosition = zGetMousePosition();
+      auto mousePosition = zMousePosition();
       mousePosition.x /= (double)WINDOW_SCALE;
       mousePosition.y /= (double)WINDOW_SCALE;
 

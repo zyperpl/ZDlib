@@ -10,7 +10,7 @@ OBJ_PATH   = ./obj
 SOURCES  := $(wildcard $(LIB_PATH)/*.cpp)
 INCLUDES := $(wildcard $(SRC_PATH)/*.h $(LIB_PATH)/*.h)
 
-all: zdlib_demo_water zdlib_demo_orbits zdlib_demo_sound
+all: zdlib_demo_water zdlib_demo_orbits zdlib_demo_sound zdlib_demo_drawing
 
 zdlib_demo_orbits: $(OBJ_PATH)/orbits.o 
 	@echo "Linking..."
@@ -38,6 +38,15 @@ zdlib_demo_sound: $(OBJ_PATH)/sound.o
 
 $(OBJ_PATH)/sound.o: $(SRC_PATH)/sound.cpp
 	@echo "Compiling SOUND..."
+	$(CC) -I $(LIB_PATH) -c -o $@ $< $(FLAGS) $(LIBS)
+
+zdlib_demo_drawing: $(OBJ_PATH)/drawing.o 
+	@echo "Linking..."
+	$(CC) -o $@ $(OBJ_PATH)/drawing.o $(SOURCES) $(LIBS) $(FLAGS)
+	@echo "Done!"
+
+$(OBJ_PATH)/drawing.o: $(SRC_PATH)/drawing.cpp
+	@echo "Compiling DRAWING..."
 	$(CC) -I $(LIB_PATH) -c -o $@ $< $(FLAGS) $(LIBS)
 
 .PHONY: clean run

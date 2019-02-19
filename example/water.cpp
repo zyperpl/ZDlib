@@ -43,7 +43,7 @@ void updateWater(zimg imgN, int waterX, int waterY)
     auto px = getSourcePixel(wp.x, wp.y);
     if (px.b < 128) px.b *= 2; else px.b = 255;
     
-    zSetImagePixel(imgN, x, y, px);
+    zDrawPixel(imgN, x, y, px);
   }
 }
 
@@ -51,7 +51,7 @@ int main()
 {
   zCreateWindow(W,H, "zdlib test - water", 2);
 
-  zDrawImage("lena.png", W/2, H/2);
+  zDrawImage(W/2, H/2, "lena.png");
   zimg water = zCreateImage(W, H/2);
   
   while (zIsOpen())
@@ -60,9 +60,9 @@ int main()
     t += 1;
 
     //draw scene
-    zDrawImage("background.png", 0, 0);
+    zDrawImage(0, 0, "background.png");
     int imgY = (H/2)-(int)(cosf(t/10.0)*100.);
-    zDrawImage("lena.png", W/2, imgY);
+    zDrawImage(W/2, imgY, "lena.png");
 
     //draw water
     if (!zKey(ZKEY_ACTION))
@@ -70,7 +70,7 @@ int main()
       int waterX = 0;
       int waterY = H/2;
       updateWater(water, waterX, waterY);
-      zDrawImage(water, waterX, waterY);
+      zDrawImage(waterX, waterY, water);
     };
 
     // render
