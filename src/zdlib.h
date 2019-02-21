@@ -113,6 +113,10 @@ SOFTWARE.
 
 #endif
 
+#define ZREAD_FILE_BUFFER 1024*16
+
+#define OPENGL_ERROR_CALLBACK
+
 template <class T>
 struct zVector2
 {
@@ -247,6 +251,8 @@ uint32_t zLastCharacter();
 zVector2<double> zMousePosition();
 int zMouseButton(uint32_t btn);
 
+int zShader(const char *vertexFileName = nullptr, const char *fragmentFileName = nullptr);
+
 
 /*
  * texture
@@ -315,3 +321,6 @@ zPixel zGetPixel(const uint8_t *buffer, const uint8_t w, const uint8_t h, const 
 zPixel zGetPixel(const Zwindow_t *wnd, const double x, const double y);
 zPixel zGetPixel(const double x, const double y);
 zPixel zGetPixel(const zimg img, const double x, const double y);
+
+// files
+std::string zReadFile(const char *fileName);

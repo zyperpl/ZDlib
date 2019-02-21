@@ -41,29 +41,32 @@ uint32_t charBufferLastIdx = 0;
 
 
 // shaders
-const GLchar* vertexSource = R"glsl(
-    #ifdef GL_ES
+const GLchar* z_basicVertexSource = R"glsl(
+  #ifdef GL_ES
     precision highp float;
-    #endif
-    attribute vec2 position;
-    attribute vec2 texcoord;
-    varying vec2 uv;
-    void main()
-    {
-        uv = texcoord;
-        gl_Position = vec4(position, 0.0, 0.5);
-    }
+  #endif
+
+  attribute vec2 position;
+
+  varying vec2 uv;
+
+  void main()
+  {
+    gl_Position = vec4(position, 1.0, 1.0);
+    uv = gl_Position.xy / 2.0 + 0.5;
+    uv.y = 1.0-uv.y;
+  }
 )glsl";
-const GLchar* fragmentSource = R"glsl(
-    #ifdef GL_ES
+const GLchar* z_basicFragmentSource = R"glsl(
+  #ifdef GL_ES
     precision highp float;
-    #endif
-    varying vec2 uv;
-    uniform sampler2D tex;
-    void main()
-    {
-        gl_FragColor = texture2D(tex, uv);
-    }
+  #endif
+  varying vec2 uv;
+  uniform sampler2D texture;
+  void main()
+  {
+    gl_FragColor = texture2D(texture, uv);
+  }
 )glsl";
 
 zPixel zRGB (uint8_t r, uint8_t g, uint8_t b)            { return zPixel(r, g, b, 255); }
@@ -115,8 +118,25 @@ Zwindow_t *zCreateWindow(uint32_t w, uint32_t h, const char *name, uint8_t scale
   glewExperimental = GL_TRUE; 
   glewInit();
   glGetError(); //reset error from glewInit
-  glewGetExtension("GL_ARB_gpu_shader5");
 
+
+  #ifdef OPENGL_ERROR_CALLBACK
+
+  auto OpenGLMessageCallback = [](GLenum source, GLenum type, GLuint id, GLenum severity, 
+                                  GLsizei length, const GLchar* message, const void* userParam)
+  {
+    static long errors = 0;
+    fprintf(stderr, "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n",
+            ( type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : "" ),
+              type, severity, message);
+
+    if (type == GL_DEBUG_TYPE_ERROR) errors++;
+    if (errors >= 32) exit(3);
+  };
+
+  glEnable(GL_DEBUG_OUTPUT);
+  glDebugMessageCallback(OpenGLMessageCallback, 0);
+  #endif
 
   // create vertices
   GLuint vao;
@@ -126,11 +146,11 @@ Zwindow_t *zCreateWindow(uint32_t w, uint32_t h, const char *name, uint8_t scale
   GLuint vbo;
   glGenBuffers(1, &vbo);
 
-  GLfloat vertices[] = {
-      -0.5f,  0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-       0.5f,  0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,
-       0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
-      -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f
+  GLfloat vertices[] = { 
+    1.0, -1.0, 
+    -1.0, -1.0, 
+    -1.0, 1.0, 
+    1.0, 1.0 
   };
 
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
@@ -141,49 +161,28 @@ Zwindow_t *zCreateWindow(uint32_t w, uint32_t h, const char *name, uint8_t scale
 
   GLuint elements[] = {
       0, 1, 2,
-      2, 3, 0
+      0, 2, 3
   };
 
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(elements), elements, GL_STATIC_DRAW);
 
-  // create shaders
-  GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-  glShaderSource(vertexShader, 1, &vertexSource, NULL);
-  glCompileShader(vertexShader);
-
-  //int logLength;
-  //char *log;
-  //log = new char[256]; glGetShaderInfoLog(vertexShader, 512, &logLength, log); if (logLength > 0) printf("Vertex shader error:\n%s\n", log); delete[] log;
-
-  GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-  glShaderSource(fragmentShader, 1, &fragmentSource, NULL);
-  glCompileShader(fragmentShader);
-  //log = new char[256]; glGetShaderInfoLog(fragmentShader, 512, &logLength, log); if (logLength > 0) printf("Fragment shader error:\n%s\n", log); delete[] log;
-
-  GLuint shaderProgram = glCreateProgram();
-  glAttachShader(shaderProgram, vertexShader);
-  glAttachShader(shaderProgram, fragmentShader);
-  glLinkProgram(shaderProgram);
-
-  //log = new char[256]; glGetProgramInfoLog(shaderProgram, 512, &logLength, log); if (logLength > 0) printf("Shader program error:\n%s\n", log); delete[] log;  
-
-  glUseProgram(shaderProgram);
+  GLuint shaderProgram = zShader();
   
   GLint posAttrib = glGetAttribLocation(shaderProgram, "position");
   glEnableVertexAttribArray(posAttrib);
-  glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(GLfloat), 0);
+  glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
-  GLint texAttrib = glGetAttribLocation(shaderProgram, "texcoord");
-  glEnableVertexAttribArray(texAttrib);
-  glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(GLfloat), (void*)(5 * sizeof(GLfloat)));
+  //GLint texAttrib = glGetAttribLocation(shaderProgram, "texcoord");
+  //glEnableVertexAttribArray(texAttrib);
+  //glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(GLfloat), (void*)(5 * sizeof(GLfloat)));
 
   // create texture
   GLuint tex;
   glGenTextures(1, &tex);
   glBindTexture(GL_TEXTURE_2D, tex);
 
-  memset(&Zwindow->buffer[0], 0, w*h*Z_COMPONENTS);
+  memset(&Zwindow->buffer[0], 0, w * h * Zwindow->components);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, 
                GL_RGB, GL_UNSIGNED_BYTE, &Zwindow->buffer[0]);
     
@@ -194,7 +193,6 @@ Zwindow_t *zCreateWindow(uint32_t w, uint32_t h, const char *name, uint8_t scale
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-  glDisable(GL_DEPTH_BUFFER);
 #else
   fb = fopen(FB_FILE, "wb");
   if (!fb) fprintf(stderr, "Cannot read framebuffer %s!\n", FB_FILE);
@@ -204,6 +202,73 @@ Zwindow_t *zCreateWindow(uint32_t w, uint32_t h, const char *name, uint8_t scale
   if (!input) fprintf(stderr, "Cannot read keyboard input %s!\n", KB_FILE);
 #endif
   return Zwindow;
+}
+
+int zShader(const char *vertexFileName, const char *fragmentFileName)
+{
+#ifndef NO_X11
+  auto printErrors = [](void (*fInfoLog)(GLuint, GLsizei, GLsizei*, GLchar*), GLuint sop)
+  {
+    int logLength; 
+    char *log = new char[ZREAD_FILE_BUFFER]; 
+    fInfoLog(sop, ZREAD_FILE_BUFFER, &logLength, log); 
+   
+    if (logLength > 0) 
+    {
+      printf("Compilation error:\n%s\n", log); 
+    }
+    
+    delete[] log;
+  };
+
+  std::string vertexSourceStr   = z_basicVertexSource;
+  std::string fragmentSourceStr = z_basicFragmentSource;
+
+  if (vertexFileName != nullptr)
+  {
+    vertexSourceStr = zReadFile(vertexFileName).c_str();
+  }
+  if (fragmentFileName != nullptr)
+  {
+    fragmentSourceStr = zReadFile(fragmentFileName);
+  }
+  
+  GLuint vertexShader   = 0;
+  GLuint fragmentShader = 0;
+  
+  static GLuint shaderProgram = 0;
+  if (shaderProgram > 0)
+  {
+    glDeleteProgram(shaderProgram);
+  }
+
+  const char *vertexSource = vertexSourceStr.c_str();
+  const char *fragmentSource = fragmentSourceStr.c_str();
+
+  // create shaders
+  vertexShader = glCreateShader(GL_VERTEX_SHADER);
+  glShaderSource(vertexShader, 1, &vertexSource, NULL);
+  glCompileShader(vertexShader);
+  printErrors(glGetShaderInfoLog, vertexShader);
+
+  fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+  glShaderSource(fragmentShader, 1, &fragmentSource, NULL);
+  glCompileShader(fragmentShader);
+  printErrors(glGetShaderInfoLog, fragmentShader);
+
+  shaderProgram = glCreateProgram();
+  glAttachShader(shaderProgram, vertexShader);
+  glAttachShader(shaderProgram, fragmentShader);
+  glLinkProgram(shaderProgram);
+  printErrors(glGetProgramInfoLog, shaderProgram);
+
+  glDeleteShader(vertexShader);
+  glDeleteShader(fragmentShader);
+
+  glUseProgram(shaderProgram);
+
+  return shaderProgram;
+#endif
 }
 
 void zSetWindow(Zwindow_t *wnd)
@@ -253,6 +318,8 @@ void zRender()
 
   auto pixelFormat = GL_RGB;
   if (Z_COMPONENTS > 3) pixelFormat = GL_RGBA;
+
+  //glClearColor(1.0, 1.0, 0.01, 0.5);
 
   glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, Zwindow->width, Zwindow->height, 
                pixelFormat, GL_UNSIGNED_BYTE, &Zwindow->buffer[0]);
@@ -316,9 +383,6 @@ bool zSaveImage(zimg img, const char *fileName)
   return stbi_write_png(fileName, image.w, image.h, image.components, 
                         image.data, image.w*image.components);
 }
-
-
-
 
 
 void zFree()
@@ -864,4 +928,23 @@ zPixel zGetPixel(const zimg img, const double x, const double y)
 {
   auto image = zGetImage(img);
   return zGetPixel(image.data, image.w, image.h, image.components, x, y);
+}
+
+std::string zReadFile(const char *fileName)
+{
+  FILE *f = fopen(fileName, "rb");
+  if (!f) fprintf(stderr, "Cannot read file %s!\n", fileName);
+
+  fseek(f, 0, SEEK_END);
+  size_t fileSize = ftell(f);
+  rewind(f);
+
+  char *buf = new char[fileSize+1];
+  memset(&buf[0], 0, fileSize+1);
+  fread(&buf[0], fileSize, 1, f);
+
+  std::string str(&buf[0], fileSize);
+  delete[] buf;
+
+  return str;
 }

@@ -38,6 +38,8 @@ int main()
     zDrawImage(400, 200, "lena.png", 2, 3);
 
     zRender();
+
+    zShader(nullptr, "pattern.glsl");
   }
   
 
