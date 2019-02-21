@@ -125,17 +125,21 @@ Zwindow_t *zCreateWindow(uint32_t w, uint32_t h, const char *name, uint8_t scale
   auto OpenGLMessageCallback = [](GLenum source, GLenum type, GLuint id, GLenum severity, 
                                   GLsizei length, const GLchar* message, const void* userParam)
   {
-    static long errors = 0;
-    fprintf(stderr, "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n",
-            ( type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : "" ),
-              type, severity, message);
+    if (type == GL_DEBUG_TYPE_ERROR && severity != 0x9146)
+    {
+      static long errors = 0;
+      fprintf(stderr, "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n",
+              ( type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : "" ),
+                type, severity, message);
 
-    if (type == GL_DEBUG_TYPE_ERROR) errors++;
-    if (errors >= 32) exit(3);
+      errors++;
+      if (errors >= 64) exit(3);
+    }
   };
 
   glEnable(GL_DEBUG_OUTPUT);
   glDebugMessageCallback(OpenGLMessageCallback, 0);
+
   #endif
 
   // create vertices
@@ -207,7 +211,7 @@ Zwindow_t *zCreateWindow(uint32_t w, uint32_t h, const char *name, uint8_t scale
 int zShader(const char *vertexFileName, const char *fragmentFileName)
 {
 #ifndef NO_X11
-  auto printErrors = [](void (*fInfoLog)(GLuint, GLsizei, GLsizei*, GLchar*), GLuint sop)
+  auto printErrors = [](void (*fInfoLog)(GLuint, GLsizei, GLsizei*, GLchar*), GLuint sop) -> int
   {
     int logLength; 
     char *log = new char[ZREAD_FILE_BUFFER]; 
@@ -219,6 +223,7 @@ int zShader(const char *vertexFileName, const char *fragmentFileName)
     }
     
     delete[] log;
+    return logLength;
   };
 
   std::string vertexSourceStr   = z_basicVertexSource;
@@ -236,12 +241,6 @@ int zShader(const char *vertexFileName, const char *fragmentFileName)
   GLuint vertexShader   = 0;
   GLuint fragmentShader = 0;
   
-  static GLuint shaderProgram = 0;
-  if (shaderProgram > 0)
-  {
-    glDeleteProgram(shaderProgram);
-  }
-
   const char *vertexSource = vertexSourceStr.c_str();
   const char *fragmentSource = fragmentSourceStr.c_str();
 
@@ -249,12 +248,18 @@ int zShader(const char *vertexFileName, const char *fragmentFileName)
   vertexShader = glCreateShader(GL_VERTEX_SHADER);
   glShaderSource(vertexShader, 1, &vertexSource, NULL);
   glCompileShader(vertexShader);
-  printErrors(glGetShaderInfoLog, vertexShader);
+  if (printErrors(glGetShaderInfoLog, vertexShader) > 0) return 0;
 
   fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
   glShaderSource(fragmentShader, 1, &fragmentSource, NULL);
   glCompileShader(fragmentShader);
-  printErrors(glGetShaderInfoLog, fragmentShader);
+  if (printErrors(glGetShaderInfoLog, fragmentShader) > 0) return 0;
+
+  static GLuint shaderProgram = 0;
+  if (shaderProgram > 0)
+  {
+    glDeleteProgram(shaderProgram);
+  }
 
   shaderProgram = glCreateProgram();
   glAttachShader(shaderProgram, vertexShader);
