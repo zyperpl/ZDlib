@@ -30,10 +30,10 @@ uint32_t charBuffer[CHAR_BUF_SIZE];
 uint32_t charBufferLastIdx = 0;
 
 #ifdef ZAUDIO
-  static ZaudioData audioData;
   static PaStream *audioStream = nullptr;
-  static float audioOutputBuffer[ZFRAMES];
 #endif
+static ZaudioData audioData;
+static float audioOutputBuffer[ZFRAMES];
 
 /*
  * window
@@ -584,7 +584,7 @@ void zClose()
 }
 
 
-
+#ifdef ZAUDIO
 
 static int zAudioCallback(const void *inputBuffer, void *outputBuffer,
                           unsigned long frames,
@@ -620,9 +620,11 @@ static int zAudioCallback(const void *inputBuffer, void *outputBuffer,
     
   return 0;
 }
+#endif
 
 int zInitAudio(int channels, long sampleRate, long frames)
 {
+#ifdef ZAUDIO
   // initialize audio
   if (Pa_Initialize() != paNoError)
   {
@@ -637,7 +639,7 @@ int zInitAudio(int channels, long sampleRate, long frames)
     return 2;
   }
   Pa_StartStream(audioStream);
-
+#endif
   return 0;
 }
 

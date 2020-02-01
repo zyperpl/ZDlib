@@ -8,10 +8,10 @@
 
 #define WIDTH   1920/2
 #define HEIGHT  1080/2
-#define POINTS_NUM 16
+#define POINTS_NUM 30000
 
 #define COLOR_R 20
-#define COLOR_G 120
+#define COLOR_G 20
 #define COLOR_B 220
 
 struct Point;
@@ -40,7 +40,8 @@ struct Point
     const auto &my = world.mouse.y;
 
     float airFriction = 1.00001;
-    if (zKey(GLFW_KEY_LEFT_SHIFT)) airFriction *= 1.01;
+    if (zKey(GLFW_KEY_LEFT_SHIFT))         airFriction *= 1.001;
+    if (zMouseButton(ZMOUSE_BUTTON_RIGHT)) airFriction *= 1.01;
 
     velocity /= airFriction;
     vy += .1;

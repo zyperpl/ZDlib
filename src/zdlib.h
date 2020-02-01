@@ -89,11 +89,11 @@ SOFTWARE.
 
 #endif
 
-#define ZAUDIO
+//#define ZAUDIO
 
 #ifdef ZAUDIO
   #include <portaudio.h>
-  
+#endif
   #define ZVOICES_N     128
   #define ZSAMPLE_RATE  44100
   #define ZFRAMES       1024
@@ -110,8 +110,6 @@ SOFTWARE.
   {
     Zvoice voice[ZVOICES_N];
   } ZaudioData;
-
-#endif
 
 #define ZREAD_FILE_BUFFER 1024*16
 
