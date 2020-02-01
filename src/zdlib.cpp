@@ -651,7 +651,6 @@ float zAudioOutput(size_t idx)
   return audioOutputBuffer[idx];
 }
 
-
 void zDrawPixel(uint8_t *buffer, uint16_t w, uint16_t h, int components, uint16_t x, uint16_t y, const zPixel &color)
 {
   long long p = (x+y*w)*components;
@@ -856,6 +855,73 @@ void zDrawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, const zPixel 
   zDrawLine(Zwindow, x1, y1, x2, y2, color);
 }
 
+void zDrawCircle(uint8_t *buffer, uint16_t w, uint16_t h, int components, 
+               uint16_t x, uint16_t y, uint16_t r, const zPixel &color)
+{
+  int xx = r;
+  int yy = 0;
+  int err = 0;
+
+  auto putPx = [buffer,w,h,components,color](int x, int y)
+  {
+    if (x >= w) return;
+    if (y >= h) return;
+    if (x < 0) return;
+    if (y < 0) return;
+
+    buffer[(x+y*w)*components + 0] = color.r;
+    if (components > 1) buffer[(x+y*w)*components + 1] = color.g;
+    if (components > 2) buffer[(x+y*w)*components + 2] = color.b;
+    if (components > 3) buffer[(x+y*w)*components + 3] = color.a;
+  };
+
+  while (xx >= yy)
+  {
+    putPx(x + xx, y + yy);
+    putPx(x + yy, y + xx);
+    putPx(x - yy, y + xx);
+    putPx(x - xx, y + yy);
+    putPx(x - xx, y - yy);
+    putPx(x - yy, y - xx);
+    putPx(x + yy, y - xx);
+    putPx(x + xx, y - yy);
+
+    if (err <= 0)
+    {
+      yy += 1;
+      err += 2*yy + 1;
+    }
+
+    if (err > 0)
+    {
+      xx -= 1;
+      err -= 2*xx + 1;
+    }
+  }
+}
+void zDrawCircle(zimg img, uint16_t x, uint16_t y, uint16_t r, const zPixel &color)
+{
+  auto image = zGetImage(img);
+  zDrawCircle(image.data, image.w, image.h, image.components, x, y, r, color);
+}
+
+void zDrawCircle(Zwindow_t *wnd, uint16_t x, uint16_t y, uint16_t r, const zPixel &color)
+{
+  int w = wnd->width;
+  int h = wnd->height;
+
+#ifdef NO_X11
+  w = FB_WIDTH;
+  h = FB_HEIGHT;
+#endif
+  
+  zDrawCircle(wnd->buffer, w, h, wnd->components, x, y, r, color);
+}
+
+void zDrawCircle(uint16_t x, uint16_t y, uint16_t r, const zPixel &color)
+{
+  zDrawCircle(zGetWindow(), x, y, r, color);
+}
 
 zPixel zGetPixel(const uint8_t *buffer, const uint8_t w, const uint8_t h, const uint8_t components, uint16_t x, uint16_t y)
 {

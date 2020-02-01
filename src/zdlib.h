@@ -284,7 +284,6 @@ Zvoice &zVoice(size_t id);
 float zAudioOutput(size_t idx);
 
 
-
 // drawing pixels
 void zDrawPixel(uint8_t *buffer, uint16_t w, uint16_t h, int components, uint16_t x, uint16_t y, const zPixel &color);
 void zDrawPixel(zimg img, uint16_t x, uint16_t y, const zPixel &color);
@@ -310,6 +309,13 @@ void zDrawLine(uint8_t *buffer, uint16_t w, uint16_t h, int components,
 void zDrawLine(zimg img, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, const zPixel &color);
 void zDrawLine(Zwindow_t *wnd, uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, const zPixel &color);
 void zDrawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, const zPixel &color);
+
+// drawing circles
+void zDrawCircle(uint8_t *buffer, uint16_t w, uint16_t h, int components, 
+               uint16_t x, uint16_t y, uint16_t r, const zPixel &color);
+void zDrawCircle(zimg img, uint16_t x, uint16_t y, uint16_t r, const zPixel &color);
+void zDrawCircle(Zwindow_t *wnd, uint16_t x, uint16_t y, uint16_t r, const zPixel &color);
+void zDrawCircle(uint16_t x, uint16_t y, uint16_t r, const zPixel &color);
 
 // getting pixels
 zPixel zGetPixel(const uint8_t *buffer, const uint8_t w, const uint8_t h, const uint8_t components, uint16_t x, uint16_t y);
