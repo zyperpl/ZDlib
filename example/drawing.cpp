@@ -16,7 +16,7 @@ int main()
  
   zDrawImage(background, 10, 10, img);
 
-  const int WINDOW_WIDTH = 800;
+  const int WINDOW_WIDTH = 1422;
   const int WINDOW_HEIGHT = 800;
   auto *wnd = zCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "test_wnd");
   zDrawPixel(wnd, 10, 10, { 255, 255, 0 });

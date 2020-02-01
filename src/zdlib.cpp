@@ -329,6 +329,11 @@ void zRender()
   glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, Zwindow->width, Zwindow->height, 
                pixelFormat, GL_UNSIGNED_BYTE, &Zwindow->buffer[0]);
 
+  // TODO: add option to invoke setting uniform values from external code
+  static float time = 0.0;
+  time += 0.03;
+  glUniform1f(1, time);
+
   int width, height;
   glfwGetWindowSize(glfwGetCurrentContext(), &width, &height);
 

@@ -1,7 +1,7 @@
 CC         = g++
 FLAGS      = -std=c++17 -Wall -I ./src/ -ggdb -O3 -D DEBUG=1 -DNO_X11=0 -fopenmp
 
-LIBS       = -lstdc++ -lm -lGL -lGLU -lGLEW -lglfw -lX11 -lXxf86vm -lXrandr -lpthread -lXi -ldl -lXinerama -lXcursor -lportaudio
+LIBS       = -lstdc++ -lm -lGL -lGLU -lGLEW -lglfw -lX11 -lpthread -lportaudio
 
 SRC_PATH   = .
 LIB_PATH   = ../src
