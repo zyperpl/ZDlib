@@ -45,6 +45,12 @@ auto main(int, char**)->int
   Painter painter(renderer.get_main_screen_image());
 
   auto image = Image::load("images/lena.png");
+
+  if (!image) {
+    printf("Cannot load test image!");
+    return 1;
+  }
+
   auto rnoise = Image::create(Size(W, H), PixelFormat::RGB);
   int x = 10;
   int y = 11;

@@ -106,7 +106,9 @@ std::shared_ptr<Image> ImageLoader::load(std::string_view path)
 
   std::shared_ptr<Image> image_ptr(image);
 
-  loaded_images.emplace(path, image_ptr);
+  if (image_ptr) {
+    loaded_images.emplace(path, image_ptr);
+  }
 
   return image_ptr;
 }
