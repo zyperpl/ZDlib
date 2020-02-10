@@ -25,6 +25,5 @@ class Model
     GLuint vbo{0};
     GLuint ebo{0};
     std::vector<GLfloat> vertices;
-    int components_per_vertex{3};
     std::vector<GLuint> elements;
 };

@@ -14,8 +14,6 @@ const std::vector<GLfloat> z_screen_vertices {
   1.0, 1.0
 };
 
-const int z_screen_components_per_vertex = 2;
-
 const std::vector<GLuint> z_screen_elements {
   0, 1, 2, 0, 2, 3
 };
@@ -27,7 +25,6 @@ Model::Model(ModelDefault default_name)
     case ModelDefault::Screen:
       vertices = z_screen_vertices;
       elements = z_screen_elements;
-      components_per_vertex = z_screen_components_per_vertex;
       break;
     case ModelDefault::Cube:
     case ModelDefault::Ball:
@@ -84,6 +81,15 @@ void Model::draw(const ShaderProgram &program)
 
   auto position_attribute = program.get_attribute("position");
   if (!position_attribute) return;
+
+  int components_per_vertex = 3;
+  switch (position_attribute->type)
+  {
+    case GL_FLOAT: components_per_vertex = 1;  break;
+    case GL_FLOAT_VEC2: components_per_vertex = 2;  break;
+    case GL_FLOAT_VEC3: components_per_vertex = 3;  break;
+    case GL_FLOAT_VEC4: components_per_vertex = 4;  break;
+  }
 
   const GLuint pos_attr_index = position_attribute->index;
 
