@@ -32,7 +32,7 @@ static int r(int m = 100)
   return dist(g);
 }
 
-auto main(int, char**)->int 
+auto image_test_main(int, char**)->int 
 {
   load_image("images/lena.png");
   load_image("images/lena.png");
@@ -131,4 +131,6 @@ auto main(int, char**)->int
   }
 
   printf("\nDONE\n");
+
+  return 0;
 }
