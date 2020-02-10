@@ -32,6 +32,8 @@ void Texture::update()
     format = GL_RGB;
   }
 
+  glBindTexture(GL_TEXTURE_2D, this->id);
+
   glTexSubImage2D(GL_TEXTURE_2D, 
       0, 
       0, 
@@ -41,6 +43,8 @@ void Texture::update()
       format, 
       GL_UNSIGNED_INT_8_8_8_8, 
       &image->get_data()[0]);
+
+  glGenerateMipmap(GL_TEXTURE_2D);
 }
 
 void Texture::generate()
@@ -69,6 +73,8 @@ void Texture::generate()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+
+  glBindTexture(GL_TEXTURE_2D, this->id);
   glGenerateMipmap(GL_TEXTURE_2D);
 }
 
