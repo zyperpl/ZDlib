@@ -44,7 +44,6 @@ auto main(int, char**)->int
 
   Painter painter(renderer.get_main_screen_image());
 
-
   auto image = Image::load("images/lena.png");
   auto rnoise = Image::create(Size(W, H), PixelFormat::RGB);
   int x = 10;
@@ -66,11 +65,11 @@ auto main(int, char**)->int
     if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_DOWN)) y++;
 
     static int rnoise_c = 0;
-    if (rnoise_c++ > 1000) {
+    if (rnoise_c++ > 10000) {
       rnoise_c = 0;
       rnoise->clear();
     }
-    for (int i = 0; i < 1000; i++)
+    for (int i = 0; i < 100; i++)
     {
       rnoise_painter.set_pixel(
           -1000+r(W+1000*3), 
@@ -82,7 +81,10 @@ auto main(int, char**)->int
     painter.draw_rectangle(x, y, x+W*0.3333, y+H*0.3333, Color(255, 255, 120));
 
     painter.draw_image(x, y, *image, 0.4, 0.4);
-    //painter.draw_image(x + 50, y + 50, *image, 1.2, 1.2);
+    painter.draw_image(-9999, -9999, *image, 0.4, 0.4);
+    painter.draw_image(9999, 9999, *image, 0.4, 0.4);
+    painter.draw_image(0, 0, *image, 0.0, 0.0);
+    painter.draw_image(x - 50, y + 40, *image, 1.2, 1.2);
     painter.draw_image(x - 80, y + 50, *image, -1.5, -1.5);
 
     painter.draw_line(10, 10, 300, 300, Color(255, 0, 0));
@@ -96,18 +98,23 @@ auto main(int, char**)->int
       painter.draw_circle(400, 200+i*step, 50+i*step, Color(120, 255-i*step*3, 255-i*step*3));
     }
 
-    painter.draw_circle(10, 10, 11, Color(255, 0, 0));
-    painter.draw_circle(1000, 1000, 1011, Color(255, 0, 0));
-    painter.draw_circle(-100, -100, 111, Color(255, 0, 0));
-    painter.draw_circle(10, 10, 0, Color(255, 0, 0));
-    painter.draw_circle(10, 10, -20, Color(255, 0, 0));
+    painter.draw_circle(100, 100, 11, Color(255, 120, 20));
+    painter.draw_circle(1000, 1000, 1011, Color(255, 120, 20));
+    painter.draw_circle(-100, -100, 111, Color(255, 120, 20));
+    painter.draw_circle(10, 10, 0, Color(255, 120, 20));
+    painter.draw_circle(10, 10, -20, Color(255, 120, 0));
+    
+    painter.draw_circle(0, 0, 20, Color(255, 0, 0));
+    painter.draw_circle(W, H, 20, Color(255, 0, 0));
+    painter.draw_circle(0, H, 20, Color(255, 0, 0));
+    painter.draw_circle(W, 0, 20, Color(255, 0, 0));
 
     painter.draw_rectangle(10, 10, 100, 100, Color(0, 255, 255));
     painter.draw_rectangle(-10+x, -10+y*2, 100+x, 100+y*2, Color(0, 255, 255));
-    painter.draw_rectangle(-10, -10, 16, 16, Color(120, 55, 55));
-    painter.draw_rectangle(-10, 10, 20, 20, Color(120, 55, 55));
-    painter.draw_rectangle(10, -10, 30, 30, Color(120, 55, 55));
-    painter.draw_rectangle(10, -10, 30, 30, Color(120, 55, 55));
+    painter.draw_rectangle(-10, -10, 160, 160, Color(120, 55, 55));
+    painter.draw_rectangle(-10, 10, 200, 200, Color(120, 55, 55));
+    painter.draw_rectangle(10, -10, 300, 300, Color(120, 55, 55));
+    painter.draw_rectangle(10, -10, 300, 300, Color(120, 55, 55));
 
     painter.draw_rectangle(-10, -10, 10, 10, Color(255, 0, 0));
     painter.draw_rectangle(W+-10, -10, W+10, 10, Color(255, 0, 0));
