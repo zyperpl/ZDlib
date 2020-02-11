@@ -14,7 +14,7 @@ class Painter;
 class Renderer
 {
   public:
-    virtual size_t add_window(const WindowParameters &params) = 0;
+    virtual const Window *add_window(const WindowParameters &params) = 0;
 
     virtual void set_window_current(size_t index) { 
       current_window_index = index; 
@@ -36,11 +36,11 @@ class Renderer
     virtual void update() = 0;
     virtual void render() = 0;
   protected:
-    std::vector<std::shared_ptr<Window>> windows;
+    std::vector<std::unique_ptr<Window>> windows;
     size_t current_window_index{0};
 
-    inline std::shared_ptr<Window> window() {
-      return windows.at(current_window_index);
+    inline Window* window() {
+      return windows.at(current_window_index).get();
     }
 
     virtual void initialize_main_screen_image() {

@@ -8,7 +8,9 @@
 
 enum class ShaderDefault
 {
-  ScreenTextureVertex, ScreenTextureFragment, Invalid
+  ScreenTextureVertex, ScreenTextureFragment,
+  CenterModelTextureVertex, CenterModelTextureFragment, 
+  Invalid
 };
 
 namespace ShaderInfo

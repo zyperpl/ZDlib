@@ -15,6 +15,8 @@
 #include "ImageLoader.hpp"
 #include "Image.hpp"
 
+#pragma GCC optimize ("O3")
+
 static std::unordered_map<std::string_view, std::shared_ptr<Image>> loaded_images;
 
 struct LoadedImage

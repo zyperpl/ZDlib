@@ -4,10 +4,12 @@
 
 #include "ShaderLoader.hpp"
 
+#pragma GCC optimize ("O3")
+
 std::vector<ShaderInfo::Program> cached_programs;
 std::vector<ShaderInfo::Shader> cached_shaders;
 
-const GLchar* z_basicVertexSource = R"glsl(
+const GLchar* z_screen_texture_vertex_shader = R"glsl(
   #ifdef GL_ES
     precision highp float;
   #endif
@@ -23,7 +25,7 @@ const GLchar* z_basicVertexSource = R"glsl(
     uv.y = 1.0-uv.y;
   }
 )glsl";
-const GLchar* z_basicFragmentSource = R"glsl(
+const GLchar* z_texture_frag_shader = R"glsl(
   #ifdef GL_ES
     precision highp float;
   #endif
@@ -32,6 +34,27 @@ const GLchar* z_basicFragmentSource = R"glsl(
   void main()
   {
     gl_FragColor = texture2D(sampler, uv);
+  }
+)glsl";
+
+const GLchar* z_mvp_model_vertex_shader = R"glsl(
+  #ifdef GL_ES
+    precision highp float;
+  #endif
+
+  uniform mat4 M; 
+  uniform mat4 V; 
+  uniform mat4 P; 
+
+  attribute vec3 position;
+  attribute vec2 vertex_uv;
+
+  varying vec2 uv;
+
+  void main()
+  {
+    gl_Position = P * V * M * vec4(position, 1.0);
+    uv = vertex_uv;
   }
 )glsl";
 
@@ -177,10 +200,14 @@ GLuint ShaderLoader::load_shader(ShaderDefault default_name, GLuint type)
   switch (default_name)
   {
     case ShaderDefault::ScreenTextureVertex:
-      shader_source = z_basicVertexSource;
+      shader_source = z_screen_texture_vertex_shader;
       break;
     case ShaderDefault::ScreenTextureFragment:
-      shader_source = z_basicFragmentSource;
+    case ShaderDefault::CenterModelTextureFragment:
+      shader_source = z_texture_frag_shader;
+      break;
+    case ShaderDefault::CenterModelTextureVertex:
+      shader_source = z_mvp_model_vertex_shader;
       break;
 
     case ShaderDefault::Invalid:

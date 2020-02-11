@@ -24,10 +24,11 @@ public:
 
   void update();
   void update(Image *new_image);
-  void generate();
+
   void bind(const ShaderProgram &shader);
 
 private:
+  void generate();
   bool set_uniform(const ShaderUniform &uniform);
 
   std::shared_ptr<Image> image;

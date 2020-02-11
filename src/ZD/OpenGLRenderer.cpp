@@ -1,8 +1,14 @@
 #include "OpenGLRenderer.hpp"
 #include "Renderer.hpp"
 #include "ShaderLoader.hpp"
+#include "Window.hpp"
+
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+#include <stdexcept>
 
 #define OPENGL_ERROR_CALLBACK
+#define GLFW_ERROR_CALLBACK
 
 static bool OGL_LOADED = false;
 
@@ -14,26 +20,35 @@ OGLRenderer::OGLRenderer()
   glfwWindowHint (GLFW_CONTEXT_VERSION_MAJOR, 3);
   glfwWindowHint (GLFW_CONTEXT_VERSION_MINOR, 0);
   glfwWindowHint (GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);  
+
+  #ifdef GLFW_ERROR_CALLBACK
+  glfwSetErrorCallback([](int error_code, const char *description) {
+    fprintf(stderr, "GLFW ERROR %d: %s!\n", error_code, description);
+    throw std::runtime_error("GLFW ERROR");
+  });
+  #endif
 }
 
 OGLRenderer::~OGLRenderer()
 {
+  puts("~OGLRenderer");
+
+  windows.clear();
   ShaderLoader::free_cache();
+  
+  uninitialize_gl();
+
+  glfwTerminate();
+  puts("GLFW terminated.");
 }
 
-size_t OGLRenderer::add_window(const WindowParameters &params)
+const Window* OGLRenderer::add_window(const WindowParameters &params)
 {
-  windows.push_back(std::make_shared<Window_GLFW>(params)); 
+  windows.push_back(std::make_unique<Window_GLFW>(params)); 
 
-  if (!OGL_LOADED)
-  {
-    // must be done after window creation
-    initialize_gl();
-    generate_vertex_array_object();
-    OGL_LOADED = true;
-  }
+  initialize_gl();
 
-  return windows.size() - 1;
+  return windows.back().get();
 }
     
 void OGLRenderer::set_window_current(size_t index)
@@ -52,9 +67,13 @@ void OGLRenderer::remove_window(size_t index)
 
 void OGLRenderer::initialize_gl()
 {
+  if (OGL_LOADED) return;
+
+  // must be done after window creation
+  assert(!windows.empty());
+
   glewExperimental = GL_TRUE; 
   glewInit();
-  glGetError(); //reset error from glewInit
 
   #ifdef OPENGL_ERROR_CALLBACK
 
@@ -77,16 +96,34 @@ void OGLRenderer::initialize_gl()
   glDebugMessageCallback(OGLMessageCallback, 0);
 
   #endif
+  
+  glEnable(GL_DEPTH_TEST);
+  glDepthFunc(GL_LESS);
+  glGenBuffers(-1, &vao);
+
+  generate_vertex_array_object();
+  OGL_LOADED = true;
+}
+
+void OGLRenderer::uninitialize_gl()
+{
+  if (!OGL_LOADED) return;
+
+  OGL_LOADED = false;
+  glDeleteVertexArrays(1, &vao);
 }
 
 void OGLRenderer::generate_vertex_array_object()
 {
   glGenVertexArrays(1, &vao);
   glBindVertexArray(vao);
+
+  printf("Vertex array object id=%u\n", vao);
 }
 
 void OGLRenderer::initialize_main_screen_image()
 {
+  puts("Initializing GL main screen image...");
   Renderer::initialize_main_screen_image();
 
   main_screen_texture = std::make_unique<Texture>(main_screen_image);
@@ -110,36 +147,45 @@ std::shared_ptr<Image> OGLRenderer::get_main_screen_image() {
 void OGLRenderer::update()
 {
   glfwPollEvents();
-  glfwSwapBuffers(glfwGetCurrentContext());
 }
 
 void OGLRenderer::clear()
 {
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  glClearColor(0.4, 0.5, 0.5, 1.0);
+
   if (main_screen_image) {
     main_screen_image->clear();
   }
 }
 
+void OGLRenderer::center_view_port()
+{
+  int width, height;
+  glfwGetWindowSize(glfwGetCurrentContext(), &width, &height);
+
+  double desirable_width = window()->get_initial_width();
+  double desirable_height = window()->get_intial_height();
+
+  double r  = double(width)  / desirable_width;
+  double r2 = double(height) / desirable_height;
+
+  if (r > r2) r = r2;
+  int w = int(r * desirable_width);
+  int h = int(r * desirable_height);
+  glViewport((width-w)/2, (height-h)/2, w, h);
+}
+
 void OGLRenderer::render()
 {
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  glClearColor(0.4, 0.5, 0.5, 1.0);
+  if (should_center_view_port) {
+    center_view_port();
+  }
 
   if (main_screen_texture)
   {
     main_screen_texture->update();
     main_screen_texture->bind(*current_shader_program.get());
-
-    int width, height;
-    glfwGetWindowSize(glfwGetCurrentContext(), &width, &height);
-
-    double r  = double(width)  / double(main_screen_image->get_size().width());
-    double r2 = double(height) / double(main_screen_image->get_size().height());
-
-    if (r > r2) r = r2;
-    int w = int(r*main_screen_image->get_size().width());
-    int h = int(r*main_screen_image->get_size().height());
-    glViewport((width-w)/2, (height-h)/2, w, h);
 
     //main_screen_image->print();
   }
@@ -153,4 +199,6 @@ void OGLRenderer::render()
   {
     main_screen_model->draw(*current_shader_program.get());
   }
+
+  glfwSwapBuffers(glfwGetCurrentContext());
 }

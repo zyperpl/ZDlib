@@ -71,7 +71,7 @@ void ShaderProgram::link()
   assert(is_linked());
 }
 
-void ShaderProgram::use() 
+void ShaderProgram::use() const
 { 
   assert(is_linked());
 

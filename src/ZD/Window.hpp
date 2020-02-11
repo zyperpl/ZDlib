@@ -26,32 +26,40 @@ struct WindowParameters
 class Window
 {
 public:
-  virtual void init() { printf("Window::init\n"); };
-  virtual void show() {};
-  virtual void hide() {};
-  virtual void kill() { printf("Window::kill\n"); };
+  virtual ~Window() {};
+
+  virtual void init() = 0;
+  virtual void show() = 0;
+  virtual void hide() = 0;
+  virtual void kill() = 0;
   virtual void set_current() {};
-  virtual bool is_open() { return true; }
+  virtual bool is_open() const { return true; } 
 
   int get_width() const { return width; }
   int get_height() const { return height; }
+  int get_initial_width() const { return initial_width; }
+  int get_intial_height() const { return initial_height; }
   double get_aspect_ratio() const { return aspect_ratio; }
   PixelFormat::Type get_format() const { return format; }
-
 protected:
   Window(int w, int h, 
       PixelFormat::Type format, std::string_view name)
     : width{w}, height{h}, aspect_ratio{float(w)/float(h)}
     , format{format}, name{name}
+    , initial_width{width}, initial_height{height}
   { }
-
+  
   Window() = default;
 
-  int width;
-  int height;
+  int width{0};
+  int height{0};
+  
   double aspect_ratio;
   PixelFormat::Type format;
   std::string_view name;
+
+  const int initial_width{0};
+  const int initial_height{0};
 };
 
 class Window_GLFW : public Window
@@ -71,7 +79,7 @@ public:
   void hide();
   void kill();
   void set_current();
-  bool is_open();
+  bool is_open() const;
 
 private:
   GLFWwindow *handle;
@@ -91,10 +99,12 @@ public:
   {
   }
 
-  void init();
-  void show();
-  void hide();
-  void kill();
-  void set_current();
-  bool is_open();
+  virtual ~Window_FB() {}
+
+  void init() {};
+  void show() {};
+  void hide() {};
+  void kill() {};
+  void set_current() {};
+  bool is_open() const { return true; };
 };

@@ -5,6 +5,7 @@
 #include "Image.hpp"
 #include "ImageLoader.hpp"
 
+#pragma GCC optimize ("O3")
 
 std::shared_ptr<Image> Image::load(std::string_view file_name)
 {

@@ -35,8 +35,8 @@ class ShaderProgram
     ~ShaderProgram();
     std::optional<ShaderUniform> get_uniform(std::string name) const;
     std::optional<ShaderAttribute> get_attribute(std::string name) const;
-    void use();
-    void link();
+    void use() const;
+
     inline GLuint get_id() const { return id; }
   protected:
 
@@ -48,6 +48,7 @@ class ShaderProgram
     std::map<std::string, ShaderUniform> uniforms;
     std::map<std::string, ShaderAttribute> attributes;
 
+    void link();
     bool is_linked() const;
 
     friend class ShaderLoader;
