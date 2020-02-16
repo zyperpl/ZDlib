@@ -66,7 +66,7 @@ class Window_GLFW : public Window
 {
 public:
   Window_GLFW(const WindowParameters &params)
-    : Window(params.width, params.height, PixelFormat::RGBA, params.name)
+    : Window(params.width, params.height, PixelFormat::RGB, params.name)
   {
     init();
     set_current();

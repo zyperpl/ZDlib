@@ -65,6 +65,14 @@ void Painter::draw_image(const int x, const int y, const Image &image)
   }
 }
 
+void Painter::draw_image(const int x, const int y, const Image &image, const int width, const int height)
+{
+  const double scale_x = (double)(width)/(double)(image.width());
+  const double scale_y = (double)(height)/(double)(image.height());
+
+  return draw_image(x, y, image, scale_x, scale_y);
+}
+
 void Painter::draw_image(const int x, const int y, const Image &image, double scale_x, double scale_y)
 {
   auto src = image.get_data();

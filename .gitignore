@@ -86,3 +86,5 @@ tags
 zdlib_test
 zdlib_demo*
 zdtest
+
+test_image.*

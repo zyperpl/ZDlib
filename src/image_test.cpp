@@ -130,6 +130,11 @@ auto image_test_main(int, char**)->int
     renderer.render();
   }
 
+  renderer.get_main_screen_image()->save_to_file("test_image");
+  renderer.get_main_screen_image()->save_to_file("test_image.jpg");
+  renderer.get_main_screen_image()->save_to_file("test_image.bmp");
+  renderer.get_main_screen_image()->save_to_file("test_image.tga");
+
   printf("\nDONE\n");
 
   return 0;

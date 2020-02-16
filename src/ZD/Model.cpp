@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "Model.hpp"
+#include "ModelLoader.hpp"
 
 #pragma GCC optimize ("O3")
 
@@ -90,13 +91,39 @@ Model::Model(ModelDefault default_name)
   if (!uvs.empty()) {
     uvbo = generate_gl_buffer(uvs);
   }
+  if (!normals.empty()) {
+    nbo = generate_gl_buffer(normals);
+  }
 }
 
 Model::Model(std::string_view file_name)
 {
-  assert(false);
-  assert(!file_name.empty());
-  //TODO: add file class
+  if (auto models = ModelLoader::load(file_name))
+  {
+    auto model_data = models.value().at(0);
+    vertices = std::move(model_data.vertices);
+    uvs = std::move(model_data.uvs);
+    elements = std::move(model_data.indices);
+    normals = std::move(model_data.normals);
+  } else
+  {
+    assert(false);
+  }
+
+  this->generate_vbo();
+
+  if (!elements.empty()) {
+    this->generate_ebo();
+  }
+
+  if (!uvs.empty()) {
+    uvbo = generate_gl_buffer(uvs);
+  }
+  if (!normals.empty()) {
+    nbo = generate_gl_buffer(normals);
+  }
+
+  printf("Model %p loaded.\nvbo=%d (%zu) ebo=%d (%zu) uvbo=%d (%zu) nbo=%d (%zu)\n", this, vbo, vertices.size(), ebo, elements.size(), uvbo, uvs.size(), nbo, normals.size());
 }
 
 Model::~Model()
@@ -139,6 +166,11 @@ void Model::draw(const ShaderProgram &program)
   auto position_attribute = program.get_attribute("position");
   assert(position_attribute);
 
+  for (const auto &texture : textures)
+  {
+    texture->bind(program);
+  }
+
   int components_per_vertex = 3;
   switch (position_attribute->type)
   {
@@ -162,6 +194,17 @@ void Model::draw(const ShaderProgram &program)
     glEnableVertexAttribArray(uv_attribute->index);
     glBindBuffer(GL_ARRAY_BUFFER, uvbo);
     glVertexAttribPointer(uv_attribute->index, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
+  }
+
+  if (nbo > 0)
+  {
+    auto normal_attribute = program.get_attribute("vertex_normal");
+    if (normal_attribute) 
+    {
+      glEnableVertexAttribArray(normal_attribute->index);
+      glBindBuffer(GL_ARRAY_BUFFER, nbo);
+      glVertexAttribPointer(normal_attribute->index, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+    }
   }
 
   if (ebo > 0)

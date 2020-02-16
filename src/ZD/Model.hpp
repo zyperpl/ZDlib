@@ -6,6 +6,7 @@
 #include <string_view>
 #include <vector>
 
+#include "Texture.hpp"
 #include "Shader.hpp"
 
 enum class ModelDefault
@@ -21,12 +22,19 @@ class Model
     ~Model();
     void generate_vbo();
     void generate_ebo();
+    inline void add_texture(std::shared_ptr<Texture> texture) {
+      textures.push_back(texture);
+    }
     void draw(const ShaderProgram &program);
   private:
     GLuint vbo{0};
     GLuint ebo{0};
     GLuint uvbo{0};
+    GLuint nbo{0};
     std::vector<GLfloat> vertices;
     std::vector<GLuint> elements;
     std::vector<GLfloat> uvs;
+    std::vector<GLfloat> normals;
+
+    std::vector<std::shared_ptr<Texture>> textures;
 };

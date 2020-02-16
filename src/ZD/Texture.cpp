@@ -28,9 +28,6 @@ void Texture::update()
   if (!image) return;
 
   GLenum format = GL_RGBA;
-  if (image->get_format() == PixelFormat::Type::RGB) {
-    format = GL_RGB;
-  }
 
   glBindTexture(GL_TEXTURE_2D, this->id);
 

@@ -23,11 +23,21 @@ int model_test_main(int, char**)
       .add(ShaderDefault::CenterModelTextureFragment, GL_FRAGMENT_SHADER)
       .compile();
 
-  auto lena_texture = Texture(Image::load("images/lena.png"));
+  auto lena_texture = std::make_shared<Texture>(Image::load("images/lena.png"));
 
-  auto entity = Entity({0,0,0}, {0,0,0}, {.4,.4,.4});
-  entity.add_model(cube);
+  auto tank_texture = std::make_shared<Texture>(Image::load("images/propane_tank_red.png"));
+  auto tank = Model("images/propane_tank.obj");
+  tank.add_texture(tank_texture);
 
+  auto crate_texture = std::make_shared<Texture>(Image::load("images/crate_1.jpg"));
+  auto crate = Model("images/Crate1.obj");
+  crate.add_texture(crate_texture);
+
+  auto entity = Entity({0.2,0.2,0.2}, {0,0,0}, {.4,.4,.4});
+  entity.add_model(tank);
+  entity.add_model(crate);
+
+  //*
   auto view = View(
       Camera::PerspectiveParameters(
         Camera::Fov(glm::radians(90.0f)), 
@@ -36,6 +46,17 @@ int model_test_main(int, char**)
       ),
       { -1.0, 0.0, -1.0 }
     );
+  // */
+
+  /*
+  auto view = View(
+      Camera::OrtographicParameters(
+        Camera::OrthographicBox(-10.f, 10.f, 10.f, -10.f), 
+        Camera::ClippingPlane(0.1f, 10000.f)
+      ), 
+      { -1.0, 0.0, -1.0 }
+    );
+  // */
 
   glm::vec3 camera_position(-1,0,-1);
 
@@ -91,12 +112,15 @@ int model_test_main(int, char**)
       entity.set_scale({1, 1, 1});
     }
 
+    if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_ESCAPE)) {
+      glfwSetWindowShouldClose(glfwGetCurrentContext(), true);
+    }
+
     view.set_position(camera_position);
 
     model_shader->use();
-    lena_texture.bind(*model_shader);
+
     entity.draw(*model_shader, view);
-    //cube.draw(*model_shader);
 
     renderer.render();
   }

@@ -53,6 +53,8 @@ public:
     printf("}\n");
   }
 
+  bool save_to_file(std::string file_name);
+
 private:
   Image() = default;
   Image(const Size &size, PixelFormat::Type format);

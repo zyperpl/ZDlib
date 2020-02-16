@@ -28,14 +28,10 @@ struct LoadedImage
   uint32_t *data;
 };
 
-uint32_t *convert_to_u32_bitmap(uint8_t *bitmap, 
-                                int width, 
-                                int height, 
-                                int channels)
+uint32_t *ImageLoader::u8_to_u32(uint8_t *bitmap, int width, int height, int channels)
 {
   const int size = width * height;
   uint32_t *data = new uint32_t[size];
-
 
   #pragma omp parallel for
   for (ssize_t i = 0; i < size; i++)
@@ -48,6 +44,27 @@ uint32_t *convert_to_u32_bitmap(uint8_t *bitmap,
     if (channels > 3) a = px[3];
 
     data[i] = Color(r, g, b, a).value();
+  }
+
+  return data;
+}
+
+uint8_t *ImageLoader::u32_to_u8(uint32_t *bitmap, int width, int height, int channels)
+{
+  const int size = width * height * channels;
+  uint8_t *data = new uint8_t[size];
+
+  #pragma omp parallel for
+  for (ssize_t i = 0; i < width*height; i++)
+  {
+    const uint32_t v = bitmap[i];
+    const Color color = Color(v);
+
+    const ssize_t d_idx = i * channels;
+    data[d_idx + 0] = color.red();
+    if (channels >= 2) data[d_idx + 1] = color.green();
+    if (channels >= 3) data[d_idx + 2] = color.blue();
+    if (channels >= 4) data[d_idx + 3] = color.alpha();
   }
 
   return data;
@@ -68,7 +85,7 @@ std::optional<LoadedImage> load_image_via_stbi(std::string_view file_name)
     return std::nullopt;
   }
 
-  auto u32_data = convert_to_u32_bitmap(data, loaded.width, loaded.height, CHANNEL_NUM); 
+  auto u32_data = ImageLoader::u8_to_u32(data, loaded.width, loaded.height, CHANNEL_NUM); 
 
   stbi_image_free(data);
 

@@ -14,6 +14,8 @@ class Painter;
 class Renderer
 {
   public:
+    virtual ~Renderer() {}
+
     virtual const Window *add_window(const WindowParameters &params) = 0;
 
     virtual void set_window_current(size_t index) { 
@@ -32,6 +34,14 @@ class Renderer
       return window()->is_open();
     }
 
+    virtual std::shared_ptr<Image> get_main_screen_image() {
+      if (!main_screen_image) 
+      {
+        initialize_main_screen_image();
+      }
+      return main_screen_image;
+    }
+
     virtual void clear() = 0;
     virtual void update() = 0;
     virtual void render() = 0;
@@ -48,14 +58,6 @@ class Renderer
       int h = window()->get_height();
       auto format = window()->get_format();
       main_screen_image = Image::create(Size(w, h), format);
-    }
-
-    virtual std::shared_ptr<Image> get_main_screen_image() {
-      if (!main_screen_image) 
-      {
-        initialize_main_screen_image();
-      }
-      return main_screen_image;
     }
 
     std::shared_ptr<Image> main_screen_image;

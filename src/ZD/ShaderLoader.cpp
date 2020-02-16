@@ -48,6 +48,7 @@ const GLchar* z_mvp_model_vertex_shader = R"glsl(
 
   attribute vec3 position;
   attribute vec2 vertex_uv;
+  attribute vec3 vertex_normal;
 
   varying vec2 uv;
 
