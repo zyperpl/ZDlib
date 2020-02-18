@@ -264,7 +264,7 @@ void Painter::draw_circle(const int x, const int y, const int radius, const Colo
     if (in_target_bounds(x + yy, y + xx))
       target->set_pixel(x + yy, y + xx, color);
 
-    if (in_target_bounds(x - xx, y + xx))
+    if (in_target_bounds(x - yy, y + xx))
       target->set_pixel(x - yy, y + xx, color);
 
     if (in_target_bounds(x - xx, y + yy))

@@ -3,6 +3,7 @@
 #include <cassert>
 #include <cstdint>
 #include <cstdio>
+#include <random>
 
 typedef unsigned char u8;
 
@@ -47,9 +48,6 @@ struct PixelFormat
 class Color
 {
 public:
-
-
-
   Color(uint32_t v)
     : color_value{v}
   {}
@@ -72,6 +70,16 @@ public:
     u8 a = alpha * 255;
 
     return Color(r, g, b, a);
+  }
+
+  static Color from_random(int minimum, int maximum = 255)
+  {
+    static std::random_device rd;
+    static std::uniform_int_distribution<int> dist(minimum, maximum);
+    int r = dist(rd);
+    int g = dist(rd);
+    int b = dist(rd);
+    return Color(r,g,b);
   }
 
   inline void set_value(u8 r, u8 g, u8 b, u8 a = 255)
