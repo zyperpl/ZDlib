@@ -10,10 +10,16 @@
 #include "Size.hpp"
 #include "Color.hpp"
 
+enum class ForceReload
+{
+  No = 0,
+  Yes = 1
+};
+
 class Image
 {
 public:
-  static std::shared_ptr<Image> load(std::string_view file_name);
+  static std::shared_ptr<Image> load(std::string_view file_name, ForceReload reload = ForceReload::No);
   static std::shared_ptr<Image> create(const Size &size, PixelFormat::Type format = PixelFormat::RGB);
   static std::shared_ptr<Image> create(const Size &size, const Color &color, PixelFormat::Type format = PixelFormat::RGB);
 
@@ -28,6 +34,10 @@ public:
 
   inline Color get_pixel(int x, int y) const {
     return data[x + y*size.width()]; 
+  }
+
+  void set_data(const uint32_t *other_data, size_t area) {
+    memcpy(data.get(), other_data, area*sizeof(uint32_t) );
   }
 
   void set_pixel(int x, int y, Color color) {

@@ -107,12 +107,15 @@ std::optional<std::shared_ptr<Image>> find_in_loaded(std::string_view path)
   return std::nullopt;
 }
 
-std::shared_ptr<Image> ImageLoader::load(std::string_view path)
+std::shared_ptr<Image> ImageLoader::load(std::string_view path, ForceReload reload)
 {
   Image *image = NULL;
-  if (auto already_loaded = find_in_loaded(path))
+  if (reload != ForceReload::Yes)
   {
-    return already_loaded.value();
+    if (auto already_loaded = find_in_loaded(path))
+    {
+      return already_loaded.value();
+    }
   }
 
   if (auto loaded_data = load_image_via_stbi(path))

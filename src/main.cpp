@@ -19,6 +19,10 @@ extern int file_test_main(int, char**);
   #define MODEL_TEST(a,b) DUMMY(a,b)
 #endif
 
+#ifndef FILE_TEST
+  #define FILE_TEST(a,b) DUMMY(a,b)
+#endif
+
 auto main(int argc, char *argv[])->int  
 {
   if (FILE_TEST(argc, argv) > 0) {

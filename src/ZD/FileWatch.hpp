@@ -15,7 +15,7 @@ enum FileEvent
   Access, CloseNoWrite, CloseWrite, Create, Delete, Modify, Moved, Open, Other        
 };
 
-typedef void (*FileCallback)(const File&, std::unordered_set<FileEvent>);
+typedef std::function<void(const File&, std::unordered_set<FileEvent>)> FileCallback;
 
 class FileWatcher
 {

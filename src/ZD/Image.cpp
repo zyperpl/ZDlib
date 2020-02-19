@@ -12,9 +12,9 @@
 
 #pragma GCC optimize ("O3")
 
-std::shared_ptr<Image> Image::load(std::string_view file_name)
+std::shared_ptr<Image> Image::load(std::string_view file_name, ForceReload reload)
 {
-  return ImageLoader::load(file_name);
+  return ImageLoader::load(file_name, reload);
 }
 
 std::shared_ptr<Image> Image::create(const Size &size, PixelFormat::Type format)

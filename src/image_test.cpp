@@ -8,6 +8,7 @@
 #include "ZD/ZD.hpp"
 #include "ZD/Painter.hpp"
 #include "ZD/OpenGLRenderer.hpp"
+#include "ZD/File.hpp"
 
 #define W 800
 #define H 450
@@ -54,6 +55,23 @@ auto image_test_main(int, char**)->int
   auto rnoise = Image::create(Size(W, H), PixelFormat::RGB);
   int x = 10;
   int y = 11;
+
+  auto canvas_image = Image::load("images/user_canvas.png");
+  auto file = File("images/user_canvas.png", File::Read);
+  assert(file.is_open());
+  file.set_watch([&canvas_image](const File &file, std::unordered_set<FileEvent> events)
+  {
+    printf("File '%s' %zu events.\n", file.get_name().data(), events.size());
+    if (events.contains(FileEvent::CloseWrite)) {
+      printf("File modified!\n");
+      auto new_image = Image::load("images/user_canvas.png", ForceReload::Yes);
+      if (new_image) {
+        canvas_image->set_data(new_image->get_data(), new_image->get_size().area());
+      } else {
+        printf("New user canvas cannot be loaded!\n");
+      }
+    }
+  });
 
   Painter rnoise_painter(rnoise);
 
@@ -126,6 +144,8 @@ auto image_test_main(int, char**)->int
     painter.draw_rectangle(W+-10, -10, W+10, 10, Color(255, 0, 0));
     painter.draw_rectangle(W+-10, H+-10, W+10, H+10, Color(255, 0, 0));
     painter.draw_rectangle(-10, H+-10, 10, H+10, Color(255, 0, 0));
+
+    painter.draw_image(W-400, H-300, *canvas_image, 0.5, 0.5);
 
     renderer.render();
   }
