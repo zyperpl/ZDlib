@@ -104,6 +104,26 @@ int file_test_main(int, char**)
   }
 
   {
+    File f("images/test.txt", File::Write, File::CreateFile::Yes);
+    assert(f.is_open());
+    std::vector<uint8_t> data = {'t', 'e', 's' ,'t', '\n' };
+    ssize_t ret = f.write(data);
+    assert(ret == 5);
+    ret = f.write("Hello, World!");
+    assert(ret == 13);
+
+    File f2("images/test.txt", File::Read);
+    assert(f2.is_open());
+    auto line = f2.read_line();
+    assert(line == "test");
+  }
+
+  {
+    File f("images/not-existing.txt", File::Write, File::CreateFile::No);
+    assert(!f.is_open());
+  }
+
+  {
     {
       File f0("images/Crate1.obj", File::Read);
       f0.set_watch([](const File &file, std::unordered_set<FileEvent> events) {

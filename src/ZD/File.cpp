@@ -11,7 +11,7 @@
 #include <unistd.h>
 #include <errno.h>
 
-File::File(std::string_view file_name, OpenMode mode)
+File::File(std::string_view file_name, OpenMode mode, CreateFile create)
   : name{file_name}, mode{mode}
 {
   int oflag = 0;
@@ -21,10 +21,16 @@ File::File(std::string_view file_name, OpenMode mode)
     case Write: oflag = O_WRONLY; break;
     case ReadWrite: oflag = O_RDWR; break;
   }
-  fd = open(file_name.data(), oflag); 
+  if (create == CreateFile::Yes)
+  {
+    oflag |= O_CREAT;
+  }
+
+  fd = open(file_name.data(), oflag, 0660); 
 
   if (fd == -1)
   {
+    perror("File open");
     fprintf(stderr, "Cannot open file '%s'!\n", file_name.data());
   } else
   {
@@ -62,6 +68,8 @@ size_t File::obtain_size()
 
 std::optional<std::string> File::read_line(int max_size)
 {
+  assert(mode == Read || mode == ReadWrite);
+
   std::unique_ptr<uint8_t[]> buf(new uint8_t[max_size]);
   const uint8_t *beg = buf.get();
   size_t readed = 0;
@@ -83,6 +91,7 @@ std::optional<std::string> File::read_line(int max_size)
 
 std::vector<std::string> File::read_lines()
 {
+  assert(mode == Read || mode == ReadWrite);
   rewind();
   assert(lseek(fd, 0, SEEK_CUR) == 0);
 
@@ -113,6 +122,7 @@ std::vector<std::string> File::read_lines()
 
 std::vector<uint8_t> File::read_bytes(int max_size)
 {
+  assert(mode == Read || mode == ReadWrite);
   uint8_t buf[max_size];
   size_t readed = read(fd, &buf, max_size);
 
@@ -122,6 +132,7 @@ std::vector<uint8_t> File::read_bytes(int max_size)
 
 std::vector<uint8_t> File::read_all_bytes()
 {
+  assert(mode == Read || mode == ReadWrite);
   rewind();
   assert(lseek(fd, 0, SEEK_CUR) == 0);
   obtain_size();
@@ -142,6 +153,23 @@ std::vector<uint8_t> File::read_all_bytes()
   return data;
 }
 
+ssize_t File::write(std::vector<uint8_t> data)
+{
+  assert(mode == Write || mode == ReadWrite);
+
+  ssize_t written = 0;
+  written += ::write(fd, data.data(), data.size());
+  return written;
+}
+
+ssize_t File::write(std::string_view str)
+{
+  assert(mode == Write || mode == ReadWrite);
+  ssize_t written = 0;
+  written += ::write(fd, str.data(), str.size());
+  return written;
+}
+
 void File::set_watch(FileCallback callback)
 {
   file_watcher = FileWatcher::add(*this, callback);
@@ -151,3 +179,5 @@ void File::remove_watch()
 {
   file_watcher.reset();
 }
+
+

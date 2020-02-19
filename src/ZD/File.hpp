@@ -19,7 +19,13 @@ public:
     ReadWrite = 3
   };
 
-  File(std::string_view file_name, OpenMode mode);
+  enum CreateFile
+  {
+    No = 0,
+    Yes = 1
+  };
+
+  File(std::string_view file_name, OpenMode mode, CreateFile create = No);
   ~File();
 
   void rewind();
@@ -27,6 +33,9 @@ public:
   std::vector<std::string> read_lines();
   std::vector<uint8_t> read_bytes(int max_size = FILE_BUF_SIZE);
   std::vector<uint8_t> read_all_bytes();
+
+  ssize_t write(std::vector<uint8_t> data);
+  ssize_t write(std::string_view str);
 
   void set_watch(FileCallback callback);
   void remove_watch();
