@@ -35,6 +35,10 @@ File::File(std::string_view file_name, OpenMode mode)
 File::~File()
 {
   close(fd);
+
+  if (file_watcher != nullptr) {
+    file_watcher.reset();
+  }
 }
 
 void File::rewind()
@@ -136,4 +140,14 @@ std::vector<uint8_t> File::read_all_bytes()
   
   assert(saved == this->size);
   return data;
+}
+
+void File::set_watch(FileCallback callback)
+{
+  file_watcher = FileWatcher::add(*this, callback);
+}
+
+void File::remove_watch()
+{
+  file_watcher.reset();
 }

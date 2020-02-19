@@ -5,6 +5,8 @@
 #include <optional>
 #include <vector>
 
+#include "FileWatch.hpp"
+
 #define FILE_BUF_SIZE 4096
 
 class File
@@ -26,9 +28,13 @@ public:
   std::vector<uint8_t> read_bytes(int max_size = FILE_BUF_SIZE);
   std::vector<uint8_t> read_all_bytes();
 
+  void set_watch(FileCallback callback);
+  void remove_watch();
+
   std::string_view get_name() const { return name; }
   size_t get_size() const { return size; }
   bool is_open() const { return fd != -1; }
+  int get_fd() const { return fd; }
 protected:
   size_t obtain_size();
 private:
@@ -37,4 +43,6 @@ private:
   OpenMode mode;
 
   int fd{-1};
+
+  std::shared_ptr<FileWatcher> file_watcher;
 };

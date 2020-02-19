@@ -1,7 +1,11 @@
 #include <cassert>
+#include <chrono>
 #include <cstring>
+#include <memory>
+#include <thread>
 
 #include "ZD/File.hpp"
+#include "ZD/FileWatch.hpp"
 
 int file_test_main(int, char**)
 {
@@ -97,6 +101,31 @@ int file_test_main(int, char**)
       printf("ERROR!\n");
       assert(false);
     }
+  }
+
+  {
+    {
+      File f0("images/Crate1.obj", File::Read);
+      f0.set_watch([](const File &file, std::unordered_set<FileEvent> events) {
+        printf("File watcher 3 '%s' %zu events.\n", file.get_name().data(), events.size());
+      });
+    }
+    File f1("images/Crate1.mtl", File::Read);
+    f1.set_watch([](const File &file, std::unordered_set<FileEvent> events) {
+      printf("File watch 1 '%s' %zu events.\n", file.get_name().data(), events.size());
+    });
+    File f2("images/Crate1.mtl", File::Read);
+    f2.set_watch([](const File &file, std::unordered_set<FileEvent> events) {
+      printf("File watcher 2 '%s' %zu events.\n", file.get_name().data(), events.size());
+    });
+    File f3("images/Crate1.obj", File::Read);
+    f3.set_watch([](const File &file, std::unordered_set<FileEvent> events) {
+      printf("File watcher 3 '%s' %zu events.\n", file.get_name().data(), events.size());
+    });
+
+    int sec = 1;
+    printf("Sleeping for %d second(s)...\n", sec);
+    std::this_thread::sleep_for(std::chrono::seconds(sec));
   }
 
   {
