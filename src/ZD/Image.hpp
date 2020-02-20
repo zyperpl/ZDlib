@@ -46,7 +46,7 @@ public:
 
   void clear(Color color = Color(0))
   {
-    memset(data.get(), color.value(), sizeof(color.value())*size.area());
+    std::fill(data.get(), data.get()+size.area(), color.value());
   }
 
   inline void print() const {

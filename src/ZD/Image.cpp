@@ -23,6 +23,13 @@ std::shared_ptr<Image> Image::create(const Size &size, PixelFormat::Type format)
   return image;
 }
 
+std::shared_ptr<Image> Image::create(const Size &size, const Color &color, PixelFormat::Type format)
+{
+  std::shared_ptr<Image> image = std::shared_ptr<Image>(new Image(size, format) );
+  image->clear(color);
+  return image;
+}
+
 Image::Image(const Size &size, PixelFormat::Type format)
   : size{size}
   , format{format}
