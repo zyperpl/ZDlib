@@ -7,6 +7,7 @@
 
 #include "ZD/ZD.hpp"
 #include "ZD/Painter.hpp"
+#include "ZD/ScaledPainter.hpp"
 #include "ZD/OpenGLRenderer.hpp"
 #include "ZD/File.hpp"
 
@@ -74,6 +75,11 @@ auto image_test_main(int, char**)->int
   });
 
   Painter rnoise_painter(rnoise);
+
+  auto scaled_image = Image::create(Size(W/4, H/4), Color(0,0,0,0), PixelFormat::RGBA);
+  ScaledPainter scaled_painter(scaled_image, 10);
+  scaled_painter.draw_line(0, 20, 20, 0, Color(255,255,0));
+  scaled_painter.draw_line(0, 0, 20, 30, Color(255,255,0));
 
   long iteration = 0;
   while (renderer.is_window_open())
@@ -146,6 +152,8 @@ auto image_test_main(int, char**)->int
     painter.draw_rectangle(-10, H+-10, 10, H+10, Color(255, 0, 0));
 
     painter.draw_image(W-400, H-300, *canvas_image, 0.5, 0.5);
+
+    painter.draw_image(W-x, H-y, *scaled_image, 2.0, 2.0);
 
     renderer.render();
   }
