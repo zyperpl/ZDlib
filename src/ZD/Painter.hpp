@@ -25,6 +25,8 @@ public:
   const Color get_pixel(const int x, const int y) const {
     return target->get_pixel(x, y);
   }
+
+  std::shared_ptr<Image> get_target_image() { return this->target; }
 private:
   std::shared_ptr<Image> target; 
 };
