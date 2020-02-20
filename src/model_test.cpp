@@ -16,6 +16,8 @@ int model_test_main(int, char**)
 {
   auto renderer = OGLRenderer();
   renderer.add_window(WindowParameters(Size(W,H), "ZD model test") );
+  renderer.enable_cull_face();
+  renderer.enable_depth_test();
 
   auto cube = Model(ModelDefault::Cube);
   auto model_shader = ShaderLoader()
