@@ -77,4 +77,6 @@ class OGLRenderer : public Renderer
     std::unique_ptr<Texture> main_screen_texture;
     std::unique_ptr<Model> main_screen_model;
     std::shared_ptr<ShaderProgram> current_shader_program;
+
+    bool screen_rendered{false};
 };

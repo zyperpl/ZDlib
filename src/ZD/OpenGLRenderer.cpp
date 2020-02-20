@@ -173,18 +173,14 @@ void OGLRenderer::center_view_port()
   glViewport((width-w)/2, (height-h)/2, w, h);
 }
 
-void OGLRenderer::render()
+void OGLRenderer::render_screen()
 {
-  if (should_center_view_port) {
-    center_view_port();
-  }
+  if (screen_rendered) return;
 
   if (main_screen_texture)
   {
     main_screen_texture->update();
     main_screen_texture->bind(*current_shader_program.get());
-
-    //main_screen_image->print();
   }
 
   if (current_shader_program)
@@ -196,6 +192,18 @@ void OGLRenderer::render()
   {
     main_screen_model->draw(*current_shader_program.get());
   }
+  screen_rendered = true;
+}
+
+void OGLRenderer::render()
+{
+  if (should_center_view_port) {
+    center_view_port();
+  }
+
+  render_screen();
 
   glfwSwapBuffers(glfwGetCurrentContext());
+
+  screen_rendered = false;
 }
