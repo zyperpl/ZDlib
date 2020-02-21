@@ -67,6 +67,11 @@ class OGLRenderer : public Renderer
       assert(!windows.empty());
       glDisable(GL_DEPTH_TEST);
     }
+
+    void set_background_color(const Color &c)
+    {
+      glClearColor(c.red_float(), c.green_float(), c.blue_float(), 1.0);
+    }
   private:
     void generate_vertex_array_object();
     void initialize_gl();

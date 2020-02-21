@@ -96,6 +96,7 @@ void OGLRenderer::initialize_gl()
 
   #endif
   
+  glClearColor(0.9, 1.0, 0.9, 1.0);
   glGenBuffers(1, &vao);
 
   generate_vertex_array_object();
@@ -149,7 +150,6 @@ void OGLRenderer::update()
 void OGLRenderer::clear()
 {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  glClearColor(0.9, 1.0, 0.9, 1.0);
 
   if (main_screen_image) {
     main_screen_image->clear();
