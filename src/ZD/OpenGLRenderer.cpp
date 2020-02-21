@@ -97,7 +97,7 @@ void OGLRenderer::initialize_gl()
   #endif
   
   glClearColor(0.9, 1.0, 0.9, 1.0);
-  glGenBuffers(1, &vao);
+  glfwSwapInterval(1);
 
   generate_vertex_array_object();
   OGL_LOADED = true;
@@ -144,7 +144,7 @@ std::shared_ptr<Image> OGLRenderer::get_main_screen_image() {
 
 void OGLRenderer::update()
 {
-  glfwPollEvents();
+  glfwWaitEventsTimeout(1./144.);
 }
 
 void OGLRenderer::clear()
