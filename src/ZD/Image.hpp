@@ -46,7 +46,14 @@ public:
 
   void clear(Color color = Color(0))
   {
-    std::fill(data.get(), data.get()+size.area(), color.value());
+    uint32_t v = color.value();
+    if (v < 255)
+    {
+      memset(data.get(), v, size.area() * sizeof(uint32_t));
+    } else
+    {
+      std::fill(data.get(), data.get()+size.area(), v);
+    }
   }
 
   inline void print() const {

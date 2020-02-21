@@ -21,6 +21,12 @@ public:
   void draw_line(const int x1, const int y1, const int x2, const int y2, const Color &color);
   void draw_rectangle(const int x1, const int y1, const int x2, const int y2, const Color &color);
   void draw_circle(const int x, const int y, const int radius, const Color &color);
+  inline void clear(const Color &c = Color(0)) {
+    target->clear(c);
+  }
+  inline void fill(const Color &c) {
+    target->clear(c);
+  }
 
   const Color get_pixel(const int x, const int y) const {
     return target->get_pixel(x, y);
