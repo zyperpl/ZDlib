@@ -94,6 +94,11 @@ public:
   inline u8 blue () const { return (color_value >> 8)  & 0xff; }
   inline u8 alpha() const { return (color_value >> 0) & 0xff; }
 
+  float red_float() const   { return ((float)red())/255.0; }
+  float green_float() const { return ((float)green())/255.0; }
+  float blue_float() const  { return ((float)blue())/255.0; }
+  float alpha_float() const { return ((float)alpha())/255.0; }
+
   inline void print() const { printf("Color (%8x): %3d,%3d,%3d,%3d", value(), red(), green(), blue(), alpha()); }
 
 private:
