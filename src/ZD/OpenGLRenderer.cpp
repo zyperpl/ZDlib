@@ -144,7 +144,7 @@ std::shared_ptr<Image> OGLRenderer::get_main_screen_image() {
 
 void OGLRenderer::update()
 {
-  glfwWaitEventsTimeout(1./144.);
+  glfwWaitEventsTimeout(1./poll_rate);
 }
 
 void OGLRenderer::clear()
@@ -206,4 +206,44 @@ void OGLRenderer::render()
   glfwSwapBuffers(glfwGetCurrentContext());
 
   screen_rendered = false;
+}
+
+void OGLRenderer::enable_blend(GLenum sfactor, GLenum dfactor)
+{
+  assert(!windows.empty());
+  glEnable(GL_BLEND);
+  glBlendFunc(sfactor, dfactor);
+}
+
+void OGLRenderer::disable_blend() 
+{
+  assert(!windows.empty());
+  glDisable(GL_BLEND);
+}
+
+void OGLRenderer::enable_cull_face(GLenum mode, GLenum front_face) 
+{
+  assert(!windows.empty());
+  glEnable(GL_CULL_FACE);
+  glCullFace(mode); 
+  glFrontFace(front_face);
+}
+
+void OGLRenderer::disable_cull_face() 
+{
+  assert(!windows.empty());
+  glDisable(GL_CULL_FACE);
+}
+
+void OGLRenderer::enable_depth_test(GLenum func)
+{
+  assert(!windows.empty());
+  glEnable(GL_DEPTH_TEST);
+  glDepthFunc(func);
+}
+
+void OGLRenderer::disable_depth_test()
+{
+  assert(!windows.empty());
+  glDisable(GL_DEPTH_TEST);
 }
