@@ -43,6 +43,7 @@ auto image_test_main(int, char**)->int
 
   auto renderer = OGLRenderer();
   renderer.add_window({Size(W, H), "ZDTest"});
+  auto input = renderer.get_window().input();
 
   Painter painter(renderer.get_main_screen_image());
 
@@ -89,10 +90,23 @@ auto image_test_main(int, char**)->int
     renderer.update();
     renderer.clear();
   
-    if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_LEFT)) x--;
-    if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_RIGHT)) x++;
-    if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_UP)) y--;
-    if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_DOWN)) y++;
+    if (input->key(Key::Left)) 
+    {
+      puts("Left");
+      x--;
+    }
+    if (input->key(Key::Right)) 
+    {
+      x++;
+    }
+    if (input->key(Key::Up)) 
+    {
+      y--;
+    }
+    if (input->key(Key::Down)) 
+    {
+      y++;
+    }
 
     static int rnoise_c = 0;
     if (rnoise_c++ > 10000) {

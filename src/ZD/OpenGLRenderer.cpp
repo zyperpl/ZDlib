@@ -161,15 +161,15 @@ void OGLRenderer::center_view_port()
   int width, height;
   glfwGetWindowSize(glfwGetCurrentContext(), &width, &height);
 
-  double desirable_width = window()->get_initial_width();
-  double desirable_height = window()->get_intial_height();
+  const double desirable_width = window()->get_initial_width();
+  const double desirable_height = window()->get_intial_height();
 
   double r  = double(width)  / desirable_width;
-  double r2 = double(height) / desirable_height;
+  const double r2 = double(height) / desirable_height;
 
   if (r > r2) r = r2;
-  int w = int(r * desirable_width);
-  int h = int(r * desirable_height);
+  const int w = r * desirable_width;
+  const int h = r * desirable_height;
   glViewport((width-w)/2, (height-h)/2, w, h);
 }
 

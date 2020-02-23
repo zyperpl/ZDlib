@@ -1,11 +1,14 @@
 #pragma once
 
+#include <memory>
 #include <string_view>
+
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
 #include "Color.hpp"
 #include "Size.hpp"
+#include "Input.hpp"
 
 struct WindowParameters
 {
@@ -41,6 +44,8 @@ public:
   int get_intial_height() const { return initial_height; }
   double get_aspect_ratio() const { return aspect_ratio; }
   PixelFormat::Type get_format() const { return format; }
+
+  virtual const Input *input() const = 0;
 protected:
   Window(int w, int h, 
       PixelFormat::Type format, std::string_view name)
@@ -80,9 +85,19 @@ public:
   void kill();
   void set_current();
   bool is_open() const;
+  const Input *input() const { return input_ptr.get(); }
 
 private:
   GLFWwindow *handle;
+  std::unique_ptr<Input_GLFW> input_ptr;
+  void set_size(int width, int height) {
+    this->width = width; this->height = height; 
+  }
+
+  friend void key_callback_glfw(GLFWwindow*, int, int, int, int);
+  friend void cursor_position_callback_glfw(GLFWwindow*, double, double);
+  friend void mouse_button_callback_glfw(GLFWwindow*, int, int, int);
+  friend void window_size_callback_glfw(GLFWwindow*, int, int);
 };
 
 class Window_FB : public Window
@@ -107,4 +122,8 @@ public:
   void kill() {};
   void set_current() {};
   bool is_open() const { return true; };
+  const Input *input() const { return input_ptr.get(); }
+
+private:
+  std::unique_ptr<Input> input_ptr;
 };

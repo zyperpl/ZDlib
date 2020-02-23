@@ -22,8 +22,8 @@ class Renderer
       current_window_index = index; 
     }
 
-    virtual size_t get_current_window() const { 
-      return current_window_index; 
+    virtual const Window &get_window() const { 
+      return *windows.at(current_window_index).get(); 
     }
 
     virtual void remove_window(size_t index) {
