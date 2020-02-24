@@ -40,7 +40,9 @@ File::File(std::string_view file_name, OpenMode mode, CreateFile create)
 
 File::~File()
 {
-  close(fd);
+  if (fd != -1) {
+    close(fd);
+  }
 
   if (file_watcher != nullptr) {
     file_watcher.reset();
@@ -98,12 +100,15 @@ std::vector<std::string> File::read_lines()
   std::vector<std::string> strings;
   
   std::unique_ptr<uint8_t[]> buf(new uint8_t[FILE_BUF_SIZE]);
+  memset(buf.get(), 0, FILE_BUF_SIZE);
   const uint8_t *beg = buf.get();
   size_t readed = 0;
   while ((readed = read(fd, buf.get(), FILE_BUF_SIZE)) > 0)
   {
     const uint8_t *prev_p = beg;
-    for (const uint8_t *p = prev_p; (p = (uint8_t*)memchr(p, '\n', readed + (prev_p - p)) ); ++p)
+    for (const uint8_t *p = prev_p; 
+        (p = (uint8_t*)memchr(p, '\n', readed + (prev_p - p)) ); 
+        ++p)
     {
       if (p) {
         size_t offset = p-prev_p;

@@ -22,7 +22,7 @@ class Renderer
       current_window_index = index; 
     }
 
-    virtual const Window &get_window() const { 
+    virtual Window &get_window() const { 
       return *windows.at(current_window_index).get(); 
     }
 

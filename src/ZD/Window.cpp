@@ -38,7 +38,9 @@ void window_size_callback_glfw(GLFWwindow* handle, int width, int height)
 
 Window_GLFW::~Window_GLFW()
 {
-  this->kill();
+  if (handle != NULL) {
+    this->kill();
+  }
 }
 
 void Window_GLFW::init()
@@ -70,7 +72,12 @@ void Window_GLFW::hide()
 void Window_GLFW::kill()
 {
   windows_GLFW.erase(handle);
+  glfwSetKeyCallback(handle, NULL);
+  glfwSetCursorPosCallback(handle, NULL);
+  glfwSetMouseButtonCallback(handle, NULL);
+  glfwSetWindowSizeCallback(handle, NULL);
   glfwDestroyWindow(handle);
+  handle = NULL;
   puts("GLFW window destroyed.");
 }
 
@@ -82,5 +89,7 @@ void Window_GLFW::set_current()
 
 bool Window_GLFW::is_open() const
 {
+  if (handle == NULL) return false;
+
   return !glfwWindowShouldClose(handle);
 }

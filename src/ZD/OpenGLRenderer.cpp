@@ -31,7 +31,7 @@ OGLRenderer::OGLRenderer()
 
 OGLRenderer::~OGLRenderer()
 {
-  puts("~OGLRenderer");
+  puts("Removing OpenGL renderer...\n");
 
   windows.clear();
   ShaderLoader::free_cache();
@@ -197,6 +197,8 @@ void OGLRenderer::render_screen()
 
 void OGLRenderer::render()
 {
+  if (!window()->is_open()) return;
+
   if (should_center_view_port) {
     center_view_port();
   }
