@@ -17,9 +17,9 @@
 std::shared_ptr<Image> load_image(std::string_view name)
 {
   auto img = Image::load(name);
-  if (!img) {
-    printf("Image '%s' cannot be loaded!\n", name.data());
-  } else {
+  if (!img) { printf("Image '%s' cannot be loaded!\n", name.data()); }
+  else
+  {
     printf("Image '%s' loaded!\n", name.data());
     img->get_pixel(0, 0).print();
   }
@@ -34,7 +34,7 @@ static int r(int m = 100)
   return dist(g);
 }
 
-auto image_test_main(int, char**)->int 
+auto image_test_main(int, char **) -> int
 {
   load_image("images/lena.png");
   load_image("images/lena.png");
@@ -42,14 +42,15 @@ auto image_test_main(int, char**)->int
   load_image("wrong-path/not-exists");
 
   auto renderer = OGLRenderer();
-  renderer.add_window({Size(W, H), "ZDTest"});
+  renderer.add_window({ Size(W, H), "ZDTest" });
   auto input = renderer.get_window().input();
 
   Painter painter(renderer.get_main_screen_image());
 
   auto image = Image::load("images/lena.png");
 
-  if (!image) {
+  if (!image)
+  {
     printf("Cannot load test image!");
     return 1;
   }
@@ -61,15 +62,20 @@ auto image_test_main(int, char**)->int
   auto canvas_image = Image::load("images/user_canvas.png");
   auto file = File("images/user_canvas.png", File::Read);
   assert(file.is_open());
-  file.set_watch([&canvas_image](const File &file, std::unordered_set<FileEvent> events)
-  {
+  file.set_watch([&canvas_image](
+                   const File &file, std::unordered_set<FileEvent> events) {
     printf("File '%s' %zu events.\n", file.get_name().data(), events.size());
-    if (events.contains(FileEvent::CloseWrite)) {
+    if (events.contains(FileEvent::CloseWrite))
+    {
       printf("File modified!\n");
       auto new_image = Image::load("images/user_canvas.png", ForceReload::Yes);
-      if (new_image) {
-        canvas_image->set_data(new_image->get_data(), new_image->get_size().area());
-      } else {
+      if (new_image)
+      {
+        canvas_image->set_data(
+          new_image->get_data(), new_image->get_size().area());
+      }
+      else
+      {
         printf("New user canvas cannot be loaded!\n");
       }
     }
@@ -77,52 +83,46 @@ auto image_test_main(int, char**)->int
 
   Painter rnoise_painter(rnoise);
 
-  auto scaled_image = Image::create(Size(W/4, H/4), Color(0,0,0,0), PixelFormat::RGBA);
+  auto scaled_image =
+    Image::create(Size(W / 4, H / 4), Color(0, 0, 0, 0), PixelFormat::RGBA);
   ScaledPainter scaled_painter(scaled_image, 10);
-  scaled_painter.draw_line(0, 20, 20, 0, Color(255,255,0));
-  scaled_painter.draw_line(0, 0, 20, 30, Color(255,255,0));
+  scaled_painter.draw_line(0, 20, 20, 0, Color(255, 255, 0));
+  scaled_painter.draw_line(0, 0, 20, 30, Color(255, 255, 0));
 
   long iteration = 0;
   while (renderer.is_window_open())
   {
-    iteration ++;
-    
+    iteration++;
+
     renderer.update();
     renderer.clear();
-  
-    if (input->key(Key::Left)) 
+
+    if (input->key(Key::Left))
     {
       puts("Left");
       x--;
     }
-    if (input->key(Key::Right)) 
-    {
-      x++;
-    }
-    if (input->key(Key::Up)) 
-    {
-      y--;
-    }
-    if (input->key(Key::Down)) 
-    {
-      y++;
-    }
+    if (input->key(Key::Right)) { x++; }
+    if (input->key(Key::Up)) { y--; }
+    if (input->key(Key::Down)) { y++; }
 
     static int rnoise_c = 0;
-    if (rnoise_c++ > 10000) {
+    if (rnoise_c++ > 10000)
+    {
       rnoise_c = 0;
       rnoise->clear();
     }
     for (int i = 0; i < 100; i++)
     {
       rnoise_painter.set_pixel(
-          -1000+r(W+1000*3), 
-          -1000+r(H+1000*3),
-          Color(r(255), r(255), r(255)) ); 
+        -1000 + r(W + 1000 * 3),
+        -1000 + r(H + 1000 * 3),
+        Color(r(255), r(255), r(255)));
     }
 
     painter.draw_image(x, y, *rnoise, 0.3333, -0.3333);
-    painter.draw_rectangle(x, y, x+W*0.3333, y+H*0.3333, Color(255, 255, 120));
+    painter.draw_rectangle(
+      x, y, x + W * 0.3333, y + H * 0.3333, Color(255, 255, 120));
 
     painter.draw_image(x, y, *image, 0.4, 0.4);
     painter.draw_image(-9999, -9999, *image, 0.4, 0.4);
@@ -136,10 +136,14 @@ auto image_test_main(int, char**)->int
     painter.draw_line(-10, 10, 3000, 1300, Color(255, 0, 0));
 
     painter.draw_circle(400, 200, 50, Color(120, 255, 255));
-    for (int i = 0; i < 20/2; i++)
+    for (int i = 0; i < 20 / 2; i++)
     {
       int step = 4;
-      painter.draw_circle(400, 200+i*step, 50+i*step, Color(120, 255-i*step*3, 255-i*step*3));
+      painter.draw_circle(
+        400,
+        200 + i * step,
+        50 + i * step,
+        Color(120, 255 - i * step * 3, 255 - i * step * 3));
     }
 
     painter.draw_circle(100, 100, 11, Color(255, 120, 20));
@@ -147,27 +151,28 @@ auto image_test_main(int, char**)->int
     painter.draw_circle(-100, -100, 111, Color(255, 120, 20));
     painter.draw_circle(10, 10, 0, Color(255, 120, 20));
     painter.draw_circle(10, 10, -20, Color(255, 120, 0));
-    
+
     painter.draw_circle(0, 0, 20, Color(255, 0, 0));
     painter.draw_circle(W, H, 20, Color(255, 0, 0));
     painter.draw_circle(0, H, 20, Color(255, 0, 0));
     painter.draw_circle(W, 0, 20, Color(255, 0, 0));
 
     painter.draw_rectangle(10, 10, 100, 100, Color(0, 255, 255));
-    painter.draw_rectangle(-10+x, -10+y*2, 100+x, 100+y*2, Color(0, 255, 255));
+    painter.draw_rectangle(
+      -10 + x, -10 + y * 2, 100 + x, 100 + y * 2, Color(0, 255, 255));
     painter.draw_rectangle(-10, -10, 160, 160, Color(120, 55, 55));
     painter.draw_rectangle(-10, 10, 200, 200, Color(120, 55, 55));
     painter.draw_rectangle(10, -10, 300, 300, Color(120, 55, 55));
     painter.draw_rectangle(10, -10, 300, 300, Color(120, 55, 55));
 
     painter.draw_rectangle(-10, -10, 10, 10, Color(255, 0, 0));
-    painter.draw_rectangle(W+-10, -10, W+10, 10, Color(255, 0, 0));
-    painter.draw_rectangle(W+-10, H+-10, W+10, H+10, Color(255, 0, 0));
-    painter.draw_rectangle(-10, H+-10, 10, H+10, Color(255, 0, 0));
+    painter.draw_rectangle(W + -10, -10, W + 10, 10, Color(255, 0, 0));
+    painter.draw_rectangle(W + -10, H + -10, W + 10, H + 10, Color(255, 0, 0));
+    painter.draw_rectangle(-10, H + -10, 10, H + 10, Color(255, 0, 0));
 
-    painter.draw_image(W-400, H-300, *canvas_image, 0.5, 0.5);
+    painter.draw_image(W - 400, H - 300, *canvas_image, 0.5, 0.5);
 
-    painter.draw_image(W-x, H-y, *scaled_image, 2.0, 2.0);
+    painter.draw_image(W - x, H - y, *scaled_image, 2.0, 2.0);
 
     renderer.render();
   }

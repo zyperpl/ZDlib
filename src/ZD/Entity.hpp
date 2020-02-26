@@ -20,10 +20,9 @@ public:
   void update();
   void draw(const ShaderProgram &shader_program, const View &view);
 
-  void add_model(std::shared_ptr<Model> model) {
-    models.push_back(model);
-  }
-  void add_model(Model &model) {
+  void add_model(std::shared_ptr<Model> model) { models.push_back(model); }
+  void add_model(Model &model)
+  {
     models.push_back(std::make_shared<Model>(model));
   }
 

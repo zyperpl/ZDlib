@@ -5,14 +5,14 @@
 #include <GLFW/glfw3.h>
 
 Texture::Texture(std::shared_ptr<Image> image)
-  : image{image}
+: image { image }
 {
   this->generate();
 }
 
 Texture::Texture(std::shared_ptr<Image> image, TextureParameters params)
-  : image{image}
-  , texture_wrap{params.wrap}
+: image { image }
+, texture_wrap { params.wrap }
 {
   this->generate();
 }
@@ -31,15 +31,16 @@ void Texture::update()
 
   glBindTexture(GL_TEXTURE_2D, this->id);
 
-  glTexSubImage2D(GL_TEXTURE_2D, 
-      0, 
-      0, 
-      0, 
-      image->get_size().width(), 
-      image->get_size().height(), 
-      format, 
-      GL_UNSIGNED_INT_8_8_8_8, 
-      &image->get_data()[0]);
+  glTexSubImage2D(
+    GL_TEXTURE_2D,
+    0,
+    0,
+    0,
+    image->get_size().width(),
+    image->get_size().height(),
+    format,
+    GL_UNSIGNED_INT_8_8_8_8,
+    &image->get_data()[0]);
 
   glGenerateMipmap(GL_TEXTURE_2D);
 }
@@ -49,22 +50,24 @@ void Texture::generate()
   glGenTextures(1, &id);
   glBindTexture(GL_TEXTURE_2D, id);
   GLenum format = GL_RGBA;
-  
+
   printf("Texture %p format=%s\n", this, format == GL_RGB ? "RGB" : "RGBA");
-  glTexImage2D(GL_TEXTURE_2D, 
-      0, 
-      format, 
-      image->get_size().width(), 
-      image->get_size().height(), 
-      0, 
-      format, 
-      GL_UNSIGNED_INT_8_8_8_8, 
-      &image->get_data()[0]);
+  glTexImage2D(
+    GL_TEXTURE_2D,
+    0,
+    format,
+    image->get_size().width(),
+    image->get_size().height(),
+    0,
+    format,
+    GL_UNSIGNED_INT_8_8_8_8,
+    &image->get_data()[0]);
 
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameteri(
+    GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 
   glBindTexture(GL_TEXTURE_2D, this->id);
   glGenerateMipmap(GL_TEXTURE_2D);
@@ -81,9 +84,10 @@ void Texture::bind(const ShaderProgram &shader)
     glUniform1i(sampler_uniform->index, this->sampler_id);
   }
 
-  if (auto wrap_uniform = shader.get_uniform("textureWrap")) 
+  if (auto wrap_uniform = shader.get_uniform("textureWrap"))
   {
     assert(wrap_uniform->type == GL_FLOAT_VEC2);
-    glUniform2f(wrap_uniform->index, this->texture_wrap.x, this->texture_wrap.y);
-  } 
+    glUniform2f(
+      wrap_uniform->index, this->texture_wrap.x, this->texture_wrap.y);
+  }
 }

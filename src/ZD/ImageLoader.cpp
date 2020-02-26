@@ -15,9 +15,10 @@
 #include "ImageLoader.hpp"
 #include "Image.hpp"
 
-#pragma GCC optimize ("O3")
+#pragma GCC optimize("O3")
 
-static std::unordered_map<std::string_view, std::shared_ptr<Image>> loaded_images;
+static std::unordered_map<std::string_view, std::shared_ptr<Image>>
+  loaded_images;
 
 struct LoadedImage
 {
@@ -28,12 +29,13 @@ struct LoadedImage
   uint32_t *data;
 };
 
-uint32_t *ImageLoader::u8_to_u32(uint8_t *bitmap, int width, int height, int channels)
+uint32_t *ImageLoader::u8_to_u32(
+  uint8_t *bitmap, int width, int height, int channels)
 {
   const int size = width * height;
   uint32_t *data = new uint32_t[size];
 
-  #pragma omp parallel for
+#pragma omp parallel for
   for (ssize_t i = 0; i < size; i++)
   {
     uint8_t r = 0, g = 0, b = 0, a = 255;
@@ -49,13 +51,14 @@ uint32_t *ImageLoader::u8_to_u32(uint8_t *bitmap, int width, int height, int cha
   return data;
 }
 
-uint8_t *ImageLoader::u32_to_u8(uint32_t *bitmap, int width, int height, int channels)
+uint8_t *ImageLoader::u32_to_u8(
+  uint32_t *bitmap, int width, int height, int channels)
 {
   const int size = width * height * channels;
   uint8_t *data = new uint8_t[size];
 
-  #pragma omp parallel for
-  for (ssize_t i = 0; i < width*height; i++)
+#pragma omp parallel for
+  for (ssize_t i = 0; i < width * height; i++)
   {
     const uint32_t v = bitmap[i];
     const Color color = Color(v);
@@ -76,16 +79,18 @@ std::optional<LoadedImage> load_image_via_stbi(std::string_view file_name)
 
   LoadedImage loaded;
   int channels = -1;
-  stbi_uc *data = stbi_load(file_name.data(), &loaded.width, &loaded.height, &channels, CHANNEL_NUM);
+  stbi_uc *data = stbi_load(
+    file_name.data(), &loaded.width, &loaded.height, &channels, CHANNEL_NUM);
 
-  if (!data) 
+  if (!data)
   {
     auto err = stbi_failure_reason();
     fprintf(stderr, "stbi failure: %s\n", err);
     return std::nullopt;
   }
 
-  auto u32_data = ImageLoader::u8_to_u32(data, loaded.width, loaded.height, CHANNEL_NUM); 
+  auto u32_data =
+    ImageLoader::u8_to_u32(data, loaded.width, loaded.height, CHANNEL_NUM);
 
   stbi_image_free(data);
 
@@ -98,7 +103,7 @@ std::optional<LoadedImage> load_image_via_stbi(std::string_view file_name)
 std::optional<std::shared_ptr<Image>> find_in_loaded(std::string_view path)
 {
   auto name_image_pair = loaded_images.find(path);
-  if (name_image_pair != loaded_images.end()) 
+  if (name_image_pair != loaded_images.end())
   {
     printf("Found in loaded!\n");
     return name_image_pair->second;
@@ -107,15 +112,14 @@ std::optional<std::shared_ptr<Image>> find_in_loaded(std::string_view path)
   return std::nullopt;
 }
 
-std::shared_ptr<Image> ImageLoader::load(std::string_view path, ForceReload reload)
+std::shared_ptr<Image> ImageLoader::load(
+  std::string_view path, ForceReload reload)
 {
   Image *image = NULL;
   if (reload != ForceReload::Yes)
   {
     if (auto already_loaded = find_in_loaded(path))
-    {
-      return already_loaded.value();
-    }
+    { return already_loaded.value(); }
   }
 
   if (auto loaded_data = load_image_via_stbi(path))
@@ -128,9 +132,7 @@ std::shared_ptr<Image> ImageLoader::load(std::string_view path, ForceReload relo
 
   std::shared_ptr<Image> image_ptr(image);
 
-  if (image_ptr) {
-    loaded_images.emplace(path, image_ptr);
-  }
+  if (image_ptr) { loaded_images.emplace(path, image_ptr); }
 
   return image_ptr;
 }

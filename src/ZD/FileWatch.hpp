@@ -12,33 +12,44 @@ struct inotify_event;
 
 enum FileEvent
 {
-  Access, CloseNoWrite, CloseWrite, Create, Delete, Modify, Moved, Open, Other        
+  Access,
+  CloseNoWrite,
+  CloseWrite,
+  Create,
+  Delete,
+  Modify,
+  Moved,
+  Open,
+  Other
 };
 
-typedef std::function<void(const File&, std::unordered_set<FileEvent>)> FileCallback;
+typedef std::function<void(const File &, std::unordered_set<FileEvent>)>
+  FileCallback;
 
 class FileWatcher
 {
-  public:
-    ~FileWatcher();
-  protected:
-    FileWatcher(const File &file, FileCallback callback);
-    static std::shared_ptr<FileWatcher> add(const File &file, FileCallback callback);
+public:
+  ~FileWatcher();
 
-    void invoke();
-    inline void add_event(const FileEvent &ev) { events.insert(ev); }
-    inline bool has_pending_events() { return !events.empty(); }
+protected:
+  FileWatcher(const File &file, FileCallback callback);
+  static std::shared_ptr<FileWatcher> add(
+    const File &file, FileCallback callback);
 
-    const File &file;
-    std::list<FileCallback> callbacks;
-    std::unordered_set<FileEvent> events;
+  void invoke();
+  inline void add_event(const FileEvent &ev) { events.insert(ev); }
+  inline bool has_pending_events() { return !events.empty(); }
 
-  private:
-    int wd{-1};
-    int fd{-1};
+  const File &file;
+  std::list<FileCallback> callbacks;
+  std::unordered_set<FileEvent> events;
 
-    friend void check_watchers();
+private:
+  int wd { -1 };
+  int fd { -1 };
 
-    friend class File;
-    friend class FileWatcherHandle;
+  friend void check_watchers();
+
+  friend class File;
+  friend class FileWatcherHandle;
 };

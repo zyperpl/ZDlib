@@ -12,7 +12,6 @@
 
 namespace ZD
 {
-  void create_window(int width, int height, std::string_view title);
 }
 
 #endif

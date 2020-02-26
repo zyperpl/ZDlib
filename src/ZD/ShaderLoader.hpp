@@ -8,8 +8,10 @@
 
 enum class ShaderDefault
 {
-  ScreenTextureVertex, ScreenTextureFragment,
-  CenterModelTextureVertex, CenterModelTextureFragment, 
+  ScreenTextureVertex,
+  ScreenTextureFragment,
+  CenterModelTextureVertex,
+  CenterModelTextureFragment,
   Invalid
 };
 
@@ -27,7 +29,7 @@ namespace ShaderInfo
     std::shared_ptr<ShaderProgram> program;
     std::vector<Shader> shaders;
   };
-}
+} // namespace ShaderInfo
 
 class ShaderLoader
 {
@@ -39,9 +41,10 @@ public:
   std::shared_ptr<ShaderProgram> compile();
 
   static void free_cache();
+
 private:
   std::vector<ShaderInfo::Shader> loaded_shaders;
-  std::shared_ptr<ShaderProgram> compiled_program{nullptr};
+  std::shared_ptr<ShaderProgram> compiled_program { nullptr };
 
   static GLuint load_shader(ShaderDefault default_name, GLuint type);
   static GLuint load_shader(std::string_view name, GLuint type);

@@ -7,24 +7,26 @@
 #include "3rd/glm/gtc/quaternion.hpp"
 
 Entity::Entity(glm::vec3 position, glm::vec3 rotation, glm::vec3 scale)
-  : position{position}, rotation{rotation}, scale{scale}
+: position { position }
+, rotation { rotation }
+, scale { scale }
 {
   printf("Entity %p created.\n", this);
 }
 
-void Entity::update()
-{
-  printf("Updating entity %p...\n", this);
-}
+void Entity::update() { printf("Updating entity %p...\n", this); }
 
 glm::mat4 Entity::get_model_matrix() const
 {
-  glm::mat4 translate_mat = glm::translate(glm::mat4(1), glm::vec3(position.x, position.y, position.z) );
-  glm::mat4 rotate_mat = glm::mat4(glm::quat(glm::vec3(rotation.x, rotation.y, rotation.z)) );
-  glm::mat4 scale_mat = glm::scale(glm::mat4(1), glm::vec3(scale.x, scale.y, scale.z) );
+  glm::mat4 translate_mat =
+    glm::translate(glm::mat4(1), glm::vec3(position.x, position.y, position.z));
+  glm::mat4 rotate_mat =
+    glm::mat4(glm::quat(glm::vec3(rotation.x, rotation.y, rotation.z)));
+  glm::mat4 scale_mat =
+    glm::scale(glm::mat4(1), glm::vec3(scale.x, scale.y, scale.z));
 
   return translate_mat * rotate_mat * scale_mat;
-} 
+}
 
 void Entity::draw(const ShaderProgram &shader_program, const View &view)
 {
@@ -46,8 +48,5 @@ void Entity::draw(const ShaderProgram &shader_program, const View &view)
   assert(p_location);
   glUniformMatrix4fv(p_location->index, 1, GL_FALSE, &projection_matrix[0][0]);
 
-  for (const auto &model : models)
-  {
-    model->draw(shader_program);
-  }
+  for (const auto &model : models) { model->draw(shader_program); }
 }

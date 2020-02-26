@@ -17,16 +17,16 @@ OGLRenderer::OGLRenderer()
   printf("\nOGLRenderer initializing...\n");
 
   glfwInit();
-  glfwWindowHint (GLFW_CONTEXT_VERSION_MAJOR, 3);
-  glfwWindowHint (GLFW_CONTEXT_VERSION_MINOR, 0);
-  glfwWindowHint (GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);  
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+  glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
-  #ifdef GLFW_ERROR_CALLBACK
-  glfwSetErrorCallback([](int error_code, const char *description) {
+#ifdef GLFW_ERROR_CALLBACK
+  glfwSetErrorCallback([](int error_code, const char* description) {
     fprintf(stderr, "GLFW ERROR %d: %s!\n", error_code, description);
     throw std::runtime_error("GLFW ERROR");
   });
-  #endif
+#endif
 }
 
 OGLRenderer::~OGLRenderer()
@@ -35,21 +35,21 @@ OGLRenderer::~OGLRenderer()
 
   windows.clear();
   ShaderLoader::free_cache();
-  
+
   uninitialize_gl();
-  
+
   //glfwTerminate();
 }
 
-const Window* OGLRenderer::add_window(const WindowParameters &params)
+const Window* OGLRenderer::add_window(const WindowParameters& params)
 {
-  windows.push_back(std::make_unique<Window_GLFW>(params)); 
+  windows.push_back(std::make_unique<Window_GLFW>(params));
 
   initialize_gl();
 
   return windows.back().get();
 }
-    
+
 void OGLRenderer::set_window_current(size_t index)
 {
   Renderer::set_window_current(index);
@@ -71,20 +71,29 @@ void OGLRenderer::initialize_gl()
   // must be done after window creation
   assert(!windows.empty());
 
-  glewExperimental = GL_TRUE; 
+  glewExperimental = GL_TRUE;
   glewInit();
 
-  #ifdef OPENGL_ERROR_CALLBACK
+#ifdef OPENGL_ERROR_CALLBACK
 
-  auto OGLMessageCallback = [](GLenum, GLenum type, GLuint, GLenum severity, 
-                                  GLsizei, const GLchar* message, const void*)
-  {
+  auto OGLMessageCallback = [](
+                              GLenum,
+                              GLenum type,
+                              GLuint,
+                              GLenum severity,
+                              GLsizei,
+                              const GLchar* message,
+                              const void*) {
     if (type == GL_DEBUG_TYPE_ERROR && severity != 0x9146)
     {
       static long glerrors = 0;
-      fprintf(stderr, "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n",
-              (type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : ""),
-                type, severity, message);
+      fprintf(
+        stderr,
+        "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n",
+        (type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : ""),
+        type,
+        severity,
+        message);
 
       glerrors++;
       if (glerrors >= 128) exit(3);
@@ -94,8 +103,8 @@ void OGLRenderer::initialize_gl()
   glEnable(GL_DEBUG_OUTPUT);
   glDebugMessageCallback(OGLMessageCallback, 0);
 
-  #endif
-  
+#endif
+
   glClearColor(0.9, 1.0, 0.9, 1.0);
   glfwSwapInterval(1);
 
@@ -126,34 +135,28 @@ void OGLRenderer::initialize_main_screen_image()
 
   main_screen_texture = std::make_unique<Texture>(main_screen_image);
 
-  current_shader_program = 
+  current_shader_program =
     ShaderLoader()
-    .add(ShaderDefault::ScreenTextureVertex, GL_VERTEX_SHADER)
-    .add(ShaderDefault::ScreenTextureFragment, GL_FRAGMENT_SHADER)
-    .compile();
+      .add(ShaderDefault::ScreenTextureVertex, GL_VERTEX_SHADER)
+      .add(ShaderDefault::ScreenTextureFragment, GL_FRAGMENT_SHADER)
+      .compile();
 
   main_screen_model = std::make_unique<Model>(ModelDefault::Screen);
 }
 
-std::shared_ptr<Image> OGLRenderer::get_main_screen_image() {
-  if (!main_screen_image) {
-    OGLRenderer::initialize_main_screen_image();
-  }
+std::shared_ptr<Image> OGLRenderer::get_main_screen_image()
+{
+  if (!main_screen_image) { OGLRenderer::initialize_main_screen_image(); }
   return main_screen_image;
 }
 
-void OGLRenderer::update()
-{
-  glfwWaitEventsTimeout(1./poll_rate);
-}
+void OGLRenderer::update() { glfwWaitEventsTimeout(1. / poll_rate); }
 
 void OGLRenderer::clear()
 {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  if (main_screen_image) {
-    main_screen_image->clear();
-  }
+  if (main_screen_image) { main_screen_image->clear(); }
 }
 
 void OGLRenderer::center_view_port()
@@ -164,13 +167,13 @@ void OGLRenderer::center_view_port()
   const double desirable_width = window()->get_initial_width();
   const double desirable_height = window()->get_intial_height();
 
-  double r  = double(width)  / desirable_width;
+  double r = double(width) / desirable_width;
   const double r2 = double(height) / desirable_height;
 
   if (r > r2) r = r2;
   const int w = r * desirable_width;
   const int h = r * desirable_height;
-  glViewport((width-w)/2, (height-h)/2, w, h);
+  glViewport((width - w) / 2, (height - h) / 2, w, h);
 }
 
 void OGLRenderer::render_screen()
@@ -183,15 +186,10 @@ void OGLRenderer::render_screen()
     main_screen_texture->bind(*current_shader_program.get());
   }
 
-  if (current_shader_program)
-  {
-    current_shader_program->use();
-  }
+  if (current_shader_program) { current_shader_program->use(); }
 
   if (main_screen_model)
-  {
-    main_screen_model->draw(*current_shader_program.get());
-  }
+  { main_screen_model->draw(*current_shader_program.get()); }
   screen_rendered = true;
 }
 
@@ -199,9 +197,7 @@ void OGLRenderer::render()
 {
   if (!window()->is_open()) return;
 
-  if (should_center_view_port) {
-    center_view_port();
-  }
+  if (should_center_view_port) { center_view_port(); }
 
   render_screen();
 
@@ -217,21 +213,21 @@ void OGLRenderer::enable_blend(GLenum sfactor, GLenum dfactor)
   glBlendFunc(sfactor, dfactor);
 }
 
-void OGLRenderer::disable_blend() 
+void OGLRenderer::disable_blend()
 {
   assert(!windows.empty());
   glDisable(GL_BLEND);
 }
 
-void OGLRenderer::enable_cull_face(GLenum mode, GLenum front_face) 
+void OGLRenderer::enable_cull_face(GLenum mode, GLenum front_face)
 {
   assert(!windows.empty());
   glEnable(GL_CULL_FACE);
-  glCullFace(mode); 
+  glCullFace(mode);
   glFrontFace(front_face);
 }
 
-void OGLRenderer::disable_cull_face() 
+void OGLRenderer::disable_cull_face()
 {
   assert(!windows.empty());
   glDisable(GL_CULL_FACE);

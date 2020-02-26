@@ -45,14 +45,16 @@ public:
   size_t get_size() const { return size; }
   bool is_open() const { return fd != -1; }
   int get_fd() const { return fd; }
+
 protected:
   size_t obtain_size();
+
 private:
   std::string_view name;
-  size_t size{0};
+  size_t size { 0 };
   OpenMode mode;
 
-  int fd{-1};
+  int fd { -1 };
 
   std::shared_ptr<FileWatcher> file_watcher;
 };

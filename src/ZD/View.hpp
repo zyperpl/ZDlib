@@ -14,17 +14,19 @@ namespace Camera
 
   struct Fov
   {
-    constexpr Fov(float rad) : angle_rad{rad} {}
+    constexpr Fov(float rad)
+    : angle_rad { rad }
+    {
+    }
 
-    static constexpr Fov from_degrees(float degrees) {
+    static constexpr Fov from_degrees(float degrees)
+    {
       return Fov(glm::radians(degrees));
     }
 
-    static constexpr Fov from_radians(float radians) {
-      return Fov(radians);
-    }
+    static constexpr Fov from_radians(float radians) { return Fov(radians); }
 
-    float angle_rad{0};
+    float angle_rad { 0 };
   };
 
   struct ClippingPlane
@@ -32,7 +34,10 @@ namespace Camera
     float near, far;
 
     constexpr ClippingPlane(float near, float far)
-      : near{near}, far{far} {}
+    : near { near }
+    , far { far }
+    {
+    }
   };
 
   struct OrthographicBox
@@ -40,7 +45,12 @@ namespace Camera
     float left, right, bottom, top;
 
     constexpr OrthographicBox(float left, float right, float bottom, float top)
-      : left{left}, right{right}, bottom{bottom}, top{top} {}
+    : left { left }
+    , right { right }
+    , bottom { bottom }
+    , top { top }
+    {
+    }
   };
 
   struct PerspectiveParameters
@@ -50,8 +60,11 @@ namespace Camera
     ClippingPlane clipping_plane;
 
     constexpr PerspectiveParameters(Fov fov, float aspect, ClippingPlane plane)
-      : fov{fov}, aspect{aspect}, clipping_plane{plane}
-    {}
+    : fov { fov }
+    , aspect { aspect }
+    , clipping_plane { plane }
+    {
+    }
   };
 
   struct OrtographicParameters
@@ -60,10 +73,12 @@ namespace Camera
     ClippingPlane clipping_plane;
 
     constexpr OrtographicParameters(OrthographicBox box, ClippingPlane plane)
-      : box{box}, clipping_plane{plane}
-    {}
+    : box { box }
+    , clipping_plane { plane }
+    {
+    }
   };
-}
+} // namespace Camera
 
 class View
 {
@@ -83,14 +98,15 @@ public:
 
   void set_fov(Camera::Fov new_fov) { fov = new_fov; }
   void set_aspect(float new_aspect) { aspect = new_aspect; }
+
 private:
   Camera::Projection projection;
-  Camera::Fov fov{180.0};
-  float aspect{1.0};
-  Camera::OrthographicBox ortographic_box{-1,1,1,-1};
-  Camera::ClippingPlane clipping_plane{-10,1000};
+  Camera::Fov fov { 180.0 };
+  float aspect { 1.0 };
+  Camera::OrthographicBox ortographic_box { -1, 1, 1, -1 };
+  Camera::ClippingPlane clipping_plane { -10, 1000 };
 
-  glm::vec3 position{0,0,0};
-  glm::vec3 rotation{0,0,0};
-  glm::vec3 scale{1,1,1};
+  glm::vec3 position { 0, 0, 0 };
+  glm::vec3 rotation { 0, 0, 0 };
+  glm::vec3 scale { 1, 1, 1 };
 };

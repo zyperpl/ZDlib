@@ -14,6 +14,6 @@ struct ModelData
 
 class ModelLoader
 {
-  public:
-    static std::optional<std::vector<ModelData>> load(std::string_view file_name);
+public:
+  static std::optional<std::vector<ModelData>> load(std::string_view file_name);
 };

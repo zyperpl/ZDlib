@@ -5,8 +5,7 @@
 
 #include "Input.hpp"
 
-static std::unordered_map<int, Key> KEYS_GLFW
-{
+static std::unordered_map<int, Key> KEYS_GLFW {
   { GLFW_KEY_UNKNOWN, Key::Invalid },
   { GLFW_KEY_SPACE, Key::Space },
   { GLFW_KEY_APOSTROPHE, Key::Apostrophe },
@@ -114,25 +113,24 @@ static std::unordered_map<int, Key> KEYS_GLFW
   { GLFW_KEY_KP_9, Key::Keypad9 },
   { GLFW_KEY_KP_DECIMAL, Key::KeypadDecimal },
   { GLFW_KEY_KP_DIVIDE, Key::KeypadDivide },
-  { GLFW_KEY_KP_MULTIPLY, Key::KeypadMultiply }, 
-  { GLFW_KEY_KP_SUBTRACT, Key::KeypadSubtract }, 
-  { GLFW_KEY_KP_ADD, Key::KeypadAdd }, 
+  { GLFW_KEY_KP_MULTIPLY, Key::KeypadMultiply },
+  { GLFW_KEY_KP_SUBTRACT, Key::KeypadSubtract },
+  { GLFW_KEY_KP_ADD, Key::KeypadAdd },
   { GLFW_KEY_KP_ENTER, Key::KeypadReturn },
   { GLFW_KEY_KP_EQUAL, Key::KeypadEqual },
-  { GLFW_KEY_LEFT_SHIFT, Key::LeftShift }, 
-  { GLFW_KEY_LEFT_CONTROL, Key::LeftControl }, 
-  { GLFW_KEY_LEFT_ALT, Key::LeftAlt }, 
-  { GLFW_KEY_LEFT_SUPER, Key::LeftSuper }, 
+  { GLFW_KEY_LEFT_SHIFT, Key::LeftShift },
+  { GLFW_KEY_LEFT_CONTROL, Key::LeftControl },
+  { GLFW_KEY_LEFT_ALT, Key::LeftAlt },
+  { GLFW_KEY_LEFT_SUPER, Key::LeftSuper },
   { GLFW_KEY_RIGHT_SHIFT, Key::RightShift },
-  { GLFW_KEY_RIGHT_CONTROL, Key::RightControl }, 
-  { GLFW_KEY_RIGHT_ALT, Key::RightAlt }, 
-  { GLFW_KEY_RIGHT_SUPER, Key::RightSuper }, 
-  { GLFW_KEY_MENU, Key::Menu }, 
+  { GLFW_KEY_RIGHT_CONTROL, Key::RightControl },
+  { GLFW_KEY_RIGHT_ALT, Key::RightAlt },
+  { GLFW_KEY_RIGHT_SUPER, Key::RightSuper },
+  { GLFW_KEY_MENU, Key::Menu },
   { GLFW_KEY_LAST, Key::Menu }
 };
 
-static std::unordered_map<int, MouseButton> MOUSE_BUTTONS_GLFW
-{
+static std::unordered_map<int, MouseButton> MOUSE_BUTTONS_GLFW {
   { GLFW_MOUSE_BUTTON_1, MouseButton::Left },
   { GLFW_MOUSE_BUTTON_2, MouseButton::Right },
   { GLFW_MOUSE_BUTTON_3, MouseButton::Middle },
@@ -149,14 +147,9 @@ static std::unordered_map<int, MouseButton> MOUSE_BUTTONS_GLFW
 
 Input_GLFW::Input_GLFW()
 {
-  for (const auto& [id, key] : KEYS_GLFW)
-  {
-    keys[key] = 0;
-  }
+  for (const auto& [id, key] : KEYS_GLFW) { keys[key] = 0; }
   for (const auto& [id, button] : MOUSE_BUTTONS_GLFW)
-  {
-    mouse_data.buttons[button] = 0;
-  }
+  { mouse_data.buttons[button] = 0; }
 }
 
 void Input_GLFW::update_key(const int k, const int value)
@@ -171,20 +164,26 @@ void Input_GLFW::update_mouse_button(const int mb, const int value)
   mouse_data.buttons[button] = value;
 }
 
-void Input_GLFW::update_mouse_position(const double mx, const double my, const Size &window_size, const Size &canvas_size)
+void Input_GLFW::update_mouse_position(
+  const double mx, const double my, const Size& window_size,
+  const Size& canvas_size)
 {
   mouse_data.position_window_space.x = mx;
   mouse_data.position_window_space.y = my;
 
-  const double scl_x = (double)(window_size.width()) / (double)(canvas_size.width());
-  const double scl_y = (double)(window_size.height()) / (double)(canvas_size.height());
+  const double scl_x =
+    (double)(window_size.width()) / (double)(canvas_size.width());
+  const double scl_y =
+    (double)(window_size.height()) / (double)(canvas_size.height());
 
   double scl = scl_x;
   if (scl > scl_y) scl = scl_y;
 
-  const int x_offset = (window_size.width() - (scl * canvas_size.width())) / 2.0f;
-  const int y_offset = (window_size.height() - (scl * canvas_size.height())) / 2.0f;
-  
-  mouse_data.position_screen_space.x = ((mx-x_offset) / scl) + 0.5;
-  mouse_data.position_screen_space.y = ((my-y_offset) / scl) + 0.5;
+  const int x_offset =
+    (window_size.width() - (scl * canvas_size.width())) / 2.0f;
+  const int y_offset =
+    (window_size.height() - (scl * canvas_size.height())) / 2.0f;
+
+  mouse_data.position_screen_space.x = ((mx - x_offset) / scl) + 0.5;
+  mouse_data.position_screen_space.y = ((my - y_offset) / scl) + 0.5;
 }

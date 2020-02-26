@@ -32,8 +32,8 @@ private:
   bool set_uniform(const ShaderUniform &uniform);
 
   std::shared_ptr<Image> image;
-  TextureWrap texture_wrap{1.0f, 1.0f};
+  TextureWrap texture_wrap { 1.0f, 1.0f };
 
-  GLuint id{0};
-  GLuint sampler_id{0};
+  GLuint id { 0 };
+  GLuint sampler_id { 0 };
 };

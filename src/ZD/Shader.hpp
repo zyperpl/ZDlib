@@ -30,26 +30,26 @@ struct ShaderAttribute
 
 class ShaderProgram
 {
-  public:
-    ShaderProgram();
-    ~ShaderProgram();
-    std::optional<ShaderUniform> get_uniform(std::string name) const;
-    std::optional<ShaderAttribute> get_attribute(std::string name) const;
-    void use() const;
+public:
+  ShaderProgram();
+  ~ShaderProgram();
+  std::optional<ShaderUniform> get_uniform(std::string name) const;
+  std::optional<ShaderAttribute> get_attribute(std::string name) const;
+  void use() const;
 
-    inline GLuint get_id() const { return id; }
-  protected:
+  inline GLuint get_id() const { return id; }
 
-    void extract_uniforms();
-    void extract_attributes();
+protected:
+  void extract_uniforms();
+  void extract_attributes();
 
-  private:
-    GLuint id;
-    std::map<std::string, ShaderUniform> uniforms;
-    std::map<std::string, ShaderAttribute> attributes;
+private:
+  GLuint id;
+  std::map<std::string, ShaderUniform> uniforms;
+  std::map<std::string, ShaderAttribute> attributes;
 
-    void link();
-    bool is_linked() const;
+  void link();
+  bool is_linked() const;
 
-    friend class ShaderLoader;
+  friend class ShaderLoader;
 };

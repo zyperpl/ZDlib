@@ -1,15 +1,9 @@
 #include "Shader.hpp"
 #include <cassert>
 
-ShaderProgram::ShaderProgram()
-{
-  id = glCreateProgram();
-}
+ShaderProgram::ShaderProgram() { id = glCreateProgram(); }
 
-ShaderProgram::~ShaderProgram()
-{
-  glDeleteProgram(id);
-}
+ShaderProgram::~ShaderProgram() { glDeleteProgram(id); }
 
 void ShaderProgram::extract_uniforms()
 {
@@ -31,7 +25,7 @@ void ShaderProgram::extract_uniforms()
     glGetActiveUniform(id, (GLuint)i, max_length, &length, &size, &type, name);
     name[length] = '\0';
 
-    uniforms.emplace(std::string(name), ShaderUniform{ id, i, size, type });
+    uniforms.emplace(std::string(name), ShaderUniform { id, i, size, type });
   }
 }
 
@@ -55,7 +49,8 @@ void ShaderProgram::extract_attributes()
     glGetActiveAttrib(id, (GLuint)i, max_length, &length, &size, &type, name);
     name[length] = '\0';
 
-    attributes.emplace(std::string(name), ShaderAttribute{ id, i, size, type });
+    attributes.emplace(
+      std::string(name), ShaderAttribute { id, i, size, type });
   }
 }
 
@@ -72,10 +67,10 @@ void ShaderProgram::link()
 }
 
 void ShaderProgram::use() const
-{ 
+{
   assert(is_linked());
 
-  glUseProgram(id); 
+  glUseProgram(id);
 }
 
 bool ShaderProgram::is_linked() const
@@ -87,16 +82,13 @@ bool ShaderProgram::is_linked() const
 
 std::optional<ShaderUniform> ShaderProgram::get_uniform(std::string name) const
 {
-  if (uniforms.find(name) == uniforms.end()) {
-    return std::nullopt;
-  }
+  if (uniforms.find(name) == uniforms.end()) { return std::nullopt; }
   return uniforms.at(name);
 }
 
-std::optional<ShaderAttribute> ShaderProgram::get_attribute(std::string name) const
+std::optional<ShaderAttribute> ShaderProgram::get_attribute(
+  std::string name) const
 {
-  if (attributes.find(name) == attributes.end()) {
-    return std::nullopt;
-  }
+  if (attributes.find(name) == attributes.end()) { return std::nullopt; }
   return attributes.at(name);
 }

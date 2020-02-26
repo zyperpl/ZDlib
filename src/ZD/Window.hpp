@@ -12,18 +12,21 @@
 
 struct WindowParameters
 {
-  int width{0};
-  int height{0};
-  std::string_view name{""};
+  int width { 0 };
+  int height { 0 };
+  std::string_view name { "" };
 
   WindowParameters(Size size, std::string_view name)
-    : width{size.width()}, height{size.height()}, name{name}
-  { }
+  : width { size.width() }
+  , height { size.height() }
+  , name { name }
+  {
+  }
 
   WindowParameters(std::string_view name)
-    : name{name}
-  { }
-
+  : name { name }
+  {
+  }
 };
 
 class Window
@@ -36,7 +39,7 @@ public:
   virtual void hide() = 0;
   virtual void kill() = 0;
   virtual void set_current() {};
-  virtual bool is_open() const { return true; } 
+  virtual bool is_open() const { return true; }
 
   int get_width() const { return width; }
   int get_height() const { return height; }
@@ -46,32 +49,37 @@ public:
   PixelFormat::Type get_format() const { return format; }
 
   virtual const Input *input() const = 0;
+
 protected:
-  Window(int w, int h, 
-      PixelFormat::Type format, std::string_view name)
-    : width{w}, height{h}, aspect_ratio{float(w)/float(h)}
-    , format{format}, name{name}
-    , initial_width{width}, initial_height{height}
-  { }
-  
+  Window(int w, int h, PixelFormat::Type format, std::string_view name)
+  : width { w }
+  , height { h }
+  , aspect_ratio { float(w) / float(h) }
+  , format { format }
+  , name { name }
+  , initial_width { width }
+  , initial_height { height }
+  {
+  }
+
   Window() = default;
 
-  int width{0};
-  int height{0};
-  
+  int width { 0 };
+  int height { 0 };
+
   double aspect_ratio;
   PixelFormat::Type format;
   std::string_view name;
 
-  const int initial_width{0};
-  const int initial_height{0};
+  const int initial_width { 0 };
+  const int initial_height { 0 };
 };
 
 class Window_GLFW : public Window
 {
 public:
   Window_GLFW(const WindowParameters &params)
-    : Window(params.width, params.height, PixelFormat::RGB, params.name)
+  : Window(params.width, params.height, PixelFormat::RGB, params.name)
   {
     init();
     set_current();
@@ -90,14 +98,16 @@ public:
 private:
   GLFWwindow *handle;
   std::unique_ptr<Input_GLFW> input_ptr;
-  void set_size(int width, int height) {
-    this->width = width; this->height = height; 
+  void set_size(int width, int height)
+  {
+    this->width = width;
+    this->height = height;
   }
 
-  friend void key_callback_glfw(GLFWwindow*, int, int, int, int);
-  friend void cursor_position_callback_glfw(GLFWwindow*, double, double);
-  friend void mouse_button_callback_glfw(GLFWwindow*, int, int, int);
-  friend void window_size_callback_glfw(GLFWwindow*, int, int);
+  friend void key_callback_glfw(GLFWwindow *, int, int, int, int);
+  friend void cursor_position_callback_glfw(GLFWwindow *, double, double);
+  friend void mouse_button_callback_glfw(GLFWwindow *, int, int, int);
+  friend void window_size_callback_glfw(GLFWwindow *, int, int);
 };
 
 class Window_FB : public Window
@@ -110,7 +120,7 @@ public:
   }
 
   Window_FB(const WindowParameters &params)
-    : Window_FB(params.name)
+  : Window_FB(params.name)
   {
   }
 
