@@ -187,8 +187,10 @@ void OGLRenderer::clear()
 
 void OGLRenderer::center_view_port()
 {
+  //TODO: execute only on window change
+  //TODO: make should_center per window
   int width, height;
-  glfwGetWindowSize(glfwGetCurrentContext(), &width, &height);
+  glfwGetFramebufferSize(glfwGetCurrentContext(), &width, &height);
 
   const double desirable_width = window()->get_initial_width();
   const double desirable_height = window()->get_intial_height();
