@@ -58,7 +58,7 @@ int model_test_main(int, char**)
       Camera::ClippingPlane(0.1f, 1000.f)),
     { -1.0, 0.0, -1.0 });
 
-  auto view_ortographic = View(
+  auto view_orthographic = View(
       Camera::OrtographicParameters(
         Camera::OrthographicBox(-10.f, 10.f, 10.f, -10.f), 
         Camera::ClippingPlane(0.1f, 10000.f)
@@ -103,6 +103,15 @@ int model_test_main(int, char**)
     {
       camera_position.z -= .0001 * step;
     }
+
+    if (input->key(Key::Space))
+    {
+      view = &view_orthographic;
+    } else
+    {
+      view = &view_perspective;
+    }
+
     if (input->key(Key::R)) { entity.add_rotation({ 0.001 * step, 0, 0 }); }
     if (input->key(Key::F)) { entity.add_rotation({ 0, 0.001 * step, 0 }); }
     if (input->key(Key::V)) { entity.add_rotation({ 0, 0, 0.001 * step }); }

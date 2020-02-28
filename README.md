@@ -1,4 +1,4 @@
-# ZDLib (version 1.8a)
+# ZDLib (version 1.9)
 2D pixel drawing and 3D model rendering library. Supports drawing 2D pixel graphics and textured 3D models with GLSL shaders to the window (or TTY framebuffer).
 Library is in early stage of development.
 
