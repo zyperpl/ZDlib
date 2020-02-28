@@ -3,7 +3,9 @@
 
 #include <cassert>
 #include <cstring>
+#ifdef __linux__
 #include <sys/inotify.h>
+#endif
 #include <limits.h>
 #include <unistd.h>
 #include <vector>
@@ -17,6 +19,17 @@
 
 #pragma GCC optimize("O3")
 
+#ifndef __linux__
+bool FileWatcher::supported = false;
+struct inotify_event
+{
+  int wd { -1 };
+  [[maybe_unused]] int mask { 0 };
+};
+#else
+bool FileWatcher::supported = true;
+#endif
+
 std::atomic<bool> watchers_thread_initialized { false };
 std::mutex watchers_map_mutex;
 static std::unordered_map<int /*wd*/, std::weak_ptr<FileWatcher>> watchers;
@@ -26,8 +39,9 @@ static int inotify_fd { -1 };
 void initialize_inotify()
 {
   if (inotify_fd != -1) return;
-
+#ifdef __linux__
   inotify_fd = inotify_init();
+#endif
   if (inotify_fd == -1)
   {
     perror("watchers inotify_init");
@@ -38,6 +52,8 @@ void initialize_inotify()
 std::unordered_set<FileEvent> get_events(uint32_t mask)
 {
   std::unordered_set<FileEvent> events;
+
+#ifdef __linux__
   if (mask & IN_ACCESS) events.emplace(Access);
   if (mask & IN_ATTRIB) events.emplace(Other);
   if (mask & IN_CLOSE_NOWRITE) events.emplace(CloseNoWrite);
@@ -54,6 +70,7 @@ std::unordered_set<FileEvent> get_events(uint32_t mask)
   if (mask & IN_OPEN) events.emplace(Open);
   if (mask & IN_Q_OVERFLOW) events.emplace(Other);
   if (mask & IN_UNMOUNT) events.emplace(Other);
+#endif
 
   return events;
 }
@@ -61,6 +78,8 @@ std::unordered_set<FileEvent> get_events(uint32_t mask)
 void print_inotify_event(struct inotify_event evt)
 {
   printf("wd=%d\t", evt.wd);
+
+#ifdef __linux__
   printf("mask=");
   if (evt.mask & IN_ACCESS) printf("IN_ACCESS ");
   if (evt.mask & IN_ATTRIB) printf("IN_ATTRIB ");
@@ -78,6 +97,7 @@ void print_inotify_event(struct inotify_event evt)
   if (evt.mask & IN_OPEN) printf("IN_OPEN ");
   if (evt.mask & IN_Q_OVERFLOW) printf("IN_Q_OVERFLOW ");
   if (evt.mask & IN_UNMOUNT) printf("IN_UNMOUNT ");
+#endif
   printf("\n");
 }
 
@@ -120,8 +140,9 @@ void check_watchers()
       auto wd = evt.wd;
 
       assert(watchers.size() > 0);
+#ifdef __linux__
       if (!watchers.contains(wd)) break;
-
+#endif
       auto watcher = watchers.at(wd).lock();
       if (watcher == nullptr) break;
 
@@ -202,7 +223,9 @@ FileWatcher::FileWatcher(const File &file, FileCallback callback)
 {
   callbacks.push_back(callback);
 
+#ifdef __linux__
   wd = inotify_add_watch(inotify_fd, file.get_name().data(), IN_ALL_EVENTS);
+#endif
   if (wd == -1) { fprintf(stderr, "Cannot inotify_add_watch\n"); }
   //printf("Added FileWatcher wd=%d for file fd=%d\n", wd, fd);
   assert(wd != -1);
@@ -214,7 +237,9 @@ FileWatcher::~FileWatcher()
   printf("Removing watcher %p for file %s\n", this, file.get_name().data());
   assert(inotify_fd != -1);
   watchers.erase(wd);
+#ifdef __linux
   inotify_rm_watch(inotify_fd, wd);
+#endif
   try_kill_watchers_thread();
 }
 

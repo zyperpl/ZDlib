@@ -157,6 +157,7 @@ std::vector<uint8_t> File::read_all_bytes()
 
 ssize_t File::write(std::vector<uint8_t> data)
 {
+  if (mode != Write && mode != ReadWrite) { return 0; }
   assert(mode == Write || mode == ReadWrite);
 
   ssize_t written = 0;
@@ -166,6 +167,7 @@ ssize_t File::write(std::vector<uint8_t> data)
 
 ssize_t File::write(std::string_view str)
 {
+  if (mode != Write && mode != ReadWrite) { return 0; }
   assert(mode == Write || mode == ReadWrite);
   ssize_t written = 0;
   written += ::write(fd, str.data(), str.size());

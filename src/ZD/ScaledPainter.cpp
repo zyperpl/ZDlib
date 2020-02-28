@@ -13,22 +13,6 @@ ScaledPainter::ScaledPainter(std::shared_ptr<Image> image, float scaler)
 {
 }
 
-ScaledPainter::ScaledPainter(
-  std::shared_ptr<uint32_t[]> data, const Size &size, PixelFormat::Type format,
-  float x_scaler, float y_scaler)
-: Painter(data, size, format)
-, x_scaler { x_scaler }
-, y_scaler { y_scaler }
-{
-}
-
-ScaledPainter::ScaledPainter(
-  std::shared_ptr<uint32_t[]> data, const Size &size, PixelFormat::Type format,
-  float scaler)
-: ScaledPainter(data, size, format, scaler, scaler)
-{
-}
-
 void ScaledPainter::set_pixel(int x, int y, const Color &color)
 {
   x = this->scale_h(x);

@@ -122,6 +122,7 @@ int file_test_main(int, char **)
     assert(!f.is_open());
   }
 
+  if (FileWatcher::supported)
   {
     {
       File f0("images/Crate1.obj", File::Read);
@@ -157,11 +158,9 @@ int file_test_main(int, char **)
     int sec = 1;
     printf("Sleeping for %d second(s)...\n", sec);
     std::this_thread::sleep_for(std::chrono::seconds(sec));
-  }
-
+  } else
   {
-    //File f("images/test.txt", File::Write);
+    fprintf(stderr, "FileWatcher not supported\n");
   }
-
   return 0;
 }

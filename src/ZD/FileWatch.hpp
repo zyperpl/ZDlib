@@ -4,6 +4,7 @@
 #include <list>
 #include <vector>
 #include <unordered_set>
+#include <functional>
 
 class File;
 class FileWatcher;
@@ -31,6 +32,7 @@ class FileWatcher
 public:
   ~FileWatcher();
 
+  static bool supported;
 protected:
   FileWatcher(const File &file, FileCallback callback);
   static std::shared_ptr<FileWatcher> add(

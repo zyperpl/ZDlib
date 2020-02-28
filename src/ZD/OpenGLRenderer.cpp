@@ -10,16 +10,22 @@
 #define OPENGL_ERROR_CALLBACK
 #define GLFW_ERROR_CALLBACK
 
+#define OPENGL_MAJOR 3
+#define OPENGL_MINOR 3
+
 static bool OGL_LOADED = false;
 
 OGLRenderer::OGLRenderer()
 {
-  printf("\nOGLRenderer initializing...\n");
-
+  printf("\nOGLRenderer initializing (OpenGL %d.%d)...\n", OPENGL_MAJOR, OPENGL_MINOR);
   glfwInit();
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, OPENGL_MAJOR);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, OPENGL_MINOR);
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+  if ((OPENGL_MAJOR == 3 && OPENGL_MINOR >= 2) || OPENGL_MAJOR > 3)
+  {
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+  }
 
 #ifdef GLFW_ERROR_CALLBACK
   glfwSetErrorCallback([](int error_code, const char* description) {
@@ -44,8 +50,11 @@ OGLRenderer::~OGLRenderer()
 const Window* OGLRenderer::add_window(const WindowParameters& params)
 {
   windows.push_back(std::make_unique<Window_GLFW>(params));
+  assert(!windows.empty());
+  puts("Window added.");
 
   initialize_gl();
+  puts("GL initialized.");
 
   return windows.back().get();
 }
@@ -71,9 +80,16 @@ void OGLRenderer::initialize_gl()
   // must be done after window creation
   assert(!windows.empty());
 
+  puts("Initializing GL extension wrapper...");
   glewExperimental = GL_TRUE;
-  glewInit();
-
+  GLenum err = glewInit();
+  if (GLEW_OK != err)
+  {
+    printf("glewInit error\n");
+    fprintf(stderr, "GLEW initialization failed!\n");
+    fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
+  }
+  fprintf(stdout, "Using GLEW %s\n", glewGetString(GLEW_VERSION));
 #ifdef OPENGL_ERROR_CALLBACK
 
   auto OGLMessageCallback = [](
@@ -100,8 +116,16 @@ void OGLRenderer::initialize_gl()
     }
   };
 
-  glEnable(GL_DEBUG_OUTPUT);
-  glDebugMessageCallback(OGLMessageCallback, 0);
+  if (glewGetExtension("GL_KHR_debug"))
+  {
+    puts("Enabling GL_DEBUG_OUTPUT");
+    glEnable(GL_DEBUG_OUTPUT);
+    puts("Setting glDebugMessageCallback");
+    glDebugMessageCallback(OGLMessageCallback, 0);
+  } else
+  {
+    puts("GL_KHR_debug not supported!");
+  }
 
 #endif
 
@@ -116,12 +140,14 @@ void OGLRenderer::uninitialize_gl()
 {
   if (!OGL_LOADED) return;
 
+  puts("Deleting vertex array object...");
   OGL_LOADED = false;
   glDeleteVertexArrays(1, &vao);
 }
 
 void OGLRenderer::generate_vertex_array_object()
 {
+  puts("Generating vertex array object...");
   glGenVertexArrays(1, &vao);
   glBindVertexArray(vao);
 

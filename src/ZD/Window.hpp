@@ -81,8 +81,11 @@ public:
   Window_GLFW(const WindowParameters &params)
   : Window(params.width, params.height, PixelFormat::RGB, params.name)
   {
+    puts("Window GLFW: initializing...");
     init();
+    puts("Window GLFW: setting as current...");
     set_current();
+    puts("Showing Window GLFW...");
     show();
   }
   virtual ~Window_GLFW();

@@ -36,17 +36,23 @@ static int r(int m = 100)
 
 auto image_test_main(int, char **) -> int
 {
+  puts("Image load tests.");
   load_image("images/lena.png");
   load_image("images/lena.png");
   load_image("images/not-exists");
   load_image("wrong-path/not-exists");
+  puts("Image load tests complete.");
 
+  puts("Creating renderer...");
   auto renderer = OGLRenderer();
+  puts("Adding a window");
   renderer.add_window({ Size(W, H), "ZDTest" });
   auto input = renderer.get_window().input();
 
+  puts("Creating a painter...");
   Painter painter(renderer.get_main_screen_image());
 
+  puts("Loading an image...");
   auto image = Image::load("images/lena.png");
 
   if (!image)
@@ -55,31 +61,36 @@ auto image_test_main(int, char **) -> int
     return 1;
   }
 
+  puts("Creating an image...");
   auto rnoise = Image::create(Size(W, H), PixelFormat::RGB);
   int x = 10;
   int y = 11;
 
   auto canvas_image = Image::load("images/user_canvas.png");
-  auto file = File("images/user_canvas.png", File::Read);
-  assert(file.is_open());
-  file.set_watch([&canvas_image](
-                   const File &file, std::unordered_set<FileEvent> events) {
-    printf("File '%s' %zu events.\n", file.get_name().data(), events.size());
-    if (events.contains(FileEvent::CloseWrite))
-    {
-      printf("File modified!\n");
-      auto new_image = Image::load("images/user_canvas.png", ForceReload::Yes);
-      if (new_image)
+  
+  if (FileWatcher::supported)
+  {
+    auto file = File("images/user_canvas.png", File::Read);
+    assert(file.is_open());
+    file.set_watch([&canvas_image](
+                    const File &file, std::unordered_set<FileEvent> events) {
+      printf("File '%s' %zu events.\n", file.get_name().data(), events.size());
+      if (events.count(FileEvent::CloseWrite) > 0)
       {
-        canvas_image->set_data(
-          new_image->get_data(), new_image->get_size().area());
+        printf("File modified!\n");
+        auto new_image = Image::load("images/user_canvas.png", ForceReload::Yes);
+        if (new_image)
+        {
+          canvas_image->set_data(
+            new_image->get_data(), new_image->get_size().area());
+        }
+        else
+        {
+          printf("New user canvas cannot be loaded!\n");
+        }
       }
-      else
-      {
-        printf("New user canvas cannot be loaded!\n");
-      }
-    }
-  });
+    });
+  }
 
   Painter rnoise_painter(rnoise);
 
@@ -89,6 +100,7 @@ auto image_test_main(int, char **) -> int
   scaled_painter.draw_line(0, 20, 20, 0, Color(255, 255, 0));
   scaled_painter.draw_line(0, 0, 20, 30, Color(255, 255, 0));
 
+  puts("Starting main loop...");
   long iteration = 0;
   while (renderer.is_window_open())
   {
@@ -177,6 +189,7 @@ auto image_test_main(int, char **) -> int
     renderer.render();
   }
 
+  puts("Saving canvas image to files...");
   renderer.get_main_screen_image()->save_to_file("test_image");
   renderer.get_main_screen_image()->save_to_file("test_image.jpg");
   renderer.get_main_screen_image()->save_to_file("test_image.bmp");

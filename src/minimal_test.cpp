@@ -7,7 +7,7 @@ int minimal_test_main(int, char**)
   puts("Creating renderer...");
   OGLRenderer renderer;
   puts("Adding window...");
-  renderer.add_window({ Size(640, 480), "zdlib minimal test" });
+  renderer.add_window({ Size(800, 600), "zdlib minimal test" });
 
   puts("Starting main loop...");
   while (renderer.is_window_open())

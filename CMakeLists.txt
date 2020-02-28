@@ -1,46 +1,54 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.16)
 
-project("zd")
+project("zd" CXX)
 SET(NAME "zdtest")
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS "ON")
 
-FILE(GLOB SOURCES "src/*.cpp" "src/ZD/*.cpp")
+find_program(CCACHE ccache)
+if(CCACHE)
+  set(CMAKE_CXX_COMPILER_LAUNCHER ${CCACHE})
+else()
+  message("ccache cannot be found")
+endif()
 
 IF(NOT CMAKE_BUILD_TYPE)
   SET(CMAKE_BUILD_TYPE "Release")
 ENDIF()
-MESSAGE("${CMAKE_BUILD_TYPE}")
+MESSAGE("Build type: ${CMAKE_BUILD_TYPE}")
 
-#unix
-IF (UNIX AND NOT ANDROID AND NOT EMSCRIPTEN AND NOT WIN32)
-  MESSAGE("Unix build")
+INCLUDE_DIRECTORIES("src/ZD/" "src/")
 
-  ADD_EXECUTABLE(${NAME} "${SOURCES}")
+ADD_DEFINITIONS(-DNAME="${NAME}")
 
-  INCLUDE_DIRECTORIES("src/ZD/" "src/")
+SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -ggdb -fsanitize=address,leak -fno-omit-frame-pointer -Wall -Wextra -DDEBUG -O0")
+#SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -ggdb -fsanitize=memory -fno-omit-frame-pointer -Wall -Wextra")
+SET(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL} -O3 -s -DNDEBUG")
+SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -DNDEBUG")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Xpreprocessor -fopenmp -std=c++2a -Wall")
 
-  ADD_DEFINITIONS(-DNAME="${NAME}")
+SET(EXECUTABLE_OUTPUT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/build/")
 
-  SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -ggdb -fsanitize=address,leak -fno-omit-frame-pointer -Wall -Wextra -DDEBUG -O0")
-  #SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -ggdb -fsanitize=memory -fno-omit-frame-pointer -Wall -Wextra")
-  SET(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL} -s -DNDEBUG")
-  SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -s -O3 -DNDEBUG")
-  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp -std=c++2a -Wall")
+set(OpenGL_GL_PREFERENCE "GLVND")
+find_package(OpenGL REQUIRED)
+include_directories(${OPENGL_INCLUDE_DIR})
 
-  SET(EXECUTABLE_OUTPUT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/build/")
+include(cmake/conan/ConanRun.cmake)
+run_conan()
 
-  FIND_PACKAGE (glfw3 REQUIRED)
-  FIND_PACKAGE (GLEW)
-  INCLUDE_DIRECTORIES (${GLFW_INCLUDE_DIR})
-  INCLUDE_DIRECTORIES (${GLEW_INCLUDE_DIR})
-  
-  TARGET_LINK_LIBRARIES(${NAME} stdc++ GL GLU GLEW glfw X11 pthread)
+find_library(glfw3 CONFIG REQUIRED)
+find_library(glew CONFIG REQUIRED)
+INCLUDE_DIRECTORIES (${GLFW_INCLUDE_DIR})
+INCLUDE_DIRECTORIES (${GLEW_INCLUDE_DIR})
 
-  add_custom_target(run
-    COMMAND ./build/${NAME}
-    DEPENDS ${NAME}
-    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-  )
+FILE(GLOB SOURCES "src/*.cpp" "src/ZD/*.cpp")
+ADD_EXECUTABLE(${NAME} "${SOURCES}")
+message("${GLFW_LIBS}")
+TARGET_LINK_LIBRARIES(${NAME} PRIVATE CONAN_PKG::openmp stdc++ CONAN_PKG::glew CONAN_PKG::glfw dl pthread)
 
-ENDIF()
+add_custom_target(run
+  COMMAND ./build/${NAME}
+  DEPENDS ${NAME}
+  WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+)
+

@@ -77,7 +77,7 @@ Model::Model(std::string_view file_name)
 {
   if (auto models = ModelLoader::load(file_name))
   {
-    auto model_data = models.value().at(0);
+    auto model_data = (*models).at(0);
     vertices = std::move(model_data.vertices);
     uvs = std::move(model_data.uvs);
     elements = std::move(model_data.indices);

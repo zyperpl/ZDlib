@@ -82,7 +82,7 @@ private:
   std::string path;
   Size size { 0, 0 };
   PixelFormat::Type format { PixelFormat::Invalid };
-  std::shared_ptr<uint32_t[]> data;
+  std::unique_ptr<uint32_t[]> data;
 
   friend class ImageLoader;
   friend class Painter;

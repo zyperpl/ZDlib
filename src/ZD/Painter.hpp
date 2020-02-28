@@ -12,9 +12,6 @@ class Painter
 {
 public:
   Painter(std::shared_ptr<Image> image);
-  Painter(
-    std::shared_ptr<uint32_t[]> data, const Size &size,
-    PixelFormat::Type format);
 
   void set_pixel(const int x, const int y, const Color &color);
   void draw_image(const int x, const int y, const Image &image);

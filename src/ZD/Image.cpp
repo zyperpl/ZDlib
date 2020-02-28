@@ -92,5 +92,5 @@ bool Image::save_to_file(std::string file_name)
 
   assert(ret);
 
-  return true;
+  return ret;
 }

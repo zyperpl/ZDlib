@@ -44,6 +44,7 @@ Window_GLFW::~Window_GLFW()
 
 void Window_GLFW::init()
 {
+  printf("Creating GLFW window handle [%d, %d, %s]...\n", width, height, name.data());
   handle = glfwCreateWindow(width, height, name.data(), NULL, NULL);
   assert(handle != NULL);
   printf("Window_GLFW (%p) created.\n", handle);

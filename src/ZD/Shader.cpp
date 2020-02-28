@@ -1,5 +1,7 @@
 #include "Shader.hpp"
 #include <cassert>
+#include <cstring>
+#include <string>
 
 ShaderProgram::ShaderProgram() { id = glCreateProgram(); }
 
@@ -25,7 +27,7 @@ void ShaderProgram::extract_uniforms()
     glGetActiveUniform(id, (GLuint)i, max_length, &length, &size, &type, name);
     name[length] = '\0';
 
-    uniforms.emplace(std::string(name), ShaderUniform { id, i, size, type });
+    uniforms.insert(std::make_pair(std::string(name), ShaderUniform { id, i, size, type }));
   }
 }
 

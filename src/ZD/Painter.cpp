@@ -21,13 +21,6 @@ Painter::Painter(std::shared_ptr<Image> image)
 {
 }
 
-Painter::Painter(
-  std::shared_ptr<uint32_t[]> data, const Size &size, PixelFormat::Type format)
-{
-  target = Image::create(size, format);
-  target->data = data;
-}
-
 void Painter::set_pixel(const int x, const int y, const Color &color)
 {
   if (x < 0) return;

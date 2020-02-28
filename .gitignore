@@ -87,5 +87,6 @@ zdlib_test
 zdlib_demo*
 zdtest
 
+build/*
 images/test.txt
 test_image.*

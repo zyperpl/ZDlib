@@ -8,12 +8,6 @@ class ScaledPainter : public Painter
 public:
   ScaledPainter(std::shared_ptr<Image> image, float x_scaler, float y_scaler);
   ScaledPainter(std::shared_ptr<Image> image, float scaler);
-  ScaledPainter(
-    std::shared_ptr<uint32_t[]> data, const Size &size,
-    PixelFormat::Type format, float x_scaler, float y_scaler);
-  ScaledPainter(
-    std::shared_ptr<uint32_t[]> data, const Size &size,
-    PixelFormat::Type format, float scaler);
 
   void set_pixel(int x, int y, const Color &color);
   void draw_image(int x, int y, const Image &image);

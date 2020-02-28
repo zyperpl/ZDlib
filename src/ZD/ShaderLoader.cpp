@@ -10,13 +10,14 @@ std::vector<ShaderInfo::Program> cached_programs;
 std::vector<ShaderInfo::Shader> cached_shaders;
 
 const GLchar *z_screen_texture_vertex_shader = R"glsl(
+  #version 330 
+
   #ifdef GL_ES
     precision highp float;
   #endif
 
-  attribute vec2 position;
-
-  varying vec2 uv;
+  in vec2 position;
+  out vec2 uv;
 
   void main()
   {
@@ -26,18 +27,24 @@ const GLchar *z_screen_texture_vertex_shader = R"glsl(
   }
 )glsl";
 const GLchar *z_texture_frag_shader = R"glsl(
+  #version 330 
+
   #ifdef GL_ES
     precision highp float;
   #endif
-  varying vec2 uv;
+  in vec2 uv;
   uniform sampler2D sampler;
+
+  out vec4 fragColor;
   void main()
   {
-    gl_FragColor = texture2D(sampler, uv);
+    fragColor = texture(sampler, uv);
   }
 )glsl";
 
 const GLchar *z_mvp_model_vertex_shader = R"glsl(
+  #version 330 
+
   #ifdef GL_ES
     precision highp float;
   #endif
@@ -46,11 +53,11 @@ const GLchar *z_mvp_model_vertex_shader = R"glsl(
   uniform mat4 V; 
   uniform mat4 P; 
 
-  attribute vec3 position;
-  attribute vec2 vertex_uv;
-  attribute vec3 vertex_normal;
+  in vec3 position;
+  in vec2 vertex_uv;
+  in vec3 vertex_normal;
 
-  varying vec2 uv;
+  out vec2 uv;
 
   void main()
   {
@@ -155,7 +162,7 @@ ShaderLoader &ShaderLoader::add(std::string_view name, GLuint type)
       "Shader '%s' found in cache (%zu records).\n",
       name.data(),
       cached_shaders.size());
-    loaded_shaders.push_back(shader_info.value());
+    loaded_shaders.push_back(*shader_info);
     return *this;
   }
 

@@ -33,7 +33,7 @@ public:
     windows.erase(windows.begin() + index);
   }
 
-  bool is_window_open() { return window()->is_open(); }
+  bool is_window_open() { return !windows.empty() && window()->is_open(); }
 
   virtual std::shared_ptr<Image> get_main_screen_image()
   {

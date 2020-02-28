@@ -119,7 +119,7 @@ std::shared_ptr<Image> ImageLoader::load(
   if (reload != ForceReload::Yes)
   {
     if (auto already_loaded = find_in_loaded(path))
-    { return already_loaded.value(); }
+    { return *already_loaded; }
   }
 
   if (auto loaded_data = load_image_via_stbi(path))
