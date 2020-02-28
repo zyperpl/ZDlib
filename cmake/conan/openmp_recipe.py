@@ -32,6 +32,7 @@ class OpenMPConan(ConanFile):
 
     def build(self):
         cmake = CMake(self)
+        cmake.definitions["LIBOMP_ENABLE_SHARED"] = False
         cmake.configure(source_folder=self._source_folder, build_folder=self._build_folder)
         cmake.build()
         cmake.install()
