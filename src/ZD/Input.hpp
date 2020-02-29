@@ -194,10 +194,16 @@ class Input
 {
 public:
   inline int key(const Key &k) const { return keys.at(k); }
+  inline int consume_key(const Key &k) const
+  {
+    auto v = keys.at(k);
+    keys.at(k) = 0;
+    return v;
+  }
   inline const Mouse &mouse() const { return mouse_data; }
 
 protected:
-  std::unordered_map<Key, int> keys;
+  mutable std::unordered_map<Key, int> keys;
   Mouse mouse_data;
   friend class Window;
 };
