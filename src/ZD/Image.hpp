@@ -70,7 +70,9 @@ public:
     {
       printf(" ");
       for (int x = 0; x < size.width(); x++)
-      { printf("%x ", data[x + y * size.width()]); }
+      {
+        printf("%x ", data[x + y * size.width()]);
+      }
       printf("\n");
     }
     printf("}\n");

@@ -51,6 +51,7 @@ Window_GLFW::~Window_GLFW()
   {
     this->kill();
   }
+  puts("Window destroyed.");
 }
 
 void Window_GLFW::init()
@@ -62,7 +63,7 @@ void Window_GLFW::init()
     name.data());
   handle = glfwCreateWindow(width, height, name.data(), NULL, NULL);
   assert(handle != NULL);
-  printf("Window_GLFW (%p) created.\n", handle);
+  //printf("Window_GLFW (%p) created.\n", handle);
   glfwSetInputMode(handle, GLFW_STICKY_KEYS, GLFW_TRUE);
 
   input_ptr = std::make_unique<Input_GLFW>();
@@ -85,11 +86,11 @@ void Window_GLFW::kill()
   glfwSetKeyCallback(handle, NULL);
   glfwSetCursorPosCallback(handle, NULL);
   glfwSetMouseButtonCallback(handle, NULL);
+
   glfwSetWindowSizeCallback(handle, NULL);
   glfwSetScrollCallback(handle, NULL);
   glfwDestroyWindow(handle);
   handle = NULL;
-  puts("GLFW window destroyed.");
 }
 
 void Window_GLFW::set_current()

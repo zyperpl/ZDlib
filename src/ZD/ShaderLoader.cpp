@@ -150,10 +150,7 @@ ShaderLoader &ShaderLoader::add(ShaderDefault name, GLuint type)
 
   if (auto shader_info = find_shader_in_cache(name, type))
   {
-    printf(
-      "Shader default_name=%d found in cache (%zu records).\n",
-      (int)name,
-      cached_shaders.size());
+    //printf("Shader default_name=%d found in cache (%zu records).\n", (int)name, cached_shaders.size());
     loaded_shaders.push_back(*shader_info);
     return *this;
   }
@@ -174,10 +171,7 @@ ShaderLoader &ShaderLoader::add(std::string_view name, GLuint type)
 
   if (auto shader_info = find_shader_in_cache(name, type))
   {
-    printf(
-      "Shader '%s' found in cache (%zu records).\n",
-      name.data(),
-      cached_shaders.size());
+    //printf("Shader '%s' found in cache (%zu records).\n", name.data(), cached_shaders.size());
     loaded_shaders.push_back(*shader_info);
     return *this;
   }
@@ -203,7 +197,9 @@ std::shared_ptr<ShaderProgram> ShaderLoader::compile()
   auto s_id = program->get_id();
 
   for (const ShaderInfo::Shader &shader_info : loaded_shaders)
-  { glAttachShader(s_id, shader_info.id); }
+  {
+    glAttachShader(s_id, shader_info.id);
+  }
   program->link();
   printErrors(glGetProgramInfoLog, program->id);
 
@@ -252,7 +248,9 @@ GLuint ShaderLoader::load_shader(std::string_view, GLuint)
 void ShaderLoader::free_cache()
 {
   for (const auto &shader_info : cached_shaders)
-  { glDeleteShader(shader_info.id); }
+  {
+    glDeleteShader(shader_info.id);
+  }
 
   cached_shaders.clear();
   cached_programs.clear();

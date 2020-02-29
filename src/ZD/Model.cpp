@@ -169,7 +169,10 @@ void Model::draw(const ShaderProgram &program)
   auto position_attribute = program.get_attribute("position");
   assert(position_attribute);
 
-  for (const auto &texture : textures) { texture->bind(program); }
+  for (const auto &texture : textures)
+  {
+    texture->bind(program);
+  }
 
   int components_per_vertex = 3;
   switch (position_attribute->type)

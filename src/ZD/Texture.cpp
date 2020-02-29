@@ -52,7 +52,7 @@ void Texture::generate()
   glBindTexture(GL_TEXTURE_2D, id);
   GLenum format = GL_RGBA;
 
-  printf("Texture %p format=%s\n", this, format == GL_RGB ? "RGB" : "RGBA");
+  //printf("Texture %p format=%s\n", this, format == GL_RGB ? "RGB" : "RGBA");
   glTexImage2D(
     GL_TEXTURE_2D,
     0,

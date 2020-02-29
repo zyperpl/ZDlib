@@ -147,9 +147,14 @@ static std::unordered_map<int, MouseButton> MOUSE_BUTTONS_GLFW {
 
 Input_GLFW::Input_GLFW()
 {
-  for (const auto& [id, key] : KEYS_GLFW) { keys[key] = 0; }
+  for (const auto& [id, key] : KEYS_GLFW)
+  {
+    keys[key] = 0;
+  }
   for (const auto& [id, button] : MOUSE_BUTTONS_GLFW)
-  { mouse_data.buttons[button] = 0; }
+  {
+    mouse_data.buttons[button] = 0;
+  }
 }
 
 void Input_GLFW::update_key(const int k, const int value)

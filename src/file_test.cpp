@@ -72,7 +72,10 @@ int file_test_main(int, char **)
 
     f.rewind();
     int lines = 0;
-    while (auto l = f.read_line()) { lines++; }
+    while (auto l = f.read_line())
+    {
+      lines++;
+    }
     printf("Read %d lines.\n", lines);
     assert(lines == 12);
 

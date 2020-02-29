@@ -191,7 +191,10 @@ void check_watchers()
 
       auto events = get_events(evt.mask);
       assert(!events.empty());
-      for (const auto &e : events) { watcher->add_event(e); }
+      for (const auto &e : events)
+      {
+        watcher->add_event(e);
+      }
       //print_inotify_event(evt);
     }
 
@@ -295,6 +298,9 @@ FileWatcher::~FileWatcher()
 
 void FileWatcher::invoke()
 {
-  for (const auto &callback : callbacks) { callback(file, events); }
+  for (const auto &callback : callbacks)
+  {
+    callback(file, events);
+  }
   events.clear();
 }

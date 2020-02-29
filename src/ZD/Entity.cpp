@@ -48,5 +48,8 @@ void Entity::draw(const ShaderProgram &shader_program, const View &view)
   assert(p_location);
   glUniformMatrix4fv(p_location->index, 1, GL_FALSE, &projection_matrix[0][0]);
 
-  for (const auto &model : models) { model->draw(shader_program); }
+  for (const auto &model : models)
+  {
+    model->draw(shader_program);
+  }
 }

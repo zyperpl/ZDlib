@@ -40,7 +40,7 @@ OGLRenderer::OGLRenderer()
 
 OGLRenderer::~OGLRenderer()
 {
-  puts("Removing OpenGL renderer...\n");
+  puts("Removing OpenGL renderer...");
 
   windows.clear();
   ShaderLoader::free_cache();
@@ -54,10 +54,8 @@ const Window* OGLRenderer::add_window(const WindowParameters& params)
 {
   windows.push_back(std::make_unique<Window_GLFW>(params));
   assert(!windows.empty());
-  puts("Window added.");
 
   initialize_gl();
-  puts("GL initialized.");
 
   return windows.back().get();
 }
@@ -93,7 +91,7 @@ void OGLRenderer::initialize_gl()
     fprintf(stderr, "GLEW initialization failed!\n");
     fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
   }
-  fprintf(stdout, "Using GLEW %s\n", glewGetString(GLEW_VERSION));
+  //fprintf(stdout, "Using GLEW %s\n", glewGetString(GLEW_VERSION));
 #ifdef OPENGL_ERROR_CALLBACK
 
   auto OGLMessageCallback = [](
@@ -123,9 +121,7 @@ void OGLRenderer::initialize_gl()
 
   if (glewGetExtension("GL_KHR_debug"))
   {
-    puts("Enabling GL_DEBUG_OUTPUT");
     glEnable(GL_DEBUG_OUTPUT);
-    puts("Setting glDebugMessageCallback");
     glDebugMessageCallback(OGLMessageCallback, 0);
   }
   else
@@ -147,23 +143,20 @@ void OGLRenderer::uninitialize_gl()
   if (!OGL_LOADED)
     return;
 
-  puts("Deleting vertex array object...");
   OGL_LOADED = false;
   glDeleteVertexArrays(1, &vao);
 }
 
 void OGLRenderer::generate_vertex_array_object()
 {
-  puts("Generating vertex array object...");
   glGenVertexArrays(1, &vao);
   glBindVertexArray(vao);
-
-  printf("Vertex array object id=%u\n", vao);
+  //printf("Vertex array object id=%u\n", vao);
 }
 
 void OGLRenderer::initialize_main_screen_image()
 {
-  puts("Initializing GL main screen image...");
+  //puts("Initializing GL main screen image...");
   Renderer::initialize_main_screen_image();
 
   main_screen_texture = std::make_unique<Texture>(main_screen_image);
