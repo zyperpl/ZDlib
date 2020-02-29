@@ -38,7 +38,8 @@ static int inotify_fd { -1 };
 
 void initialize_inotify()
 {
-  if (inotify_fd != -1) return;
+  if (inotify_fd != -1)
+    return;
 #ifdef __linux__
   inotify_fd = inotify_init();
 #endif
@@ -54,22 +55,38 @@ std::unordered_set<FileEvent> get_events(uint32_t mask)
   std::unordered_set<FileEvent> events;
 
 #ifdef __linux__
-  if (mask & IN_ACCESS) events.emplace(Access);
-  if (mask & IN_ATTRIB) events.emplace(Other);
-  if (mask & IN_CLOSE_NOWRITE) events.emplace(CloseNoWrite);
-  if (mask & IN_CLOSE_WRITE) events.emplace(CloseWrite);
-  if (mask & IN_CREATE) events.emplace(Create);
-  if (mask & IN_DELETE) events.emplace(Delete);
-  if (mask & IN_DELETE_SELF) events.emplace(Delete);
-  if (mask & IN_IGNORED) events.emplace(Other);
-  if (mask & IN_ISDIR) events.emplace(Other);
-  if (mask & IN_MODIFY) events.emplace(Modify);
-  if (mask & IN_MOVE_SELF) events.emplace(Moved);
-  if (mask & IN_MOVED_FROM) events.emplace(Moved);
-  if (mask & IN_MOVED_TO) events.emplace(Moved);
-  if (mask & IN_OPEN) events.emplace(Open);
-  if (mask & IN_Q_OVERFLOW) events.emplace(Other);
-  if (mask & IN_UNMOUNT) events.emplace(Other);
+  if (mask & IN_ACCESS)
+    events.emplace(Access);
+  if (mask & IN_ATTRIB)
+    events.emplace(Other);
+  if (mask & IN_CLOSE_NOWRITE)
+    events.emplace(CloseNoWrite);
+  if (mask & IN_CLOSE_WRITE)
+    events.emplace(CloseWrite);
+  if (mask & IN_CREATE)
+    events.emplace(Create);
+  if (mask & IN_DELETE)
+    events.emplace(Delete);
+  if (mask & IN_DELETE_SELF)
+    events.emplace(Delete);
+  if (mask & IN_IGNORED)
+    events.emplace(Other);
+  if (mask & IN_ISDIR)
+    events.emplace(Other);
+  if (mask & IN_MODIFY)
+    events.emplace(Modify);
+  if (mask & IN_MOVE_SELF)
+    events.emplace(Moved);
+  if (mask & IN_MOVED_FROM)
+    events.emplace(Moved);
+  if (mask & IN_MOVED_TO)
+    events.emplace(Moved);
+  if (mask & IN_OPEN)
+    events.emplace(Open);
+  if (mask & IN_Q_OVERFLOW)
+    events.emplace(Other);
+  if (mask & IN_UNMOUNT)
+    events.emplace(Other);
 #endif
 
   return events;
@@ -81,22 +98,38 @@ void print_inotify_event(struct inotify_event evt)
 
 #ifdef __linux__
   printf("mask=");
-  if (evt.mask & IN_ACCESS) printf("IN_ACCESS ");
-  if (evt.mask & IN_ATTRIB) printf("IN_ATTRIB ");
-  if (evt.mask & IN_CLOSE_NOWRITE) printf("IN_CLOSE_NOWRITE ");
-  if (evt.mask & IN_CLOSE_WRITE) printf("IN_CLOSE_WRITE ");
-  if (evt.mask & IN_CREATE) printf("IN_CREATE ");
-  if (evt.mask & IN_DELETE) printf("IN_DELETE ");
-  if (evt.mask & IN_DELETE_SELF) printf("IN_DELETE_SELF ");
-  if (evt.mask & IN_IGNORED) printf("IN_IGNORED ");
-  if (evt.mask & IN_ISDIR) printf("IN_ISDIR ");
-  if (evt.mask & IN_MODIFY) printf("IN_MODIFY ");
-  if (evt.mask & IN_MOVE_SELF) printf("IN_MOVE_SELF ");
-  if (evt.mask & IN_MOVED_FROM) printf("IN_MOVED_FROM ");
-  if (evt.mask & IN_MOVED_TO) printf("IN_MOVED_TO ");
-  if (evt.mask & IN_OPEN) printf("IN_OPEN ");
-  if (evt.mask & IN_Q_OVERFLOW) printf("IN_Q_OVERFLOW ");
-  if (evt.mask & IN_UNMOUNT) printf("IN_UNMOUNT ");
+  if (evt.mask & IN_ACCESS)
+    printf("IN_ACCESS ");
+  if (evt.mask & IN_ATTRIB)
+    printf("IN_ATTRIB ");
+  if (evt.mask & IN_CLOSE_NOWRITE)
+    printf("IN_CLOSE_NOWRITE ");
+  if (evt.mask & IN_CLOSE_WRITE)
+    printf("IN_CLOSE_WRITE ");
+  if (evt.mask & IN_CREATE)
+    printf("IN_CREATE ");
+  if (evt.mask & IN_DELETE)
+    printf("IN_DELETE ");
+  if (evt.mask & IN_DELETE_SELF)
+    printf("IN_DELETE_SELF ");
+  if (evt.mask & IN_IGNORED)
+    printf("IN_IGNORED ");
+  if (evt.mask & IN_ISDIR)
+    printf("IN_ISDIR ");
+  if (evt.mask & IN_MODIFY)
+    printf("IN_MODIFY ");
+  if (evt.mask & IN_MOVE_SELF)
+    printf("IN_MOVE_SELF ");
+  if (evt.mask & IN_MOVED_FROM)
+    printf("IN_MOVED_FROM ");
+  if (evt.mask & IN_MOVED_TO)
+    printf("IN_MOVED_TO ");
+  if (evt.mask & IN_OPEN)
+    printf("IN_OPEN ");
+  if (evt.mask & IN_Q_OVERFLOW)
+    printf("IN_Q_OVERFLOW ");
+  if (evt.mask & IN_UNMOUNT)
+    printf("IN_UNMOUNT ");
 #endif
   printf("\n");
 }
@@ -109,8 +142,14 @@ std::pair<std::vector<struct inotify_event>, size_t> read_inotify()
     inotify_fd,
     inotify_events.data(),
     inotify_events.size() * sizeof(struct inotify_event));
-  if (num == 0) { fprintf(stderr, "inotify read returned 0!\n"); }
-  if (num == -1) { fprintf(stderr, "inotify error: read returned -1!\n"); }
+  if (num == 0)
+  {
+    fprintf(stderr, "inotify read returned 0!\n");
+  }
+  if (num == -1)
+  {
+    fprintf(stderr, "inotify error: read returned -1!\n");
+  }
   //printf("Read %zu bytes from inotify read.\n", num);
   size_t num_of_events = num / sizeof(struct inotify_event);
   assert(num_of_events <= inotify_events.size());
@@ -129,9 +168,11 @@ void check_watchers()
     //printf("Checking %zu watchers...\n", watchers.size());
     const auto &[inotify_events, num_of_events] = read_inotify();
 
-    if (!watchers_map_mutex.try_lock()) continue;
+    if (!watchers_map_mutex.try_lock())
+      continue;
 
-    if (watchers.empty()) break;
+    if (watchers.empty())
+      break;
 
     //printf("num_of_events=%lu\n", num_of_events);
     for (size_t i = 0; i < num_of_events; i++)
@@ -141,10 +182,12 @@ void check_watchers()
 
       assert(watchers.size() > 0);
 #ifdef __linux__
-      if (!watchers.contains(wd)) break;
+      if (!watchers.contains(wd))
+        break;
 #endif
       auto watcher = watchers.at(wd).lock();
-      if (watcher == nullptr) break;
+      if (watcher == nullptr)
+        break;
 
       auto events = get_events(evt.mask);
       assert(!events.empty());
@@ -155,9 +198,13 @@ void check_watchers()
     for (const auto &wd_watcher : watchers)
     {
       const auto watcher = wd_watcher.second.lock();
-      if (watcher == nullptr) continue;
+      if (watcher == nullptr)
+        continue;
 
-      if (watcher->has_pending_events()) { watcher->invoke(); }
+      if (watcher->has_pending_events())
+      {
+        watcher->invoke();
+      }
     }
 
     watchers_map_mutex.unlock();
@@ -226,7 +273,10 @@ FileWatcher::FileWatcher(const File &file, FileCallback callback)
 #ifdef __linux__
   wd = inotify_add_watch(inotify_fd, file.get_name().data(), IN_ALL_EVENTS);
 #endif
-  if (wd == -1) { fprintf(stderr, "Cannot inotify_add_watch\n"); }
+  if (wd == -1)
+  {
+    fprintf(stderr, "Cannot inotify_add_watch\n");
+  }
   //printf("Added FileWatcher wd=%d for file fd=%d\n", wd, fd);
   assert(wd != -1);
 }

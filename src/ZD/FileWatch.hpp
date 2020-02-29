@@ -33,6 +33,7 @@ public:
   ~FileWatcher();
 
   static bool supported;
+
 protected:
   FileWatcher(const File &file, FileCallback callback);
   static std::shared_ptr<FileWatcher> add(

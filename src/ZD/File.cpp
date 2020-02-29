@@ -22,7 +22,10 @@ File::File(std::string_view file_name, OpenMode mode, CreateFile create)
     case Write: oflag = O_WRONLY; break;
     case ReadWrite: oflag = O_RDWR; break;
   }
-  if (create == CreateFile::Yes) { oflag |= O_CREAT; }
+  if (create == CreateFile::Yes)
+  {
+    oflag |= O_CREAT;
+  }
 
   fd = open(file_name.data(), oflag, 0660);
 
@@ -39,9 +42,15 @@ File::File(std::string_view file_name, OpenMode mode, CreateFile create)
 
 File::~File()
 {
-  if (fd != -1) { close(fd); }
+  if (fd != -1)
+  {
+    close(fd);
+  }
 
-  if (file_watcher != nullptr) { file_watcher.reset(); }
+  if (file_watcher != nullptr)
+  {
+    file_watcher.reset();
+  }
 }
 
 void File::rewind()
@@ -157,20 +166,28 @@ std::vector<uint8_t> File::read_all_bytes()
 
 ssize_t File::write(std::vector<uint8_t> data)
 {
-  if (mode != Write && mode != ReadWrite) { return 0; }
+  if (mode != Write && mode != ReadWrite)
+  {
+    return 0;
+  }
   assert(mode == Write || mode == ReadWrite);
 
   ssize_t written = 0;
   written += ::write(fd, data.data(), data.size());
+  obtain_size();
   return written;
 }
 
 ssize_t File::write(std::string_view str)
 {
-  if (mode != Write && mode != ReadWrite) { return 0; }
+  if (mode != Write && mode != ReadWrite)
+  {
+    return 0;
+  }
   assert(mode == Write || mode == ReadWrite);
   ssize_t written = 0;
   written += ::write(fd, str.data(), str.size());
+  obtain_size();
   return written;
 }
 

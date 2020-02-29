@@ -49,7 +49,9 @@ bool Image::save_to_file(std::string file_name)
   size_t file_ext_pos = file_name.find_last_of(".");
   std::string file_ext = "png";
   if (file_ext_pos != std::string::npos)
-  { file_ext = file_name.substr(file_ext_pos + 1); }
+  {
+    file_ext = file_name.substr(file_ext_pos + 1);
+  }
   else
   {
     file_name += ".";

@@ -37,14 +37,29 @@ void window_size_callback_glfw(GLFWwindow* handle, int width, int height)
   window->set_size(width, height);
 }
 
+void mouse_scroll_callback_glfw(
+  GLFWwindow* handle, double x_offset, double y_offset)
+{
+  auto window = windows_GLFW.at(handle);
+  Input_GLFW* input = window->input_ptr.get();
+  input->add_mouse_scroll(x_offset, y_offset);
+}
+
 Window_GLFW::~Window_GLFW()
 {
-  if (handle != NULL) { this->kill(); }
+  if (handle != NULL)
+  {
+    this->kill();
+  }
 }
 
 void Window_GLFW::init()
 {
-  printf("Creating GLFW window handle [%d, %d, %s]...\n", width, height, name.data());
+  printf(
+    "Creating GLFW window handle [%d, %d, %s]...\n",
+    width,
+    height,
+    name.data());
   handle = glfwCreateWindow(width, height, name.data(), NULL, NULL);
   assert(handle != NULL);
   printf("Window_GLFW (%p) created.\n", handle);
@@ -57,6 +72,7 @@ void Window_GLFW::init()
   glfwSetCursorPosCallback(handle, cursor_position_callback_glfw);
   glfwSetMouseButtonCallback(handle, mouse_button_callback_glfw);
   glfwSetWindowSizeCallback(handle, window_size_callback_glfw);
+  glfwSetScrollCallback(handle, mouse_scroll_callback_glfw);
 }
 
 void Window_GLFW::show() { glfwShowWindow(handle); }
@@ -70,6 +86,7 @@ void Window_GLFW::kill()
   glfwSetCursorPosCallback(handle, NULL);
   glfwSetMouseButtonCallback(handle, NULL);
   glfwSetWindowSizeCallback(handle, NULL);
+  glfwSetScrollCallback(handle, NULL);
   glfwDestroyWindow(handle);
   handle = NULL;
   puts("GLFW window destroyed.");
@@ -83,7 +100,8 @@ void Window_GLFW::set_current()
 
 bool Window_GLFW::is_open() const
 {
-  if (handle == NULL) return false;
+  if (handle == NULL)
+    return false;
 
   return !glfwWindowShouldClose(handle);
 }

@@ -18,7 +18,10 @@ int file_test_main(int, char **)
   {
     File f("images/Crate1.mtl", File::Read);
     assert(f.is_open());
-    if (f.is_open()) { printf("File '%s' opened.\n", f.get_name().data()); }
+    if (f.is_open())
+    {
+      printf("File '%s' opened.\n", f.get_name().data());
+    }
     assert(f.get_size() == 272);
     assert(f.get_name() == "images/Crate1.mtl");
 
@@ -45,7 +48,9 @@ int file_test_main(int, char **)
     assert(b.size() == 272);
     assert(f.read_all_bytes().size() == 272);
     if (b.size() == 272 && f.read_all_bytes().size() == b.size())
-    { printf("DONE\n"); }
+    {
+      printf("DONE\n");
+    }
     else
     {
       printf("ERROR!\n");
@@ -71,7 +76,10 @@ int file_test_main(int, char **)
     printf("Read %d lines.\n", lines);
     assert(lines == 12);
 
-    if (line) { printf("DONE\n"); }
+    if (line)
+    {
+      printf("DONE\n");
+    }
     else
     {
       printf("ERROR!\n");
@@ -94,7 +102,10 @@ int file_test_main(int, char **)
     }
     assert(lines_num == 12);
     assert(lines.size() == lines_num);
-    if (lines.size() == 12) { printf("DONE\n"); }
+    if (lines.size() == 12)
+    {
+      printf("DONE\n");
+    }
     else
     {
       printf("ERROR!\n");
@@ -158,7 +169,8 @@ int file_test_main(int, char **)
     int sec = 1;
     printf("Sleeping for %d second(s)...\n", sec);
     std::this_thread::sleep_for(std::chrono::seconds(sec));
-  } else
+  }
+  else
   {
     fprintf(stderr, "FileWatcher not supported\n");
   }

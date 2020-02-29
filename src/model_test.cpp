@@ -9,14 +9,15 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-#define WIDTH 1920 / 3
+#define WIDTH  1920 / 3
 #define HEIGHT 1080 / 3
 
-int model_test_main(int, char**)
+int model_test_main(int, char **)
 {
   puts("Creating renderer with window");
   auto renderer = OGLRenderer();
-  auto window = renderer.add_window(WindowParameters(Size(WIDTH, HEIGHT), "ZD model test"));
+  auto window =
+    renderer.add_window(WindowParameters(Size(WIDTH, HEIGHT), "ZD model test"));
   puts("Enabling cull face");
   renderer.enable_cull_face();
   puts("Enabling depth test");
@@ -59,12 +60,10 @@ int model_test_main(int, char**)
     { -1.0, 0.0, -1.0 });
 
   auto view_orthographic = View(
-      Camera::OrtographicParameters(
-        Camera::OrthographicBox(-10.f, 10.f, 10.f, -10.f), 
-        Camera::ClippingPlane(0.1f, 10000.f)
-      ), 
-      { -1.0, 0.0, -1.0 }
-    );
+    Camera::OrtographicParameters(
+      Camera::OrthographicBox(-10.f, 10.f, 10.f, -10.f),
+      Camera::ClippingPlane(0.1f, 10000.f)),
+    { -1.0, 0.0, -1.0 });
   View *view = &view_perspective;
 
   glm::vec3 camera_position(-1, 0, -1);
@@ -76,8 +75,10 @@ int model_test_main(int, char**)
     renderer.clear();
 
     float step = 1.0;
-    if (input->key(Key::LeftShift))   step *= 10.;
-    if (input->key(Key::LeftControl)) step *= 10.;
+    if (input->key(Key::LeftShift))
+      step *= 10.;
+    if (input->key(Key::LeftControl))
+      step *= 10.;
 
     if (input->key(Key::A))
     {
@@ -107,17 +108,36 @@ int model_test_main(int, char**)
     if (input->key(Key::Space))
     {
       view = &view_orthographic;
-    } else
+    }
+    else
     {
       view = &view_perspective;
     }
 
-    if (input->key(Key::R)) { entity.add_rotation({ 0.001 * step, 0, 0 }); }
-    if (input->key(Key::F)) { entity.add_rotation({ 0, 0.001 * step, 0 }); }
-    if (input->key(Key::V)) { entity.add_rotation({ 0, 0, 0.001 * step }); }
-    if (input->key(Key::C)) { entity.multiply_scale(1.00 + 0.001 * step); }
-    if (input->key(Key::Z)) { entity.multiply_scale(1.00 - 0.001 * step); }
-    if (input->key(Key::X)) { entity.set_scale({ 1, 1, 1 }); }
+    if (input->key(Key::R))
+    {
+      entity.add_rotation({ 0.001 * step, 0, 0 });
+    }
+    if (input->key(Key::F))
+    {
+      entity.add_rotation({ 0, 0.001 * step, 0 });
+    }
+    if (input->key(Key::V))
+    {
+      entity.add_rotation({ 0, 0, 0.001 * step });
+    }
+    if (input->key(Key::C))
+    {
+      entity.multiply_scale(1.00 + 0.001 * step);
+    }
+    if (input->key(Key::Z))
+    {
+      entity.multiply_scale(1.00 - 0.001 * step);
+    }
+    if (input->key(Key::X))
+    {
+      entity.set_scale({ 1, 1, 1 });
+    }
 
     view->set_position(camera_position);
     model_shader->use();
@@ -125,7 +145,10 @@ int model_test_main(int, char**)
 
     renderer.render();
 
-    if (input->key(Key::Escape)) { renderer.remove_window(0); }
+    if (input->key(Key::Escape))
+    {
+      renderer.remove_window(0);
+    }
   }
   puts("Done.");
   return 0;

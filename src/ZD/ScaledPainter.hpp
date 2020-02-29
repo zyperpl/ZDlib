@@ -25,9 +25,17 @@ public:
   float get_y_scaler() const { return y_scaler; }
 
 protected:
-  template<typename T> T scale_h(T v) { return v * x_scaler; }
+  template<typename T>
+  T scale_h(T v)
+  {
+    return v * x_scaler;
+  }
 
-  template<typename T> T scale_v(T v) { return v * x_scaler; }
+  template<typename T>
+  T scale_v(T v)
+  {
+    return v * x_scaler;
+  }
 
 private:
   float x_scaler { 1.0 };

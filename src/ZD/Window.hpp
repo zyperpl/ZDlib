@@ -111,6 +111,7 @@ private:
   friend void cursor_position_callback_glfw(GLFWwindow *, double, double);
   friend void mouse_button_callback_glfw(GLFWwindow *, int, int, int);
   friend void window_size_callback_glfw(GLFWwindow *, int, int);
+  friend void mouse_scroll_callback_glfw(GLFWwindow *, double, double);
 };
 
 class Window_FB : public Window

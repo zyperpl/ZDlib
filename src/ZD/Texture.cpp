@@ -25,7 +25,8 @@ void Texture::update(Image *new_image)
 
 void Texture::update()
 {
-  if (!image) return;
+  if (!image)
+    return;
 
   GLenum format = GL_RGBA;
 

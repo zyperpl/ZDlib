@@ -46,8 +46,14 @@ public:
 
   Size &operator/=(const Size &other)
   {
-    if (other.w != 0) { this->w /= other.w; }
-    if (other.h != 0) { this->h /= other.h; }
+    if (other.w != 0)
+    {
+      this->w /= other.w;
+    }
+    if (other.h != 0)
+    {
+      this->h /= other.h;
+    }
     return *this;
   }
 

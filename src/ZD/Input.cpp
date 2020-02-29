@@ -177,7 +177,8 @@ void Input_GLFW::update_mouse_position(
     (double)(window_size.height()) / (double)(canvas_size.height());
 
   double scl = scl_x;
-  if (scl > scl_y) scl = scl_y;
+  if (scl > scl_y)
+    scl = scl_y;
 
   const int x_offset =
     (window_size.width() - (scl * canvas_size.width())) / 2.0f;
@@ -186,4 +187,10 @@ void Input_GLFW::update_mouse_position(
 
   mouse_data.position_screen_space.x = ((mx - x_offset) / scl) + 0.5;
   mouse_data.position_screen_space.y = ((my - y_offset) / scl) + 0.5;
+}
+
+void Input_GLFW::add_mouse_scroll(const double scroll_x, const double scroll_y)
+{
+  mouse_data.scroll_x_offset += scroll_x;
+  mouse_data.scroll_y_offset += scroll_y;
 }

@@ -32,7 +32,8 @@ const std::vector<GLfloat> z_cube_uvs {
   0., 0., 0., 1., 1., 1., 0., 0., 1., 0., 1., 1., 0., 0., 0., 1., 1., 1.,
 };
 
-template<typename T> int generate_gl_buffer(std::vector<T> data)
+template<typename T>
+int generate_gl_buffer(std::vector<T> data)
 {
   GLuint id = 0;
 
@@ -67,10 +68,19 @@ Model::Model(ModelDefault default_name)
 
   this->generate_vbo();
 
-  if (!elements.empty()) { this->generate_ebo(); }
+  if (!elements.empty())
+  {
+    this->generate_ebo();
+  }
 
-  if (!uvs.empty()) { uvbo = generate_gl_buffer(uvs); }
-  if (!normals.empty()) { nbo = generate_gl_buffer(normals); }
+  if (!uvs.empty())
+  {
+    uvbo = generate_gl_buffer(uvs);
+  }
+  if (!normals.empty())
+  {
+    nbo = generate_gl_buffer(normals);
+  }
 }
 
 Model::Model(std::string_view file_name)
@@ -90,10 +100,19 @@ Model::Model(std::string_view file_name)
 
   this->generate_vbo();
 
-  if (!elements.empty()) { this->generate_ebo(); }
+  if (!elements.empty())
+  {
+    this->generate_ebo();
+  }
 
-  if (!uvs.empty()) { uvbo = generate_gl_buffer(uvs); }
-  if (!normals.empty()) { nbo = generate_gl_buffer(normals); }
+  if (!uvs.empty())
+  {
+    uvbo = generate_gl_buffer(uvs);
+  }
+  if (!normals.empty())
+  {
+    nbo = generate_gl_buffer(normals);
+  }
 
   printf(
     "Model %p loaded.\nvbo=%d (%zu) ebo=%d (%zu) uvbo=%d (%zu) nbo=%d (%zu)\n",

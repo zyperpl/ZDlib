@@ -40,10 +40,14 @@ uint32_t *ImageLoader::u8_to_u32(
   {
     uint8_t r = 0, g = 0, b = 0, a = 255;
     const uint8_t *px = bitmap + i * channels;
-    if (channels > 0) r = px[0];
-    if (channels > 1) g = px[1];
-    if (channels > 2) b = px[2];
-    if (channels > 3) a = px[3];
+    if (channels > 0)
+      r = px[0];
+    if (channels > 1)
+      g = px[1];
+    if (channels > 2)
+      b = px[2];
+    if (channels > 3)
+      a = px[3];
 
     data[i] = Color(r, g, b, a).value();
   }
@@ -65,9 +69,12 @@ uint8_t *ImageLoader::u32_to_u8(
 
     const ssize_t d_idx = i * channels;
     data[d_idx + 0] = color.red();
-    if (channels >= 2) data[d_idx + 1] = color.green();
-    if (channels >= 3) data[d_idx + 2] = color.blue();
-    if (channels >= 4) data[d_idx + 3] = color.alpha();
+    if (channels >= 2)
+      data[d_idx + 1] = color.green();
+    if (channels >= 3)
+      data[d_idx + 2] = color.blue();
+    if (channels >= 4)
+      data[d_idx + 3] = color.alpha();
   }
 
   return data;
@@ -119,7 +126,9 @@ std::shared_ptr<Image> ImageLoader::load(
   if (reload != ForceReload::Yes)
   {
     if (auto already_loaded = find_in_loaded(path))
-    { return *already_loaded; }
+    {
+      return *already_loaded;
+    }
   }
 
   if (auto loaded_data = load_image_via_stbi(path))
@@ -132,7 +141,10 @@ std::shared_ptr<Image> ImageLoader::load(
 
   std::shared_ptr<Image> image_ptr(image);
 
-  if (image_ptr) { loaded_images.emplace(path, image_ptr); }
+  if (image_ptr)
+  {
+    loaded_images.emplace(path, image_ptr);
+  }
 
   return image_ptr;
 }

@@ -21,7 +21,10 @@ std::optional<std::vector<ModelData>> ModelLoader::load(
   bool ret = tinyobj::LoadObj(
     &attrib, &shapes, &materials, &warn, &err, file_name.data());
 
-  if (!warn.empty()) { printf("OBJ load warning: %s\n", warn.data()); }
+  if (!warn.empty())
+  {
+    printf("OBJ load warning: %s\n", warn.data());
+  }
 
   if (!err.empty())
   {
@@ -29,7 +32,10 @@ std::optional<std::vector<ModelData>> ModelLoader::load(
     return {};
   }
 
-  if (!ret) { return {}; }
+  if (!ret)
+  {
+    return {};
+  }
 
   for (const auto &shape : shapes)
   {

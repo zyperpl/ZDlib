@@ -17,7 +17,10 @@ static bool OGL_LOADED = false;
 
 OGLRenderer::OGLRenderer()
 {
-  printf("\nOGLRenderer initializing (OpenGL %d.%d)...\n", OPENGL_MAJOR, OPENGL_MINOR);
+  printf(
+    "\nOGLRenderer initializing (OpenGL %d.%d)...\n",
+    OPENGL_MAJOR,
+    OPENGL_MINOR);
   glfwInit();
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, OPENGL_MAJOR);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, OPENGL_MINOR);
@@ -75,7 +78,8 @@ void OGLRenderer::remove_window(size_t index)
 
 void OGLRenderer::initialize_gl()
 {
-  if (OGL_LOADED) return;
+  if (OGL_LOADED)
+    return;
 
   // must be done after window creation
   assert(!windows.empty());
@@ -112,7 +116,8 @@ void OGLRenderer::initialize_gl()
         message);
 
       glerrors++;
-      if (glerrors >= 128) exit(3);
+      if (glerrors >= 128)
+        exit(3);
     }
   };
 
@@ -122,7 +127,8 @@ void OGLRenderer::initialize_gl()
     glEnable(GL_DEBUG_OUTPUT);
     puts("Setting glDebugMessageCallback");
     glDebugMessageCallback(OGLMessageCallback, 0);
-  } else
+  }
+  else
   {
     puts("GL_KHR_debug not supported!");
   }
@@ -138,7 +144,8 @@ void OGLRenderer::initialize_gl()
 
 void OGLRenderer::uninitialize_gl()
 {
-  if (!OGL_LOADED) return;
+  if (!OGL_LOADED)
+    return;
 
   puts("Deleting vertex array object...");
   OGL_LOADED = false;
@@ -172,7 +179,10 @@ void OGLRenderer::initialize_main_screen_image()
 
 std::shared_ptr<Image> OGLRenderer::get_main_screen_image()
 {
-  if (!main_screen_image) { OGLRenderer::initialize_main_screen_image(); }
+  if (!main_screen_image)
+  {
+    OGLRenderer::initialize_main_screen_image();
+  }
   return main_screen_image;
 }
 
@@ -182,7 +192,10 @@ void OGLRenderer::clear()
 {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  if (main_screen_image) { main_screen_image->clear(); }
+  if (main_screen_image)
+  {
+    main_screen_image->clear();
+  }
 }
 
 void OGLRenderer::center_view_port()
@@ -198,7 +211,8 @@ void OGLRenderer::center_view_port()
   double r = double(width) / desirable_width;
   const double r2 = double(height) / desirable_height;
 
-  if (r > r2) r = r2;
+  if (r > r2)
+    r = r2;
   const int w = r * desirable_width;
   const int h = r * desirable_height;
   glViewport((width - w) / 2, (height - h) / 2, w, h);
@@ -206,7 +220,8 @@ void OGLRenderer::center_view_port()
 
 void OGLRenderer::render_screen()
 {
-  if (screen_rendered) return;
+  if (screen_rendered)
+    return;
 
   if (main_screen_texture)
   {
@@ -214,18 +229,27 @@ void OGLRenderer::render_screen()
     main_screen_texture->bind(*current_shader_program.get());
   }
 
-  if (current_shader_program) { current_shader_program->use(); }
+  if (current_shader_program)
+  {
+    current_shader_program->use();
+  }
 
   if (main_screen_model)
-  { main_screen_model->draw(*current_shader_program.get()); }
+  {
+    main_screen_model->draw(*current_shader_program.get());
+  }
   screen_rendered = true;
 }
 
 void OGLRenderer::render()
 {
-  if (!window()->is_open()) return;
+  if (!window()->is_open())
+    return;
 
-  if (should_center_view_port) { center_view_port(); }
+  if (should_center_view_port)
+  {
+    center_view_port();
+  }
 
   render_screen();
 

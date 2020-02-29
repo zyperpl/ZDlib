@@ -8,10 +8,14 @@ long move_ptr_to_xy(const int x, const int y, const int w) { return x + y * w; }
 
 bool in_bounds(const int x, const int y, const int w, const int h)
 {
-  if (x >= w) return false;
-  if (y >= h) return false;
-  if (x < 0) return false;
-  if (y < 0) return false;
+  if (x >= w)
+    return false;
+  if (y >= h)
+    return false;
+  if (x < 0)
+    return false;
+  if (y < 0)
+    return false;
 
   return true;
 }
@@ -23,10 +27,14 @@ Painter::Painter(std::shared_ptr<Image> image)
 
 void Painter::set_pixel(const int x, const int y, const Color &color)
 {
-  if (x < 0) return;
-  if (y < 0) return;
-  if (x >= target->width()) return;
-  if (y >= target->height()) return;
+  if (x < 0)
+    return;
+  if (y < 0)
+    return;
+  if (x >= target->width())
+    return;
+  if (y >= target->height())
+    return;
 
   target->set_pixel(x, y, color);
 }
@@ -47,8 +55,10 @@ void Painter::draw_image(const int x, const int y, const Image &image)
     ssize_t image_x = i % image.width();
     ssize_t image_y = i / image.width();
 
-    if (x + image_x >= t_width || x + image_x < 0) continue;
-    if (y + image_y >= t_height || y + image_y < 0) continue;
+    if (x + image_x >= t_width || x + image_x < 0)
+      continue;
+    if (y + image_y >= t_height || y + image_y < 0)
+      continue;
 
     size_t target_idx = image_x + (image_y * t_width);
 
@@ -89,20 +99,25 @@ void Painter::draw_image(
     const ssize_t image_x = i % new_width;
     const ssize_t image_y = i / new_width;
 
-    if (x + image_x >= t_width || x + image_x < 0) continue;
-    if (y + image_y >= t_height || y + image_y < 0) continue;
+    if (x + image_x >= t_width || x + image_x < 0)
+      continue;
+    if (y + image_y >= t_height || y + image_y < 0)
+      continue;
 
     const ssize_t target_idx = image_x + (image_y * t_width);
 
     ssize_t scaled_image_x = image_x / abs_scale_x;
     ssize_t scaled_image_y = image_y / abs_scale_y;
 
-    if (scale_x < 0) scaled_image_x = image.width() - scaled_image_x;
-    if (scale_y < 0) scaled_image_y = image.height() - scaled_image_y;
+    if (scale_x < 0)
+      scaled_image_x = image.width() - scaled_image_x;
+    if (scale_y < 0)
+      scaled_image_y = image.height() - scaled_image_y;
 
     const ssize_t image_idx = scaled_image_x + scaled_image_y * image.width();
 
-    if (image_idx >= image.size.area()) continue;
+    if (image_idx >= image.size.area())
+      continue;
 
     dest[target_idx] = src[image_idx];
   }
@@ -126,20 +141,26 @@ void Painter::draw_line(
     y_longer = true;
   }
 
-  if (long_len < 0) incrementVal = -1;
+  if (long_len < 0)
+    incrementVal = -1;
 
   double div_diff = long_len;
-  if (short_len != 0) div_diff = (double)long_len / (double)short_len;
+  if (short_len != 0)
+    div_diff = (double)long_len / (double)short_len;
   if (y_longer)
   {
     for (int i = 0; i != long_len; i += incrementVal)
     {
       int x = x1 + (int)((double)i / div_diff);
       int y = y1 + i;
-      if (x < 0) continue;
-      if (y < 0) continue;
-      if (x >= t_width) continue;
-      if (y >= t_height) continue;
+      if (x < 0)
+        continue;
+      if (y < 0)
+        continue;
+      if (x >= t_width)
+        continue;
+      if (y >= t_height)
+        continue;
 
       target->set_pixel(x, y, color);
     }
@@ -151,10 +172,14 @@ void Painter::draw_line(
       int x = x1 + i;
       int y = y1 + (int)((double)i / div_diff);
 
-      if (x < 0) continue;
-      if (y < 0) continue;
-      if (x >= t_width) continue;
-      if (y >= t_height) continue;
+      if (x < 0)
+        continue;
+      if (y < 0)
+        continue;
+      if (x >= t_width)
+        continue;
+      if (y >= t_height)
+        continue;
 
       target->set_pixel(x, y, color);
     }
@@ -167,7 +192,8 @@ void Painter::draw_rectangle(
   const int t_width = target->width();
   const int t_height = target->height();
 
-  if (x1 < 0 && y1 < 0 && x2 < 0 && y2 < 0) return;
+  if (x1 < 0 && y1 < 0 && x2 < 0 && y2 < 0)
+    return;
   if (x1 >= t_width && y1 >= t_height && x2 >= t_width && y2 >= t_height)
     return;
 
@@ -212,31 +238,45 @@ void Painter::draw_rectangle(
 #pragma omp parallel for
   for (int i = 0; i <= w; i++)
   {
-    if (xx + i >= t_width) { continue; }
+    if (xx + i >= t_width)
+    {
+      continue;
+    }
 
-    if (y1 >= 0 && y1 < t_height) target->set_pixel(xx + i, y1, color);
+    if (y1 >= 0 && y1 < t_height)
+      target->set_pixel(xx + i, y1, color);
 
-    if (y2 >= 0 && y2 < t_height) target->set_pixel(xx + i, y2, color);
+    if (y2 >= 0 && y2 < t_height)
+      target->set_pixel(xx + i, y2, color);
   }
 
 #pragma omp parallel for
   for (int i = 0; i <= h; i++)
   {
-    if (yy + i >= t_height) { continue; }
+    if (yy + i >= t_height)
+    {
+      continue;
+    }
 
-    if (x1 >= 0 && x1 < t_width) target->set_pixel(x1, yy + i, color);
+    if (x1 >= 0 && x1 < t_width)
+      target->set_pixel(x1, yy + i, color);
 
-    if (x2 >= 0 && x2 < t_width) target->set_pixel(x2, yy + i, color);
+    if (x2 >= 0 && x2 < t_width)
+      target->set_pixel(x2, yy + i, color);
   }
 }
 
 void Painter::draw_circle(
   const int x, const int y, const int radius, const Color &color)
 {
-  if (x + radius < 0) return;
-  if (y + radius < 0) return;
-  if (x - radius >= target->width()) return;
-  if (y - radius >= target->height()) return;
+  if (x + radius < 0)
+    return;
+  if (y + radius < 0)
+    return;
+  if (x - radius >= target->width())
+    return;
+  if (y - radius >= target->height())
+    return;
 
   const int t_width = target->width();
   const int t_height = target->height();

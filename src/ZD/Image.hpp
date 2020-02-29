@@ -53,7 +53,10 @@ public:
   void clear(Color color = Color(0))
   {
     uint32_t v = color.value();
-    if (v < 255) { memset(data.get(), v, size.area() * sizeof(uint32_t)); }
+    if (v < 255)
+    {
+      memset(data.get(), v, size.area() * sizeof(uint32_t));
+    }
     else
     {
       std::fill(data.get(), data.get() + size.area(), v);

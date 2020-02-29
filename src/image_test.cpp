@@ -17,7 +17,10 @@
 std::shared_ptr<Image> load_image(std::string_view name)
 {
   auto img = Image::load(name);
-  if (!img) { printf("Image '%s' cannot be loaded!\n", name.data()); }
+  if (!img)
+  {
+    printf("Image '%s' cannot be loaded!\n", name.data());
+  }
   else
   {
     printf("Image '%s' loaded!\n", name.data());
@@ -67,18 +70,19 @@ auto image_test_main(int, char **) -> int
   int y = 11;
 
   auto canvas_image = Image::load("images/user_canvas.png");
-  
+
   if (FileWatcher::supported)
   {
     auto file = File("images/user_canvas.png", File::Read);
     assert(file.is_open());
     file.set_watch([&canvas_image](
-                    const File &file, std::unordered_set<FileEvent> events) {
+                     const File &file, std::unordered_set<FileEvent> events) {
       printf("File '%s' %zu events.\n", file.get_name().data(), events.size());
       if (events.count(FileEvent::CloseWrite) > 0)
       {
         printf("File modified!\n");
-        auto new_image = Image::load("images/user_canvas.png", ForceReload::Yes);
+        auto new_image =
+          Image::load("images/user_canvas.png", ForceReload::Yes);
         if (new_image)
         {
           canvas_image->set_data(
@@ -114,9 +118,18 @@ auto image_test_main(int, char **) -> int
       puts("Left");
       x--;
     }
-    if (input->key(Key::Right)) { x++; }
-    if (input->key(Key::Up)) { y--; }
-    if (input->key(Key::Down)) { y++; }
+    if (input->key(Key::Right))
+    {
+      x++;
+    }
+    if (input->key(Key::Up))
+    {
+      y--;
+    }
+    if (input->key(Key::Down))
+    {
+      y++;
+    }
 
     static int rnoise_c = 0;
     if (rnoise_c++ > 10000)

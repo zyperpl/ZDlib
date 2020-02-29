@@ -141,7 +141,8 @@ enum class MouseButton
   Invalid
 };
 
-template<typename T> struct MousePosition
+template<typename T>
+struct MousePosition
 {
   T x;
   T y;
@@ -161,12 +162,28 @@ public:
   {
     return position_screen_space;
   }
+  inline double peek_scroll_x() const { return scroll_x_offset; }
+  inline double peek_scroll_y() const { return scroll_y_offset; }
+  inline double scroll_x() const
+  {
+    double sx = scroll_x_offset;
+    scroll_x_offset = 0;
+    return sx;
+  }
+  inline double scroll_y() const
+  {
+    double sy = scroll_y_offset;
+    scroll_y_offset = 0;
+    return sy;
+  }
 
   inline int button(MouseButton button) const { return buttons.at(button); }
 
 protected:
   MousePosition<double> position_window_space { 0.0, 0.0 };
   MousePosition<int> position_screen_space { -1, -1 };
+  mutable double scroll_y_offset { 0.0 };
+  mutable double scroll_x_offset { 0.0 };
   std::unordered_map<MouseButton, int> buttons;
 
   friend class Input;
@@ -194,4 +211,5 @@ public:
   void update_mouse_position(
     const double mx, const double my, const Size &window_size,
     const Size &canvas_size);
+  void add_mouse_scroll(const double scroll_x, const double scroll_y);
 };

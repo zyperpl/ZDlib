@@ -37,7 +37,10 @@ public:
 
   virtual std::shared_ptr<Image> get_main_screen_image()
   {
-    if (!main_screen_image) { initialize_main_screen_image(); }
+    if (!main_screen_image)
+    {
+      initialize_main_screen_image();
+    }
     return main_screen_image;
   }
 

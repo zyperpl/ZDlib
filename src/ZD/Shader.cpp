@@ -27,7 +27,8 @@ void ShaderProgram::extract_uniforms()
     glGetActiveUniform(id, (GLuint)i, max_length, &length, &size, &type, name);
     name[length] = '\0';
 
-    uniforms.insert(std::make_pair(std::string(name), ShaderUniform { id, i, size, type }));
+    uniforms.insert(
+      std::make_pair(std::string(name), ShaderUniform { id, i, size, type }));
   }
 }
 
@@ -84,13 +85,19 @@ bool ShaderProgram::is_linked() const
 
 std::optional<ShaderUniform> ShaderProgram::get_uniform(std::string name) const
 {
-  if (uniforms.find(name) == uniforms.end()) { return std::nullopt; }
+  if (uniforms.find(name) == uniforms.end())
+  {
+    return std::nullopt;
+  }
   return uniforms.at(name);
 }
 
 std::optional<ShaderAttribute> ShaderProgram::get_attribute(
   std::string name) const
 {
-  if (attributes.find(name) == attributes.end()) { return std::nullopt; }
+  if (attributes.find(name) == attributes.end())
+  {
+    return std::nullopt;
+  }
   return attributes.at(name);
 }
