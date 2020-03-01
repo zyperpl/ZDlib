@@ -44,7 +44,7 @@ INCLUDE_DIRECTORIES (${GLEW_INCLUDE_DIR})
 
 FILE(GLOB SOURCES "src/*.cpp" "src/ZD/*.cpp")
 ADD_EXECUTABLE(${NAME} "${SOURCES}")
-TARGET_LINK_LIBRARIES(${NAME} PRIVATE ${CONAN_LIB_DIRS_OPENMP}/libomp.a stdc++ CONAN_PKG::glew CONAN_PKG::glfw dl pthread)
+TARGET_LINK_LIBRARIES(${NAME} PRIVATE ${CONAN_LIB_DIRS_OPENMP}/libomp.a stdc++ CONAN_PKG::glew CONAN_PKG::glfw CONAN_PKG::portaudio dl pthread)
 
 add_custom_target(run
   COMMAND ./build/${NAME}

@@ -19,3 +19,4 @@ class ZDConan(ConanFile):
         self.include_package("glew", "2.1.0")
         self.include_package("glfw", "3.3.2")
         self.include_package("openmp", "latest")
+        self.include_package("portaudio", "v190600.20161030")
