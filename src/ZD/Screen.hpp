@@ -7,6 +7,7 @@
 #include "Texture.hpp"
 #include "Model.hpp"
 #include "Shader.hpp"
+#include "Window.hpp"
 #include "Painter.hpp"
 
 class Screen
@@ -15,10 +16,10 @@ public:
   Screen(int x, int y, int width, int height);
   std::shared_ptr<Image> image() { return canvas_image; }
   std::shared_ptr<Painter> painter() { return image_painter; }
-  virtual void render() = 0;
+  virtual void render(Window &window) = 0;
   mutable bool rendered { false };
-protected:
   int x, y, width, height;
+protected:
   std::shared_ptr<Image> canvas_image;
   std::shared_ptr<Painter> image_painter;
 };
@@ -29,7 +30,7 @@ public:
   Screen_GL(
     std::shared_ptr<ShaderProgram> shader, int x, int y, int width, int height);
   Screen_GL(int x, int y, int width, int height);
-  void render();
+  void render(Window &window);
 
 private:
   std::unique_ptr<Texture> texture;

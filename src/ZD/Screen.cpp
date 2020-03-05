@@ -35,9 +35,14 @@ Screen_GL::Screen_GL(int x, int y, int width, int height)
       .compile();
 }
 
-void Screen_GL::render()
+void Screen_GL::render(Window &window)
 {
   shader_program->use();
+
+  shader_program->set_uniform<glm::vec2>(
+    "view_size", { window.get_initial_width(), window.get_intial_height() });
+  shader_program->set_uniform<glm::vec2>("screen_position", { x, y });
+  shader_program->set_uniform<glm::vec2>("screen_size", { width, height });
 
   texture->update();
   texture->bind(*shader_program);

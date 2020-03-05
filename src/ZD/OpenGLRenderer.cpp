@@ -186,7 +186,7 @@ void OGLRenderer::render_screens()
   {
     if (!screen->rendered)
     {
-      screen->render();
+      screen->render(*window());
     }
   }
 }
