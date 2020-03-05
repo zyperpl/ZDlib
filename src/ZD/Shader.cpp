@@ -2,6 +2,9 @@
 #include <cassert>
 #include <cstring>
 #include <string>
+#include <typeinfo>
+
+#include "glm/glm.hpp"
 
 ShaderProgram::ShaderProgram() { id = glCreateProgram(); }
 
@@ -29,6 +32,7 @@ void ShaderProgram::extract_uniforms()
 
     uniforms.insert(
       std::make_pair(std::string(name), ShaderUniform { id, i, size, type }));
+    printf("%s: shader_id=%d id=%d size=%d type=%d\n", name, id, i, size, type);
   }
 }
 
@@ -81,6 +85,30 @@ bool ShaderProgram::is_linked() const
   GLint link_status = GL_FALSE;
   glGetProgramiv(id, GL_LINK_STATUS, &link_status);
   return link_status == GL_TRUE;
+}
+
+template<typename T>
+bool ShaderProgram::set_uniform(std::string name, T value)
+{
+  fprintf(
+    stderr,
+    "ShaderProgram::set_uniform %s cannot be set, unknown type %s!",
+    name.data(),
+    typeid(value).name());
+  assert(false);
+  return false;
+}
+
+template<>
+bool ShaderProgram::set_uniform<glm::vec2>(std::string name, glm::vec2 value)
+{
+  if (auto uniform = get_uniform(name))
+  {
+    //printf("Setting %s to %f;%f\n", name.data(), value.x, value.y);
+    glUniform2f(uniform->index, value.x, value.y);
+    return true;
+  }
+  return false;
 }
 
 std::optional<ShaderUniform> ShaderProgram::get_uniform(std::string name) const

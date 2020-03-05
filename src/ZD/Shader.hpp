@@ -33,6 +33,10 @@ class ShaderProgram
 public:
   ShaderProgram();
   ~ShaderProgram();
+
+  template<typename T>
+  bool set_uniform(std::string name, T value);
+
   std::optional<ShaderUniform> get_uniform(std::string name) const;
   std::optional<ShaderAttribute> get_attribute(std::string name) const;
   void use() const;
