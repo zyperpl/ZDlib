@@ -21,7 +21,34 @@ INCLUDE_DIRECTORIES("src/ZD/" "src/")
 
 ADD_DEFINITIONS(-DNAME="${NAME}")
 
-SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -ggdb -fsanitize=address,leak -fno-omit-frame-pointer -Wall -Wextra -DDEBUG -O0")
+set(SANITIZERS "")
+option(ENABLE_SANITIZER_ADDRESS "Enable address sanitizer" FALSE)
+if(ENABLE_SANITIZER_ADDRESS)
+  list(APPEND SANITIZERS "address")
+endif()
+
+option(ENABLE_SANITIZER_MEMORY "Enable memory sanitizer" FALSE)
+if(ENABLE_SANITIZER_MEMORY)
+  list(APPEND SANITIZERS "memory")
+endif()
+
+option(ENABLE_SANITIZER_UNDEFINED_BEHAVIOR
+        "Enable undefined behavior sanitizer" FALSE)
+if(ENABLE_SANITIZER_UNDEFINED_BEHAVIOR)
+  list(APPEND SANITIZERS "undefined")
+endif()
+
+option(ENABLE_SANITIZER_THREAD "Enable thread sanitizer" FALSE)
+if(ENABLE_SANITIZER_THREAD)
+  list(APPEND SANITIZERS "thread")
+endif()
+list(JOIN SANITIZERS "," LIST_OF_SANITIZERS)
+set(SANITIZERS_STR "")
+if(NOT "${LIST_OF_SANITIZERS}" STREQUAL "")
+  set(SANITIZERS_STR "-fsanitize=${LIST_OF_SANITIZERS}")
+endif()
+
+SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -ggdb ${SANITIZERS_STR} -fno-omit-frame-pointer -Wall -Wextra -DDEBUG -O0")
 #SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -ggdb -fsanitize=memory -fno-omit-frame-pointer -Wall -Wextra")
 SET(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL} -O3 -s -DNDEBUG")
 SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -DNDEBUG")

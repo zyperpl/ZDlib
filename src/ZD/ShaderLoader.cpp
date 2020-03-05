@@ -22,7 +22,7 @@ const GLchar *z_screen_texture_vertex_shader = R"glsl(
   void main()
   {
     gl_Position = vec4(position, 0.0, 1.0);
-    uv = gl_Position.xy / 2.0 + 0.5;
+    uv = position / 2.0 + 0.5;
     uv.y = 1.0-uv.y;
   }
 )glsl";
@@ -32,6 +32,7 @@ const GLchar *z_texture_frag_shader = R"glsl(
   #ifdef GL_ES
     precision highp float;
   #endif
+
   in vec2 uv;
   uniform sampler2D sampler;
 
@@ -66,7 +67,7 @@ const GLchar *z_mvp_model_vertex_shader = R"glsl(
   }
 )glsl";
 
-auto printErrors(
+auto print_shader_errors(
   void (*fInfoLog)(GLuint, GLsizei, GLsizei *, GLchar *), GLuint sop) -> int
 {
   int logLength;
@@ -201,7 +202,7 @@ std::shared_ptr<ShaderProgram> ShaderLoader::compile()
     glAttachShader(s_id, shader_info.id);
   }
   program->link();
-  printErrors(glGetProgramInfoLog, program->id);
+  print_shader_errors(glGetProgramInfoLog, program->id);
 
   compiled_program = program;
 
@@ -232,7 +233,7 @@ GLuint ShaderLoader::load_shader(ShaderDefault default_name, GLuint type)
   GLuint id = glCreateShader(type);
   glShaderSource(id, 1, &shader_source, NULL);
   glCompileShader(id);
-  if (printErrors(glGetShaderInfoLog, id) > 0)
+  if (print_shader_errors(glGetShaderInfoLog, id) > 0)
     return 0;
 
   return id;

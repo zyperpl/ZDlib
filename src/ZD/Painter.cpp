@@ -130,26 +130,26 @@ void Painter::draw_line(
   const auto t_height = target->height();
 
   bool y_longer = false;
-  int incrementVal = 1;
+  int increment_val = 1;
 
-  int short_len = y2 - y1;
-  int long_len = x2 - x1;
+  ssize_t short_len = y2 - y1;
+  ssize_t long_len = x2 - x1;
 
-  if (abs(short_len) > abs(long_len))
+  if (std::abs(short_len) > std::abs(long_len))
   {
     std::swap(short_len, long_len);
     y_longer = true;
   }
 
   if (long_len < 0)
-    incrementVal = -1;
+    increment_val = -1;
 
   double div_diff = long_len;
   if (short_len != 0)
     div_diff = (double)long_len / (double)short_len;
   if (y_longer)
   {
-    for (int i = 0; i != long_len; i += incrementVal)
+    for (int i = 0; i != long_len; i += increment_val)
     {
       int x = x1 + (int)((double)i / div_diff);
       int y = y1 + i;
@@ -167,7 +167,7 @@ void Painter::draw_line(
   }
   else
   {
-    for (int i = 0; i != long_len; i += incrementVal)
+    for (int i = 0; i != long_len; i += increment_val)
     {
       int x = x1 + i;
       int y = y1 + (int)((double)i / div_diff);

@@ -57,6 +57,9 @@ public:
     set_value(red, green, blue, alpha);
   }
 
+  bool operator==(const Color &o) { return o.color_value == color_value; }
+  bool operator!=(const Color &o) { return o.color_value != color_value; }
+
   static Color from_floats(
     float red, float green, float blue, float alpha = 1.0)
   {

@@ -50,14 +50,13 @@ OGLRenderer::~OGLRenderer()
   //glfwTerminate();
 }
 
-const Window* OGLRenderer::add_window(const WindowParameters& params)
+std::shared_ptr<Window> OGLRenderer::add_window(const WindowParameters& params)
 {
-  windows.push_back(std::make_unique<Window_GLFW>(params));
-  assert(!windows.empty());
+  windows.push_back(std::make_shared<Window_GLFW>(params));
 
   initialize_gl();
 
-  return windows.back().get();
+  return windows.back();
 }
 
 void OGLRenderer::set_window_current(size_t index)
@@ -104,7 +103,7 @@ void OGLRenderer::initialize_gl()
                               const void*) {
     if (type == GL_DEBUG_TYPE_ERROR && severity != 0x9146)
     {
-      static long glerrors = 0;
+      static int glerrors = 0;
       fprintf(
         stderr,
         "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n",
@@ -114,7 +113,7 @@ void OGLRenderer::initialize_gl()
         message);
 
       glerrors++;
-      if (glerrors >= 128)
+      if (glerrors >= 500)
         exit(3);
     }
   };
@@ -154,41 +153,11 @@ void OGLRenderer::generate_vertex_array_object()
   //printf("Vertex array object id=%u\n", vao);
 }
 
-void OGLRenderer::initialize_main_screen_image()
-{
-  //puts("Initializing GL main screen image...");
-  Renderer::initialize_main_screen_image();
-
-  main_screen_texture = std::make_unique<Texture>(main_screen_image);
-
-  current_shader_program =
-    ShaderLoader()
-      .add(ShaderDefault::ScreenTextureVertex, GL_VERTEX_SHADER)
-      .add(ShaderDefault::ScreenTextureFragment, GL_FRAGMENT_SHADER)
-      .compile();
-
-  main_screen_model = std::make_unique<Model>(ModelDefault::Screen);
-}
-
-std::shared_ptr<Image> OGLRenderer::get_main_screen_image()
-{
-  if (!main_screen_image)
-  {
-    OGLRenderer::initialize_main_screen_image();
-  }
-  return main_screen_image;
-}
-
 void OGLRenderer::update() { glfwWaitEventsTimeout(1. / poll_rate); }
 
 void OGLRenderer::clear()
 {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-  if (main_screen_image)
-  {
-    main_screen_image->clear();
-  }
 }
 
 void OGLRenderer::center_view_port()
@@ -211,27 +180,15 @@ void OGLRenderer::center_view_port()
   glViewport((width - w) / 2, (height - h) / 2, w, h);
 }
 
-void OGLRenderer::render_screen()
+void OGLRenderer::render_screens()
 {
-  if (screen_rendered)
-    return;
-
-  if (main_screen_texture)
+  for (auto &screen : screens)
   {
-    main_screen_texture->update();
-    main_screen_texture->bind(*current_shader_program.get());
+    if (!screen->rendered)
+    {
+      screen->render();
+    }
   }
-
-  if (current_shader_program)
-  {
-    current_shader_program->use();
-  }
-
-  if (main_screen_model)
-  {
-    main_screen_model->draw(*current_shader_program.get());
-  }
-  screen_rendered = true;
 }
 
 void OGLRenderer::render()
@@ -244,11 +201,9 @@ void OGLRenderer::render()
     center_view_port();
   }
 
-  render_screen();
+  render_screens();
 
   glfwSwapBuffers(glfwGetCurrentContext());
-
-  screen_rendered = false;
 }
 
 void OGLRenderer::enable_blend(GLenum sfactor, GLenum dfactor)

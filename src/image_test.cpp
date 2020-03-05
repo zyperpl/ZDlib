@@ -8,6 +8,7 @@
 #include "ZD/ZD.hpp"
 #include "ZD/Painter.hpp"
 #include "ZD/ScaledPainter.hpp"
+#include "ZD/Screen.hpp"
 #include "ZD/OpenGLRenderer.hpp"
 #include "ZD/File.hpp"
 
@@ -49,11 +50,18 @@ auto image_test_main(int, char **) -> int
   puts("Creating renderer...");
   auto renderer = OGLRenderer();
   puts("Adding a window");
-  renderer.add_window({ Size(W, H), "ZDTest" });
-  auto input = renderer.get_window().input();
+  auto window = renderer.add_window({ Size(W, H), "ZDTest" });
+  renderer.enable_blend();
+  auto input = window->input();
 
-  puts("Creating a painter...");
-  Painter painter(renderer.get_main_screen_image());
+  puts("Creating screens...");
+  auto screen = std::make_shared<Screen_GL>(0, 0, W, H);
+  renderer.add_screen(screen);
+  auto screen2 = std::make_shared<Screen_GL>(0, 0, W, H);
+  renderer.add_screen(screen2);
+
+  puts("Getting a painter...");
+  auto painter = screen->painter();
 
   puts("Loading an image...");
   auto image = Image::load("images/lena.png");
@@ -145,68 +153,74 @@ auto image_test_main(int, char **) -> int
         Color(r(255), r(255), r(255)));
     }
 
-    painter.draw_image(x, y, *rnoise, 0.3333, -0.3333);
-    painter.draw_rectangle(
+    painter->clear(Color(0, 0, 0, 255));
+    screen->rendered = false;
+    painter->draw_image(x, y, *rnoise, 0.3333, -0.3333);
+    painter->draw_rectangle(
       x, y, x + W * 0.3333, y + H * 0.3333, Color(255, 255, 120));
 
-    painter.draw_image(x, y, *image, 0.4, 0.4);
-    painter.draw_image(-9999, -9999, *image, 0.4, 0.4);
-    painter.draw_image(9999, 9999, *image, 0.4, 0.4);
-    painter.draw_image(0, 0, *image, 0.0, 0.0);
-    painter.draw_image(x - 50, y + 40, *image, 1.2, 1.2);
-    painter.draw_image(x - 80, y + 50, *image, -1.5, -1.5);
+    painter->draw_image(x, y, *image, 0.4, 0.4);
+    painter->draw_image(-9999, -9999, *image, 0.4, 0.4);
+    painter->draw_image(9999, 9999, *image, 0.4, 0.4);
+    painter->draw_image(0, 0, *image, 0.0, 0.0);
+    painter->draw_image(x - 50, y + 40, *image, 1.2, 1.2);
+    painter->draw_image(x - 80, y + 50, *image, -1.5, -1.5);
 
-    painter.draw_line(10, 10, 300, 300, Color(255, 0, 0));
-    painter.draw_line(-100, -50, 300, 320, Color(255, 0, 0));
-    painter.draw_line(-10, 10, 3000, 1300, Color(255, 0, 0));
+    painter->draw_line(10, 10, 300, 300, Color(255, 0, 0));
+    painter->draw_line(-100, -50, 300, 320, Color(255, 0, 0));
+    painter->draw_line(-10, 10, 3000, 1300, Color(255, 0, 0));
 
-    painter.draw_circle(400, 200, 50, Color(120, 255, 255));
+    painter->draw_circle(400, 200, 50, Color(120, 255, 255));
     for (int i = 0; i < 20 / 2; i++)
     {
       int step = 4;
-      painter.draw_circle(
+      painter->draw_circle(
         400,
         200 + i * step,
         50 + i * step,
         Color(120, 255 - i * step * 3, 255 - i * step * 3));
     }
 
-    painter.draw_circle(100, 100, 11, Color(255, 120, 20));
-    painter.draw_circle(1000, 1000, 1011, Color(255, 120, 20));
-    painter.draw_circle(-100, -100, 111, Color(255, 120, 20));
-    painter.draw_circle(10, 10, 0, Color(255, 120, 20));
-    painter.draw_circle(10, 10, -20, Color(255, 120, 0));
+    painter->draw_circle(100, 100, 11, Color(255, 120, 20));
+    painter->draw_circle(1000, 1000, 1011, Color(255, 120, 20));
+    painter->draw_circle(-100, -100, 111, Color(255, 120, 20));
+    painter->draw_circle(10, 10, 0, Color(255, 120, 20));
+    painter->draw_circle(10, 10, -20, Color(255, 120, 0));
 
-    painter.draw_circle(0, 0, 20, Color(255, 0, 0));
-    painter.draw_circle(W, H, 20, Color(255, 0, 0));
-    painter.draw_circle(0, H, 20, Color(255, 0, 0));
-    painter.draw_circle(W, 0, 20, Color(255, 0, 0));
+    painter->draw_circle(0, 0, 20, Color(255, 0, 0));
+    painter->draw_circle(W, H, 20, Color(255, 0, 0));
+    painter->draw_circle(0, H, 20, Color(255, 0, 0));
+    painter->draw_circle(W, 0, 20, Color(255, 0, 0));
 
-    painter.draw_rectangle(10, 10, 100, 100, Color(0, 255, 255));
-    painter.draw_rectangle(
+    painter->draw_rectangle(10, 10, 100, 100, Color(0, 255, 255));
+    painter->draw_rectangle(
       -10 + x, -10 + y * 2, 100 + x, 100 + y * 2, Color(0, 255, 255));
-    painter.draw_rectangle(-10, -10, 160, 160, Color(120, 55, 55));
-    painter.draw_rectangle(-10, 10, 200, 200, Color(120, 55, 55));
-    painter.draw_rectangle(10, -10, 300, 300, Color(120, 55, 55));
-    painter.draw_rectangle(10, -10, 300, 300, Color(120, 55, 55));
+    painter->draw_rectangle(-10, -10, 160, 160, Color(120, 55, 55));
+    painter->draw_rectangle(-10, 10, 200, 200, Color(120, 55, 55));
+    painter->draw_rectangle(10, -10, 300, 300, Color(120, 55, 55));
+    painter->draw_rectangle(10, -10, 300, 300, Color(120, 55, 55));
 
-    painter.draw_rectangle(-10, -10, 10, 10, Color(255, 0, 0));
-    painter.draw_rectangle(W + -10, -10, W + 10, 10, Color(255, 0, 0));
-    painter.draw_rectangle(W + -10, H + -10, W + 10, H + 10, Color(255, 0, 0));
-    painter.draw_rectangle(-10, H + -10, 10, H + 10, Color(255, 0, 0));
+    painter->draw_rectangle(-10, -10, 10, 10, Color(255, 0, 0));
+    painter->draw_rectangle(W + -10, -10, W + 10, 10, Color(255, 0, 0));
+    painter->draw_rectangle(W + -10, H + -10, W + 10, H + 10, Color(255, 0, 0));
+    painter->draw_rectangle(-10, H + -10, 10, H + 10, Color(255, 0, 0));
 
-    painter.draw_image(W - 400, H - 300, *canvas_image, 0.5, 0.5);
+    painter->draw_image(W - 400, H - 300, *canvas_image, 0.5, 0.5);
 
-    painter.draw_image(W - x, H - y, *scaled_image, 2.0, 2.0);
+    painter->draw_image(W - x, H - y, *scaled_image, 2.0, 2.0);
+
+    screen2->rendered = false;
+    screen2->painter()->clear();
+    screen2->painter()->draw_circle(W / 2, H / 2, 30, Color(255, 0, 0));
 
     renderer.render();
   }
 
   puts("Saving canvas image to files...");
-  renderer.get_main_screen_image()->save_to_file("test_image");
-  renderer.get_main_screen_image()->save_to_file("test_image.jpg");
-  renderer.get_main_screen_image()->save_to_file("test_image.bmp");
-  renderer.get_main_screen_image()->save_to_file("test_image.tga");
+  screen->image()->save_to_file("test_image");
+  screen->image()->save_to_file("test_image.jpg");
+  screen->image()->save_to_file("test_image.bmp");
+  screen->image()->save_to_file("test_image.tga");
 
   printf("\nDONE\n");
 

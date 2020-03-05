@@ -7,7 +7,7 @@ int minimal_test_main(int, char**)
   puts("Creating renderer...");
   OGLRenderer renderer;
   puts("Adding window...");
-  renderer.add_window({ Size(800, 600), "zdlib minimal test" });
+  auto window = renderer.add_window({ Size(800, 600), "zdlib minimal test" });
 
   puts("Starting main loop...");
   while (renderer.is_window_open())
@@ -21,7 +21,7 @@ int minimal_test_main(int, char**)
     renderer.render();
 
     puts("Killing window...");
-    renderer.get_window().kill();
+    window->kill();
   }
 
   puts("Done");
