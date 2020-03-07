@@ -140,9 +140,7 @@ int model_test_main(int, char **)
     }
 
     view->set_position(camera_position);
-    model_shader->use();
     entity.draw(*model_shader, *view);
-
     renderer.render();
 
     if (input->key(Key::Escape))

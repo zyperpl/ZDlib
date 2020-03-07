@@ -18,6 +18,7 @@ struct ShaderUniform
   GLint index;
   GLint size;
   GLenum type;
+  GLint location;
 };
 
 struct ShaderAttribute
@@ -26,6 +27,7 @@ struct ShaderAttribute
   GLint index;
   GLint size;
   GLenum type;
+  GLint location;
 };
 
 class ShaderProgram

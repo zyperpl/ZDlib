@@ -5,6 +5,9 @@
 #include "3rd/glm/ext/matrix_transform.hpp" // translate, rotate, scale, identity
 #include "3rd/glm/ext/quaternion_float.hpp" // quat
 #include "3rd/glm/gtc/quaternion.hpp"
+#include "3rd/glm/gtc/type_ptr.hpp" // value_ptr
+
+#include "OpenGLRenderer.hpp"
 
 Entity::Entity(glm::vec3 position, glm::vec3 rotation, glm::vec3 scale)
 : position { position }
@@ -32,21 +35,22 @@ void Entity::draw(const ShaderProgram &shader_program, const View &view)
 {
   shader_program.use();
 
-  auto model_matrix = get_model_matrix();
-  auto projection_matrix = view.get_projection_matrix();
-  auto view_matrix = view.get_view_matrix();
+  glm::mat4 model_matrix = get_model_matrix();
+  glm::mat4 projection_matrix = view.get_projection_matrix();
+  glm::mat4 view_matrix = view.get_view_matrix();
+  
+  auto v_location = shader_program.get_uniform("V");
+  assert(v_location);
+  glUniformMatrix4fv(v_location->location, 1, GL_FALSE, glm::value_ptr(view_matrix));
 
   auto m_location = shader_program.get_uniform("M");
   assert(m_location);
-  glUniformMatrix4fv(m_location->index, 1, GL_FALSE, &model_matrix[0][0]);
-
-  auto v_location = shader_program.get_uniform("V");
-  assert(v_location);
-  glUniformMatrix4fv(v_location->index, 1, GL_FALSE, &view_matrix[0][0]);
-
+  glUniformMatrix4fv(m_location->location, 1, GL_FALSE, glm::value_ptr(model_matrix));
+  
   auto p_location = shader_program.get_uniform("P");
   assert(p_location);
-  glUniformMatrix4fv(p_location->index, 1, GL_FALSE, &projection_matrix[0][0]);
+  glUniformMatrix4fv(p_location->location, 1, GL_FALSE, glm::value_ptr(projection_matrix));
+  glCheckError();
 
   for (const auto &model : models)
   {

@@ -90,3 +90,4 @@ zdtest
 build/*
 images/test.txt
 test_image.*
+zdtest.zip

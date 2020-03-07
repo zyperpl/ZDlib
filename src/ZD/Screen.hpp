@@ -14,6 +14,7 @@ class Screen
 {
 public:
   Screen(int x, int y, int width, int height);
+  virtual ~Screen() = default;
   std::shared_ptr<Image> image() { return canvas_image; }
   std::shared_ptr<Painter> painter() { return image_painter; }
   virtual void render(Window &window) = 0;

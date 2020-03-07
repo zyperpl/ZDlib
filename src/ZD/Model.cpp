@@ -7,6 +7,7 @@
 
 #include "Model.hpp"
 #include "ModelLoader.hpp"
+#include "OpenGLRenderer.hpp"
 
 #pragma GCC optimize("O3")
 
@@ -225,6 +226,7 @@ void Model::draw(const ShaderProgram &program)
     assert(!vertices.empty());
     glDrawArrays(GL_TRIANGLES, 0, (GLsizei)vertices.size());
   }
+  glCheckError();
 
   glDisableVertexAttribArray(pos_attr_index);
 }

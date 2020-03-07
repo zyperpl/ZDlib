@@ -10,6 +10,9 @@
 #include "Texture.hpp"
 #include "Screen.hpp"
 
+extern GLenum glCheckError_(const char*, int);
+#define glCheckError() glCheckError_(__FILE__, __LINE__)
+
 class OGLRenderer : public Renderer
 {
 public:

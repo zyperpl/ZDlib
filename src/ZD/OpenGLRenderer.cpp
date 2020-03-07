@@ -15,6 +15,38 @@
 
 static bool OGL_LOADED = false;
 
+#ifdef OPENGL_ERROR_CALLBACK
+static bool OGL_ERROR_CALLBACK_SET = false;
+
+GLenum glCheckError_(const char* file, int line)
+{
+  GLenum errorCode;
+  while ((errorCode = glGetError()) != GL_NO_ERROR)
+  {
+    std::string error;
+    switch (errorCode)
+    {
+      case GL_INVALID_ENUM: error = "INVALID_ENUM"; break;
+      case GL_INVALID_VALUE: error = "INVALID_VALUE"; break;
+      case GL_INVALID_OPERATION: error = "INVALID_OPERATION"; break;
+      case GL_STACK_OVERFLOW: error = "STACK_OVERFLOW"; break;
+      case GL_STACK_UNDERFLOW: error = "STACK_UNDERFLOW"; break;
+      case GL_OUT_OF_MEMORY: error = "OUT_OF_MEMORY"; break;
+      case GL_INVALID_FRAMEBUFFER_OPERATION:
+        error = "INVALID_FRAMEBUFFER_OPERATION";
+        break;
+    }
+    printf("OpenGL ERROR: %s | %s (%d)\n", error.data(), file, line);
+  }
+  return errorCode;
+}
+#else
+GLenum glCheckError_(const char* file, int line)
+{
+  return 0;
+}
+#endif
+
 OGLRenderer::OGLRenderer()
 {
   printf(
@@ -91,6 +123,9 @@ void OGLRenderer::initialize_gl()
     fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
   }
   //fprintf(stdout, "Using GLEW %s\n", glewGetString(GLEW_VERSION));
+
+  auto gl_str = glGetString(GL_VERSION);
+  printf("OpenGL version available: %s.\n", gl_str);
 #ifdef OPENGL_ERROR_CALLBACK
 
   auto OGLMessageCallback = [](
@@ -122,6 +157,7 @@ void OGLRenderer::initialize_gl()
   {
     glEnable(GL_DEBUG_OUTPUT);
     glDebugMessageCallback(OGLMessageCallback, 0);
+    OGL_ERROR_CALLBACK_SET = true;
   }
   else
   {
@@ -182,7 +218,7 @@ void OGLRenderer::center_view_port()
 
 void OGLRenderer::render_screens()
 {
-  for (auto &screen : screens)
+  for (auto& screen : screens)
   {
     if (!screen->rendered)
     {
@@ -195,6 +231,23 @@ void OGLRenderer::render()
 {
   if (!window()->is_open())
     return;
+
+#ifdef OPENGL_ERROR_CALLBACK
+  if (!OGL_ERROR_CALLBACK_SET)
+  {
+    static int gl_errors = 0;
+    GLenum err;
+    while ((err = glGetError()) != GL_NO_ERROR)
+    {
+      fprintf(stderr, "OpenGL ERROR: %d\n", err);
+      gl_errors++;
+    }
+    if (gl_errors > 60)
+    {
+      exit(3);
+    }
+  }
+#endif
 
   if (should_center_view_port)
   {

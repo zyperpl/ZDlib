@@ -4,7 +4,7 @@
 #include <string>
 #include <typeinfo>
 
-#include "glm/glm.hpp"
+#include "3rd/glm/glm.hpp"
 
 ShaderProgram::ShaderProgram() { id = glCreateProgram(); }
 
@@ -13,6 +13,7 @@ ShaderProgram::~ShaderProgram() { glDeleteProgram(id); }
 void ShaderProgram::extract_uniforms()
 {
   assert(uniforms.empty());
+  glUseProgram(id);
 
   GLint count = 0;
   glGetProgramiv(id, GL_ACTIVE_UNIFORMS, &count);
@@ -30,15 +31,18 @@ void ShaderProgram::extract_uniforms()
     glGetActiveUniform(id, (GLuint)i, max_length, &length, &size, &type, name);
     name[length] = '\0';
 
+    GLint location = glGetUniformLocation(id, name);
+
     uniforms.insert(
-      std::make_pair(std::string(name), ShaderUniform { id, i, size, type }));
-    printf("%s: shader_id=%d id=%d size=%d type=%d\n", name, id, i, size, type);
+      std::make_pair(std::string(name), ShaderUniform { id, i, size, type, location }));
+    printf("%s: shader_id=%d id=%d size=%d type=%d location=%d\n", name, id, i, size, type, location);
   }
 }
 
 void ShaderProgram::extract_attributes()
 {
   assert(attributes.empty());
+  glUseProgram(id);
 
   GLint count = 0;
   glGetProgramiv(id, GL_ACTIVE_ATTRIBUTES, &count);
@@ -56,8 +60,10 @@ void ShaderProgram::extract_attributes()
     glGetActiveAttrib(id, (GLuint)i, max_length, &length, &size, &type, name);
     name[length] = '\0';
 
+    GLint location = glGetAttribLocation(id, name);
+
     attributes.emplace(
-      std::string(name), ShaderAttribute { id, i, size, type });
+      std::string(name), ShaderAttribute { id, i, size, type, location });
   }
 }
 
@@ -76,6 +82,10 @@ void ShaderProgram::link()
 void ShaderProgram::use() const
 {
   assert(is_linked());
+  if (!is_linked())
+  {
+    fprintf(stderr, "ERROR: Shader program %d not linked!\n", id);
+  }
 
   glUseProgram(id);
 }
@@ -105,7 +115,7 @@ bool ShaderProgram::set_uniform<glm::vec2>(std::string name, glm::vec2 value)
   if (auto uniform = get_uniform(name))
   {
     //printf("Setting %s to %f;%f\n", name.data(), value.x, value.y);
-    glUniform2f(uniform->index, value.x, value.y);
+    glUniform2f(uniform->location, value.x, value.y);
     return true;
   }
   return false;

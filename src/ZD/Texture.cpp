@@ -4,6 +4,8 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+#include "OpenGLRenderer.hpp"
+
 Texture::Texture(std::shared_ptr<Image> image)
 : image { image }
 {
@@ -82,13 +84,15 @@ void Texture::bind(const ShaderProgram &shader)
   if (auto sampler_uniform = shader.get_uniform("sampler"))
   {
     assert(sampler_uniform->type == GL_SAMPLER_2D);
-    glUniform1i(sampler_uniform->index, this->sampler_id);
+    glUniform1i(sampler_uniform->location, this->sampler_id);
   }
 
   if (auto wrap_uniform = shader.get_uniform("textureWrap"))
   {
     assert(wrap_uniform->type == GL_FLOAT_VEC2);
     glUniform2f(
-      wrap_uniform->index, this->texture_wrap.x, this->texture_wrap.y);
+      wrap_uniform->location, this->texture_wrap.x, this->texture_wrap.y);
   }
+
+  glCheckError();
 }
