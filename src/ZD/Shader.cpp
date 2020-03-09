@@ -35,7 +35,7 @@ void ShaderProgram::extract_uniforms()
 
     uniforms.insert(
       std::make_pair(std::string(name), ShaderUniform { id, i, size, type, location }));
-    printf("%s: shader_id=%d id=%d size=%d type=%d location=%d\n", name, id, i, size, type, location);
+    //printf("%s: shader_id=%d id=%d size=%d type=%d location=%d\n", name, id, i, size, type, location);
   }
 }
 

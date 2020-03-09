@@ -132,8 +132,8 @@ void Painter::draw_line(
   bool y_longer = false;
   int increment_val = 1;
 
-  ssize_t short_len = y2 - y1;
-  ssize_t long_len = x2 - x1;
+  int64_t short_len = y2 - y1;
+  int64_t long_len = x2 - x1;
 
   if (std::abs(short_len) > std::abs(long_len))
   {

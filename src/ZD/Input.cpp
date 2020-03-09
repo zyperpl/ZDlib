@@ -144,37 +144,48 @@ static std::unordered_map<int, MouseButton> MOUSE_BUTTONS_GLFW {
   { GLFW_MOUSE_BUTTON_RIGHT, MouseButton::Right },
   { GLFW_MOUSE_BUTTON_MIDDLE, MouseButton::Middle }
 };
+Input_GLFW::Input_GLFW(std::shared_ptr<Input> input)
+: input { input }
+{
+  reset_data();
+}
 
 Input_GLFW::Input_GLFW()
+: input { std::make_shared<Input>() }
+{
+  reset_data();
+}
+
+void Input_GLFW::reset_data()
 {
   for (const auto& [id, key] : KEYS_GLFW)
   {
-    keys[key] = 0;
+    input->keys[key] = 0;
   }
   for (const auto& [id, button] : MOUSE_BUTTONS_GLFW)
   {
-    mouse_data.buttons[button] = 0;
+    input->mouse_data->buttons[button] = 0;
   }
 }
 
 void Input_GLFW::update_key(const int k, const int value)
 {
   const Key key = KEYS_GLFW.at(k);
-  keys[key] = value;
+  input->keys[key] = value;
 }
 
 void Input_GLFW::update_mouse_button(const int mb, const int value)
 {
   const MouseButton button = MOUSE_BUTTONS_GLFW.at(mb);
-  mouse_data.buttons[button] = value;
+  input->mouse_data->buttons[button] = value;
 }
 
 void Input_GLFW::update_mouse_position(
   const double mx, const double my, const Size& window_size,
   const Size& canvas_size)
 {
-  mouse_data.position_window_space.x = mx;
-  mouse_data.position_window_space.y = my;
+  input->mouse_data->position_window_space.x = mx;
+  input->mouse_data->position_window_space.y = my;
 
   const double scl_x =
     (double)(window_size.width()) / (double)(canvas_size.width());
@@ -185,17 +196,17 @@ void Input_GLFW::update_mouse_position(
   if (scl > scl_y)
     scl = scl_y;
 
-  const int x_offset =
+  const long x_offset =
     (window_size.width() - (scl * canvas_size.width())) / 2.0f;
-  const int y_offset =
+  const long y_offset =
     (window_size.height() - (scl * canvas_size.height())) / 2.0f;
 
-  mouse_data.position_screen_space.x = ((mx - x_offset) / scl) + 0.5;
-  mouse_data.position_screen_space.y = ((my - y_offset) / scl) + 0.5;
+  input->mouse_data->position_view_space.x = ((mx - x_offset) / scl) + 0.5;
+  input->mouse_data->position_view_space.y = ((my - y_offset) / scl) + 0.5;
 }
 
 void Input_GLFW::add_mouse_scroll(const double scroll_x, const double scroll_y)
 {
-  mouse_data.scroll_x_offset += scroll_x;
-  mouse_data.scroll_y_offset += scroll_y;
+  input->mouse_data->scroll_x_offset += scroll_x;
+  input->mouse_data->scroll_y_offset += scroll_y;
 }

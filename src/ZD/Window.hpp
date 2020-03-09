@@ -2,13 +2,17 @@
 
 #include <memory>
 #include <string_view>
+#include <vector>
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
 #include "Color.hpp"
 #include "Size.hpp"
-#include "Input.hpp"
+
+class Input;
+class Input_GLFW;
+class Screen;
 
 struct WindowParameters
 {
@@ -48,6 +52,12 @@ public:
   double get_aspect_ratio() const { return aspect_ratio; }
   PixelFormat::Type get_format() const { return format; }
 
+  virtual void add_screen(std::shared_ptr<Screen> screen)
+  {
+    screens.push_back(screen);
+  }
+  std::vector<std::shared_ptr<Screen>> get_screens() { return screens; }
+
   virtual const Input *input() const = 0;
 
 protected:
@@ -73,6 +83,7 @@ protected:
 
   const int initial_width { 0 };
   const int initial_height { 0 };
+  std::vector<std::shared_ptr<Screen>> screens;
 };
 
 class Window_GLFW : public Window
@@ -93,11 +104,11 @@ public:
   void kill();
   void set_current();
   bool is_open() const;
-  const Input *input() const { return input_ptr.get(); }
+  const Input *input() const;
 
 private:
   GLFWwindow *handle;
-  std::unique_ptr<Input_GLFW> input_ptr;
+  std::shared_ptr<Input_GLFW> input_ptr;
   void set_size(int width, int height)
   {
     this->width = width;
@@ -136,5 +147,5 @@ public:
   const Input *input() const { return input_ptr.get(); }
 
 private:
-  std::unique_ptr<Input> input_ptr;
+  std::shared_ptr<Input> input_ptr;
 };

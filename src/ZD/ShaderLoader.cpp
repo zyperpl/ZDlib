@@ -17,16 +17,15 @@ const GLchar *z_screen_texture_vertex_shader = R"glsl(
   out vec2 uv;
   uniform vec2 view_size;
   uniform vec2 screen_position;
-  uniform vec2 screen_size;
+  uniform vec2 screen_scale;
   
   void main()
   {
     gl_Position = vec4(position, 0.0, 1.0);
     uv = position / 2.0 + 0.5;
-    uv.y = 1.0-uv.y;
-    vec2 scale = screen_size / view_size;
+    uv.y = 1.0 - uv.y;
+    gl_Position.xy *= screen_scale;
     gl_Position.xy += (screen_position / view_size) * 2.0;
-    gl_Position.xy *= scale;
   }
 )glsl";
 const GLchar *z_texture_frag_shader = R"glsl(

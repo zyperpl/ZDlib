@@ -5,6 +5,7 @@
 #include "ZD/ShaderLoader.hpp"
 #include "ZD/Entity.hpp"
 #include "ZD/View.hpp"
+#include "ZD/Input.hpp"
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>

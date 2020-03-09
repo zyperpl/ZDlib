@@ -11,6 +11,7 @@
 #include "ZD/Screen.hpp"
 #include "ZD/OpenGLRenderer.hpp"
 #include "ZD/File.hpp"
+#include "ZD/Input.hpp"
 
 #define W 800
 #define H 450
@@ -56,9 +57,9 @@ auto image_test_main(int, char **) -> int
 
   puts("Creating screens...");
   auto screen = std::make_shared<Screen_GL>(0, 0, W, H);
-  renderer.add_screen(screen);
+  window->add_screen(screen);
   auto screen2 = std::make_shared<Screen_GL>(0, 0, W, H);
-  renderer.add_screen(screen2);
+  window->add_screen(screen2);
 
   puts("Getting a painter...");
   auto painter = screen->painter();

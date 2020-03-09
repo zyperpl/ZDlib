@@ -218,7 +218,7 @@ void OGLRenderer::center_view_port()
 
 void OGLRenderer::render_screens()
 {
-  for (auto& screen : screens)
+  for (auto& screen : window()->get_screens())
   {
     if (!screen->rendered)
     {

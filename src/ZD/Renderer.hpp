@@ -8,7 +8,6 @@
 #include "Model.hpp"
 #include "Texture.hpp"
 #include "Window.hpp"
-#include "Screen.hpp"
 
 class Renderer
 {
@@ -16,10 +15,6 @@ public:
   virtual ~Renderer() {}
 
   virtual std::shared_ptr<Window> add_window(const WindowParameters &params) = 0;
-  virtual void add_screen(std::shared_ptr<Screen> screen)
-  {
-    screens.push_back(screen);
-  }
 
   virtual void set_window_current(size_t index)
   {
@@ -44,7 +39,6 @@ public:
 
 protected:
   std::vector<std::shared_ptr<Window>> windows;
-  std::vector<std::shared_ptr<Screen>> screens;
   size_t current_window_index { 0 };
 
   friend class Painter;

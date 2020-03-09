@@ -5,13 +5,24 @@
 #include <unordered_map>
 
 #include "Window.hpp"
+#include "Input.hpp"
+#include "Screen.hpp"
 
 static std::unordered_map<GLFWwindow*, Window_GLFW*> windows_GLFW;
 
 void key_callback_glfw(GLFWwindow* handle, int key, int, int action, int)
 {
-  Input_GLFW* input = windows_GLFW.at(handle)->input_ptr.get();
+  auto window = windows_GLFW.at(handle);
+  Input_GLFW* input = window->input_ptr.get();
   input->update_key(key, action);
+
+  for (auto &screen : window->screens)
+  {
+    if (auto screen_gl = std::dynamic_pointer_cast<Screen_GL>(screen))
+    {
+      screen_gl->input_gl->update_key(key, action);
+    }
+  }
 }
 
 void cursor_position_callback_glfw(GLFWwindow* handle, double xpos, double ypos)
@@ -22,6 +33,14 @@ void cursor_position_callback_glfw(GLFWwindow* handle, double xpos, double ypos)
   Size initial_size { window->get_initial_width(),
                       window->get_intial_height() };
   input->update_mouse_position(xpos, ypos, window_size, initial_size);
+  
+  for (auto &screen : window->screens)
+  {
+    if (auto screen_gl = std::dynamic_pointer_cast<Screen_GL>(screen))
+    {
+      screen_gl->input_gl->update_mouse_position(xpos, ypos, window_size, initial_size);
+    }
+  }
 }
 
 void mouse_button_callback_glfw(GLFWwindow* handle, int button, int action, int)
@@ -29,6 +48,13 @@ void mouse_button_callback_glfw(GLFWwindow* handle, int button, int action, int)
   auto window = windows_GLFW.at(handle);
   Input_GLFW* input = window->input_ptr.get();
   input->update_mouse_button(button, action);
+  for (auto &screen : window->screens)
+  {
+    if (auto screen_gl = std::dynamic_pointer_cast<Screen_GL>(screen))
+    {
+      screen_gl->input_gl->update_mouse_button(button, action);
+    }
+  }
 }
 
 void window_size_callback_glfw(GLFWwindow* handle, int width, int height)
@@ -43,6 +69,13 @@ void mouse_scroll_callback_glfw(
   auto window = windows_GLFW.at(handle);
   Input_GLFW* input = window->input_ptr.get();
   input->add_mouse_scroll(x_offset, y_offset);
+  for (auto &screen : window->screens)
+  {
+    if (auto screen_gl = std::dynamic_pointer_cast<Screen_GL>(screen))
+    {
+      screen_gl->input_gl->add_mouse_scroll(x_offset, y_offset);
+    }
+  }
 }
 
 Window_GLFW::~Window_GLFW()
@@ -63,10 +96,9 @@ void Window_GLFW::init()
     name.data());
   handle = glfwCreateWindow(width, height, name.data(), NULL, NULL);
   assert(handle != NULL);
-  //printf("Window_GLFW (%p) created.\n", handle);
   glfwSetInputMode(handle, GLFW_STICKY_KEYS, GLFW_TRUE);
 
-  input_ptr = std::make_unique<Input_GLFW>();
+  input_ptr = std::make_shared<Input_GLFW>();
 
   windows_GLFW.insert({ handle, this });
   glfwSetKeyCallback(handle, key_callback_glfw);
@@ -106,3 +138,5 @@ bool Window_GLFW::is_open() const
 
   return !glfwWindowShouldClose(handle);
 }
+
+const Input* Window_GLFW::input() const { return input_ptr.get()->get(); }
