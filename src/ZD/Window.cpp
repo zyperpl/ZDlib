@@ -18,6 +18,7 @@ void key_callback_glfw(GLFWwindow* handle, int key, int, int action, int)
 
   for (auto &screen : window->screens)
   {
+    // TODO: updating many inputs needs refactoring
     if (auto screen_gl = std::dynamic_pointer_cast<Screen_GL>(screen))
     {
       screen_gl->input_gl->update_key(key, action);
