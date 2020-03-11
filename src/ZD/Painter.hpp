@@ -11,6 +11,7 @@ class Image;
 class Painter
 {
 public:
+  Painter() = default;
   Painter(std::shared_ptr<Image> image);
 
   virtual void set_pixel(const int x, const int y, const Color &color);
@@ -35,7 +36,8 @@ public:
     return target->get_pixel(x, y);
   }
 
-  std::shared_ptr<Image> get_target_image() { return this->target; }
+  void set_target(std::shared_ptr<Image> new_target) { target = new_target; }
+  std::shared_ptr<Image> get_target() { return target; }
 
 private:
   std::shared_ptr<Image> target;
