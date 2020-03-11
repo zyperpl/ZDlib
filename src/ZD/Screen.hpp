@@ -39,7 +39,6 @@ public:
   int right() const { return x + width; }
   int top() const { return y; }
   int bottom() const { return y + height; }
-  mutable bool rendered { false };
   int x { 0 }, y { 0 }, width, height;
   ScreenScale scale;
 

@@ -54,8 +54,6 @@ void Screen_GL::render(Window &window)
   texture->bind(*shader_program);
 
   model->draw(*shader_program);
-
-  rendered = true;
 }
 
 const Input *Screen_GL::input() { return input_gl->get(); }

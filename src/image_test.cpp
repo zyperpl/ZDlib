@@ -155,7 +155,6 @@ auto image_test_main(int, char **) -> int
     }
 
     painter->clear(Color(0, 0, 0, 255));
-    screen->rendered = false;
     painter->draw_image(x, y, *rnoise, 0.3333, -0.3333);
     painter->draw_rectangle(
       x, y, x + W * 0.3333, y + H * 0.3333, Color(255, 255, 120));
@@ -210,7 +209,6 @@ auto image_test_main(int, char **) -> int
 
     painter->draw_image(W - x, H - y, *scaled_image, 2.0, 2.0);
 
-    screen2->rendered = false;
     screen2->painter()->clear();
     screen2->painter()->draw_circle(W / 2, H / 2, 30, Color(255, 0, 0));
 

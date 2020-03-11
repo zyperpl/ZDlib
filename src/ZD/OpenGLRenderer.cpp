@@ -220,10 +220,7 @@ void OGLRenderer::render_screens()
 {
   for (auto& screen : window()->get_screens())
   {
-    if (!screen->rendered)
-    {
-      screen->render(*window());
-    }
+    screen->render(*window());
   }
 }
 
