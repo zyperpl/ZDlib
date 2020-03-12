@@ -52,14 +52,18 @@ void Screen_GL::render(Window &window)
   shader_program->set_uniform<glm::vec2>("screen_position", { x, y });
   shader_program->set_uniform<glm::vec2>("screen_scale", { scale.x, scale.y });
 
-  texture->update();
+  //printf("image=%p changes=%d\n", &canvas_image, canvas_image->change_counter());
+  if (canvas_image->is_changed())
+  {
+    texture->update();
+  }
   shader_program->set_uniform<glm::vec2>(
     "texture_size",
     { texture->get_image()->width(), texture->get_image()->height() });
 
   texture->bind(*shader_program);
-
   model->draw(*shader_program);
+  canvas_image->reset_change_counter();
 }
 
 const Input *Screen_GL::input() { return input_gl->get(); }

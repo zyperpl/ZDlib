@@ -159,7 +159,6 @@ auto image_test_main(int, char **) -> int
     painter->draw_rectangle(
       x, y, x + W * 0.3333, y + H * 0.3333, Color(255, 255, 120));
 
-    painter->draw_image(x, y, *image, 0.4, 0.4);
     painter->draw_image(-9999, -9999, *image, 0.4, 0.4);
     painter->draw_image(9999, 9999, *image, 0.4, 0.4);
     painter->draw_image(0, 0, *image, 0.0, 0.0);
@@ -211,6 +210,8 @@ auto image_test_main(int, char **) -> int
 
     screen2->painter()->clear();
     screen2->painter()->draw_circle(W / 2, H / 2, 30, Color(255, 0, 0));
+    
+    painter->draw_image(x, y, *image);
 
     renderer.render();
   }

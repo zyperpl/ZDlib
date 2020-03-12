@@ -80,6 +80,10 @@ public:
 
   bool save_to_file(std::string file_name);
 
+  unsigned int change_counter() { return changes; }
+  bool is_changed() { return changes > 0; }
+  void reset_change_counter() { changes = 0; }
+
 private:
   Image() = default;
   Image(const Size &size, PixelFormat::Type format);
@@ -88,6 +92,7 @@ private:
   Size size { 0, 0 };
   PixelFormat::Type format { PixelFormat::Invalid };
   std::unique_ptr<uint32_t[]> data;
+  unsigned int changes { 0 };
 
   friend class ImageLoader;
   friend class Painter;
