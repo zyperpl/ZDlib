@@ -150,6 +150,8 @@ struct MousePosition
 class Mouse
 {
 public:
+  virtual ~Mouse() = default;
+
   inline const MousePosition<double> position_window() const
   {
     return position_window_space;
@@ -191,6 +193,7 @@ class Input
 {
 public:
   Input() { mouse_data = std::make_shared<Mouse>(); }
+  virtual ~Input() = default;
   inline int key(const Key &k) const { return keys.at(k); }
   inline int consume_key(const Key &k) const
   {

@@ -1,6 +1,6 @@
 #include "ScreenInput.hpp"
 
-inline const MousePosition<long> ScreenMouse::position() const
+const MousePosition<long> ScreenMouse::position() const
 {
   const double vscl_x = view_size.width() / screen.width;
   const double vscl_y = view_size.height() / screen.height;

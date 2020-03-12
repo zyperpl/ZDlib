@@ -13,6 +13,7 @@ class Painter
 public:
   Painter() = default;
   Painter(std::shared_ptr<Image> image);
+  virtual ~Painter() = default;
 
   virtual void set_pixel(const int x, const int y, const Color &color);
   virtual void draw_image(const int x, const int y, const Image &image);
