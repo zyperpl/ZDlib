@@ -26,7 +26,7 @@ public:
   void update(Image *new_image);
 
   void bind(const ShaderProgram &shader);
-
+  const std::shared_ptr<Image> get_image() const { return this->image; }
 private:
   void generate();
   bool set_uniform(const ShaderUniform &uniform);

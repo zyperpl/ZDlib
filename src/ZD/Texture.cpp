@@ -80,14 +80,14 @@ void Texture::bind(const ShaderProgram &shader)
 {
   glActiveTexture(GL_TEXTURE0 + this->sampler_id);
   glBindTexture(GL_TEXTURE_2D, this->id);
-
+  
   if (auto sampler_uniform = shader.get_uniform("sampler"))
   {
     assert(sampler_uniform->type == GL_SAMPLER_2D);
     glUniform1i(sampler_uniform->location, this->sampler_id);
   }
 
-  if (auto wrap_uniform = shader.get_uniform("textureWrap"))
+  if (auto wrap_uniform = shader.get_uniform("texture_wrap"))
   {
     assert(wrap_uniform->type == GL_FLOAT_VEC2);
     glUniform2f(

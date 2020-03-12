@@ -118,7 +118,7 @@ private:
   friend void key_callback_glfw(GLFWwindow *, int, int, int, int);
   friend void cursor_position_callback_glfw(GLFWwindow *, double, double);
   friend void mouse_button_callback_glfw(GLFWwindow *, int, int, int);
-  friend void window_size_callback_glfw(GLFWwindow *, int, int);
+  friend void framebuffer_size_callback_glfw(GLFWwindow *, int, int);
   friend void mouse_scroll_callback_glfw(GLFWwindow *, double, double);
 };
 

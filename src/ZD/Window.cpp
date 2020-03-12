@@ -58,7 +58,7 @@ void mouse_button_callback_glfw(GLFWwindow* handle, int button, int action, int)
   }
 }
 
-void window_size_callback_glfw(GLFWwindow* handle, int width, int height)
+void framebuffer_size_callback_glfw(GLFWwindow* handle, int width, int height)
 {
   auto window = windows_GLFW.at(handle);
   window->set_size(width, height);
@@ -105,7 +105,7 @@ void Window_GLFW::init()
   glfwSetKeyCallback(handle, key_callback_glfw);
   glfwSetCursorPosCallback(handle, cursor_position_callback_glfw);
   glfwSetMouseButtonCallback(handle, mouse_button_callback_glfw);
-  glfwSetWindowSizeCallback(handle, window_size_callback_glfw);
+  glfwSetFramebufferSizeCallback(handle, framebuffer_size_callback_glfw);
   glfwSetScrollCallback(handle, mouse_scroll_callback_glfw);
 }
 
