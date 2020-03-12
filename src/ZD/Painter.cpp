@@ -4,7 +4,10 @@
 
 #pragma GCC optimize("O3")
 
-long move_ptr_to_xy(const int x, const int y, const int w) { return x + y * w; }
+long move_ptr_to_xy(const long x, const long y, const long w)
+{
+  return x + y * w;
+}
 
 bool in_bounds(const int x, const int y, const int w, const int h)
 {
@@ -52,6 +55,9 @@ void Painter::draw_image(const int x, const int y, const Image &image)
 #pragma omp parallel for
   for (int i = 0; i < image.size.area(); i++)
   {
+    if ((src[i] & 0xff) == 0)
+      continue;
+
     ssize_t image_x = i % image.width();
     ssize_t image_y = i / image.width();
 
@@ -119,6 +125,9 @@ void Painter::draw_image(
     if (image_idx >= image.size.area())
       continue;
 
+    if ((src[image_idx] & 0xff) == 0)
+      continue;
+
     dest[target_idx] = src[image_idx];
   }
 }
@@ -182,6 +191,43 @@ void Painter::draw_line(
         continue;
 
       target->set_pixel(x, y, color);
+    }
+  }
+}
+
+void Painter::clear_rectangle(int x1, int y1, int x2, int y2)
+{
+  auto dest = target->data.get();
+
+  if (x2 < x1)
+    std::swap(x1, x2);
+  if (y2 < y1)
+    std::swap(y2, y1);
+
+  if (x1 < 0)
+    x1 = 0;
+  if (y1 < 0)
+    y1 = 0;
+  if (x2 < 0)
+    return;
+  if (y2 < 0)
+    return;
+
+  if (x2 > target->width())
+    x2 = target->width();
+  if (y2 > target->height())
+    y2 = target->height();
+
+  if (x1 > target->width())
+    return;
+  if (y1 > target->height())
+    return;
+
+  for (int y = y1; y < y2; ++y)
+  {
+    for (int x = x1; x < x2; ++x)
+    {
+      dest[x + y * target->width()] = 0;
     }
   }
 }
