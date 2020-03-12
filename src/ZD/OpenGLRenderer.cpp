@@ -41,10 +41,7 @@ GLenum glCheckError_(const char* file, int line)
   return errorCode;
 }
 #else
-GLenum glCheckError_(const char* file, int line)
-{
-  return 0;
-}
+GLenum glCheckError_(const char* file, int line) { return 0; }
 #endif
 
 OGLRenderer::OGLRenderer()
@@ -203,8 +200,8 @@ void OGLRenderer::center_view_port()
   int width, height;
   glfwGetFramebufferSize(glfwGetCurrentContext(), &width, &height);
 
-  const double desirable_width = window()->get_initial_width();
-  const double desirable_height = window()->get_intial_height();
+  const double desirable_width = window()->get_view_width();
+  const double desirable_height = window()->get_view_height();
 
   double r = double(width) / desirable_width;
   const double r2 = double(height) / desirable_height;

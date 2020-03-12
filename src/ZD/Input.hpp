@@ -178,6 +178,7 @@ public:
 protected:
   MousePosition<double> position_window_space { 0.0, 0.0 };
   MousePosition<long> position_view_space { -1, -1 };
+  Size view_size { 0, 0 };
   mutable double scroll_y_offset { 0.0 };
   mutable double scroll_x_offset { 0.0 };
   std::unordered_map<MouseButton, int> buttons;
@@ -216,7 +217,7 @@ public:
   void update_mouse_button(const int mb, const int value);
   void update_mouse_position(
     const double mx, const double my, const Size &window_size,
-    const Size &canvas_size);
+    const Size &view_size);
   void add_mouse_scroll(const double scroll_x, const double scroll_y);
 
 private:

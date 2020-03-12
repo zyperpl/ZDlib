@@ -182,27 +182,28 @@ void Input_GLFW::update_mouse_button(const int mb, const int value)
 
 void Input_GLFW::update_mouse_position(
   const double mx, const double my, const Size& window_size,
-  const Size& canvas_size)
+  const Size& view_size)
 {
   input->mouse_data->position_window_space.x = mx;
   input->mouse_data->position_window_space.y = my;
 
   const double scl_x =
-    (double)(window_size.width()) / (double)(canvas_size.width());
+    (double)(window_size.width()) / (double)(view_size.width());
   const double scl_y =
-    (double)(window_size.height()) / (double)(canvas_size.height());
+    (double)(window_size.height()) / (double)(view_size.height());
 
   double scl = scl_x;
   if (scl > scl_y)
     scl = scl_y;
 
   const long x_offset =
-    (window_size.width() - (scl * canvas_size.width())) / 2.0f;
+    (window_size.width() - (scl * view_size.width())) / 2.0f;
   const long y_offset =
-    (window_size.height() - (scl * canvas_size.height())) / 2.0f;
+    (window_size.height() - (scl * view_size.height())) / 2.0f;
 
   input->mouse_data->position_view_space.x = ((mx - x_offset) / scl) + 0.5;
   input->mouse_data->position_view_space.y = ((my - y_offset) / scl) + 0.5;
+  input->mouse_data->view_size = view_size;
 }
 
 void Input_GLFW::add_mouse_scroll(const double scroll_x, const double scroll_y)

@@ -47,8 +47,8 @@ public:
 
   int get_width() const { return width; }
   int get_height() const { return height; }
-  int get_initial_width() const { return initial_width; }
-  int get_intial_height() const { return initial_height; }
+  int get_view_width() const { return view_width; }
+  int get_view_height() const { return view_height; }
   double get_aspect_ratio() const { return aspect_ratio; }
   PixelFormat::Type get_format() const { return format; }
 
@@ -67,8 +67,8 @@ protected:
   , aspect_ratio { float(w) / float(h) }
   , format { format }
   , name { name }
-  , initial_width { width }
-  , initial_height { height }
+  , view_width { width }
+  , view_height { height }
   {
   }
 
@@ -81,8 +81,8 @@ protected:
   PixelFormat::Type format;
   std::string_view name;
 
-  const int initial_width { 0 };
-  const int initial_height { 0 };
+  const int view_width { 0 };
+  const int view_height { 0 };
   std::vector<std::shared_ptr<Screen>> screens;
 };
 

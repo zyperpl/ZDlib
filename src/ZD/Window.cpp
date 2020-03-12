@@ -31,8 +31,8 @@ void cursor_position_callback_glfw(GLFWwindow* handle, double xpos, double ypos)
   auto window = windows_GLFW.at(handle);
   Input_GLFW* input = window->input_ptr.get();
   Size window_size { window->get_width(), window->get_height() };
-  Size initial_size { window->get_initial_width(),
-                      window->get_intial_height() };
+  Size initial_size { window->get_view_width(),
+                      window->get_view_height() };
   input->update_mouse_position(xpos, ypos, window_size, initial_size);
   
   for (auto &screen : window->screens)
