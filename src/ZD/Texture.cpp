@@ -9,14 +9,14 @@
 Texture::Texture(std::shared_ptr<Image> image)
 : image { image }
 {
-  this->generate();
+  this->generate(TextureParameters {});
 }
 
 Texture::Texture(std::shared_ptr<Image> image, TextureParameters params)
 : image { image }
 , texture_wrap { params.wrap }
 {
-  this->generate();
+  this->generate(params);
 }
 
 void Texture::update(Image *new_image)
@@ -45,10 +45,13 @@ void Texture::update()
     GL_UNSIGNED_INT_8_8_8_8,
     &image->get_data()[0]);
 
-  glGenerateMipmap(GL_TEXTURE_2D);
+  if (generate_mipmap)
+  {
+    glGenerateMipmap(GL_TEXTURE_2D);
+  }
 }
 
-void Texture::generate()
+void Texture::generate(TextureParameters params)
 {
   glGenTextures(1, &id);
   glBindTexture(GL_TEXTURE_2D, id);
@@ -66,21 +69,25 @@ void Texture::generate()
     GL_UNSIGNED_INT_8_8_8_8,
     &image->get_data()[0]);
 
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  glTexParameteri(
-    GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 0);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, params.mag_filter);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, params.min_filter);
 
-  glBindTexture(GL_TEXTURE_2D, this->id);
-  glGenerateMipmap(GL_TEXTURE_2D);
+  glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+
+  if (generate_mipmap)
+  {
+    glGenerateMipmap(GL_TEXTURE_2D);
+  }
 }
 
 void Texture::bind(const ShaderProgram &shader)
 {
   glActiveTexture(GL_TEXTURE0 + this->sampler_id);
   glBindTexture(GL_TEXTURE_2D, this->id);
-  
+
   if (auto sampler_uniform = shader.get_uniform("sampler"))
   {
     assert(sampler_uniform->type == GL_SAMPLER_2D);

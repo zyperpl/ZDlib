@@ -217,6 +217,7 @@ void OGLRenderer::render_screens()
 {
   for (auto& screen : window()->get_screens())
   {
+    //printf("rendering %p screen\n", &*screen);
     screen->render(*window());
   }
 }
