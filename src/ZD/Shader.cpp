@@ -82,11 +82,6 @@ void ShaderProgram::link()
 void ShaderProgram::use() const
 {
   assert(is_linked());
-  if (!is_linked())
-  {
-    fprintf(stderr, "ERROR: Shader program %d not linked!\n", id);
-  }
-
   glUseProgram(id);
 }
 

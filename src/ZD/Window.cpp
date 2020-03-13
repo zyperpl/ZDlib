@@ -61,7 +61,7 @@ void mouse_button_callback_glfw(GLFWwindow* handle, int button, int action, int)
 void framebuffer_size_callback_glfw(GLFWwindow* handle, int width, int height)
 {
   auto window = windows_GLFW.at(handle);
-  window->set_size(width, height);
+  window->set_framebuffer_size(width, height);
 }
 
 void mouse_scroll_callback_glfw(
@@ -141,3 +141,18 @@ bool Window_GLFW::is_open() const
 }
 
 const Input* Window_GLFW::input() const { return input_ptr.get()->get(); }
+
+void Window_GLFW::center_view_port()
+{
+  const double desirable_width = get_view_width();
+  const double desirable_height = get_view_height();
+
+  double r = double(width) / desirable_width;
+  const double r2 = double(height) / desirable_height;
+
+  if (r > r2)
+    r = r2;
+  const int w = r * desirable_width;
+  const int h = r * desirable_height;
+  glViewport((width - w) / 2, (height - h) / 2, w, h);
+}

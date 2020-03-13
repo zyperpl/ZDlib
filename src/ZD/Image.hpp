@@ -21,10 +21,10 @@ public:
   static std::shared_ptr<Image> load(
     std::string_view file_name, ForceReload reload = ForceReload::No);
   static std::shared_ptr<Image> create(
-    const Size &size, PixelFormat::Type format = PixelFormat::RGB);
+    const Size &size, PixelFormat::Type format = PixelFormat::BGR);
   static std::shared_ptr<Image> create(
     const Size &size, const Color &color,
-    PixelFormat::Type format = PixelFormat::RGB);
+    PixelFormat::Type format = PixelFormat::BGR);
 
   bool is_empty() const { return !size.is_valid(); }
   bool is_null() const { return data == NULL; }

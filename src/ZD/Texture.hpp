@@ -24,6 +24,7 @@ class Texture
 public:
   Texture(std::shared_ptr<Image> image);
   Texture(std::shared_ptr<Image> image, TextureParameters params);
+  virtual ~Texture();
 
   void update();
   void update(Image *new_image);
@@ -41,4 +42,6 @@ private:
 
   GLuint id { 0 };
   GLuint sampler_id { 0 };
+  GLuint pbo[2] { 0, 0 };
+  long frame { 0 };
 };

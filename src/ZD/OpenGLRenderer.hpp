@@ -29,8 +29,6 @@ public:
 
   void render_screens();
 
-  bool should_center_view_port { true };
-
   void enable_blend(
     GLenum sfactor = GL_SRC_ALPHA, GLenum dfactor = GL_ONE_MINUS_SRC_ALPHA);
   void disable_blend();
@@ -50,7 +48,7 @@ private:
   void generate_vertex_array_object();
   void initialize_gl();
   void uninitialize_gl();
-  void center_view_port();
   GLuint vao;
   double poll_rate { 144. };
+  bool clear_depth { false };
 };

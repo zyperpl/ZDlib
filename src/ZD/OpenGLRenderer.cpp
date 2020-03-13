@@ -152,6 +152,7 @@ void OGLRenderer::initialize_gl()
 
   if (glewGetExtension("GL_KHR_debug"))
   {
+    printf("Setting GL_DEBUG_OUTPUT\n");
     glEnable(GL_DEBUG_OUTPUT);
     glDebugMessageCallback(OGLMessageCallback, 0);
     OGL_ERROR_CALLBACK_SET = true;
@@ -165,6 +166,14 @@ void OGLRenderer::initialize_gl()
 
   glClearColor(0.9, 1.0, 0.9, 1.0);
   glfwSwapInterval(1);
+
+  if (glewGetExtension("GL_ARB_internalformat_query2"))
+  {
+    GLint format, type;
+    glGetInternalformativ(GL_TEXTURE_2D, GL_RGBA8, GL_TEXTURE_IMAGE_FORMAT, 1, &format);
+    glGetInternalformativ(GL_TEXTURE_2D, GL_RGBA8, GL_TEXTURE_IMAGE_TYPE, 1, &type);
+    printf("Internal format: IMAGE_FORMAT=%8x ; IMAGE_TYPE=%8x\n", format, type);
+  }
 
   generate_vertex_array_object();
   OGL_LOADED = true;
@@ -190,27 +199,13 @@ void OGLRenderer::update() { glfwWaitEventsTimeout(1. / poll_rate); }
 
 void OGLRenderer::clear()
 {
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-}
-
-void OGLRenderer::center_view_port()
-{
-  //TODO: execute only on window change
-  //TODO: make should_center per window
-  int width, height;
-  glfwGetFramebufferSize(glfwGetCurrentContext(), &width, &height);
-
-  const double desirable_width = window()->get_view_width();
-  const double desirable_height = window()->get_view_height();
-
-  double r = double(width) / desirable_width;
-  const double r2 = double(height) / desirable_height;
-
-  if (r > r2)
-    r = r2;
-  const int w = r * desirable_width;
-  const int h = r * desirable_height;
-  glViewport((width - w) / 2, (height - h) / 2, w, h);
+  if (clear_depth)
+  {
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  } else
+  {
+    glClear(GL_COLOR_BUFFER_BIT);
+  }
 }
 
 void OGLRenderer::render_screens()
@@ -243,11 +238,6 @@ void OGLRenderer::render()
     }
   }
 #endif
-
-  if (should_center_view_port)
-  {
-    center_view_port();
-  }
 
   render_screens();
 
@@ -286,10 +276,12 @@ void OGLRenderer::enable_depth_test(GLenum func)
   assert(!windows.empty());
   glEnable(GL_DEPTH_TEST);
   glDepthFunc(func);
+  clear_depth = true;
 }
 
 void OGLRenderer::disable_depth_test()
 {
   assert(!windows.empty());
   glDisable(GL_DEPTH_TEST);
+  clear_depth = false;
 }

@@ -83,15 +83,17 @@ public:
 
   inline void set_value(u8 r, u8 g, u8 b, u8 a = 255)
   {
-    color_value = ((r << 24) | (g << 16) | (b << 8) | (a));
+    // internally BGRA
+    color_value =
+      ((b << BLUE_BIT) | (g << GREEN_BIT) | (r << RED_BIT) | (a << ALPHA_BIT));
   }
 
   inline uint32_t value() const { return color_value; }
 
-  inline u8 red() const { return (color_value >> 24) & 0xff; }
-  inline u8 green() const { return (color_value >> 16) & 0xff; }
-  inline u8 blue() const { return (color_value >> 8) & 0xff; }
-  inline u8 alpha() const { return (color_value >> 0) & 0xff; }
+  inline u8 red() const { return (color_value >> RED_BIT) & 0xff; }
+  inline u8 green() const { return (color_value >> GREEN_BIT) & 0xff; }
+  inline u8 blue() const { return (color_value >> BLUE_BIT) & 0xff; }
+  inline u8 alpha() const { return (color_value >> ALPHA_BIT) & 0xff; }
 
   float red_float() const { return ((float)red()) / 255.0; }
   float green_float() const { return ((float)green()) / 255.0; }
@@ -106,4 +108,9 @@ public:
 
 private:
   uint32_t color_value { 0 };
+
+  const int RED_BIT = 8;
+  const int GREEN_BIT = 16;
+  const int BLUE_BIT = 24;
+  const int ALPHA_BIT = 0;
 };

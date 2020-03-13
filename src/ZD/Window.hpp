@@ -109,11 +109,17 @@ public:
 private:
   GLFWwindow *handle;
   std::shared_ptr<Input_GLFW> input_ptr;
-  void set_size(int width, int height)
+  void set_framebuffer_size(int width, int height)
   {
     this->width = width;
     this->height = height;
+    if (should_center_view_port)
+    {
+      center_view_port();
+    }
   }
+  void center_view_port();
+  bool should_center_view_port { true };
 
   friend void key_callback_glfw(GLFWwindow *, int, int, int, int);
   friend void cursor_position_callback_glfw(GLFWwindow *, double, double);

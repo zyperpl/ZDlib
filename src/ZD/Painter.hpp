@@ -30,8 +30,16 @@ public:
   virtual void clear_rectangle(int x1, int y1, int x2, int y2);
   virtual void draw_circle(
     const int x, const int y, const int radius, const Color &color);
-  inline void clear(const Color &c = Color(0)) { target->clear(c); }
-  inline void fill(const Color &c) { target->clear(c); }
+  inline void clear(const Color &c = Color(0))
+  {
+    target->clear(c);
+    target->changes++;
+  }
+  inline void fill(const Color &c)
+  {
+    target->clear(c);
+    target->changes++;
+  }
 
   const Color get_pixel(const int x, const int y) const
   {

@@ -40,8 +40,7 @@ uint32_t *ImageLoader::u8_to_u32(
   {
     uint8_t r = 0, g = 0, b = 0, a = 255;
     const uint8_t *px = bitmap + i * channels;
-    if (channels > 0)
-      r = px[0];
+    r = px[0];
     if (channels > 1)
       g = px[1];
     if (channels > 2)
@@ -102,7 +101,7 @@ std::optional<LoadedImage> load_image_via_stbi(std::string_view file_name)
   stbi_image_free(data);
 
   loaded.file_name = file_name;
-  loaded.format = PixelFormat::Type::RGBA;
+  loaded.format = PixelFormat::Type::BGRA;
   loaded.data = u32_data;
   return loaded;
 }

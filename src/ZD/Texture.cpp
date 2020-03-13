@@ -15,8 +15,65 @@ Texture::Texture(std::shared_ptr<Image> image)
 Texture::Texture(std::shared_ptr<Image> image, TextureParameters params)
 : image { image }
 , texture_wrap { params.wrap }
+, generate_mipmap { params.generate_mipmap }
 {
   this->generate(params);
+}
+
+Texture::~Texture()
+{
+  glDeleteTextures(1, &id);
+  glDeleteBuffers(2, pbo);
+}
+
+void Texture::generate(TextureParameters params)
+{
+  glGenTextures(1, &id);
+  glBindTexture(GL_TEXTURE_2D, id);
+
+  glTexImage2D(
+    GL_TEXTURE_2D,
+    0,
+    GL_RGBA8,
+    image->get_size().width(),
+    image->get_size().height(),
+    0,
+    GL_BGRA,
+    GL_UNSIGNED_INT_8_8_8_8,
+    &image->get_data()[0]);
+
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, params.mag_filter);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, params.min_filter);
+
+  glBindTexture(GL_TEXTURE_2D, this->id);
+  if (generate_mipmap)
+  {
+    glGenerateMipmap(GL_TEXTURE_2D);
+  }
+
+  if (glewGetExtension("GL_ARB_pixel_buffer_object"))
+  {
+    glGenBuffers(2, pbo);
+    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, pbo[0]);
+    glBufferData(
+      GL_PIXEL_UNPACK_BUFFER,
+      image->get_size().area() * sizeof(uint32_t),
+      image->get_data(),
+      GL_STREAM_DRAW);
+    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, pbo[1]);
+    glBufferData(
+      GL_PIXEL_UNPACK_BUFFER,
+      image->get_size().area() * sizeof(uint32_t),
+      image->get_data(),
+      GL_STREAM_DRAW);
+    printf("Generated Pixel Buffer Object id 1=%u id 2=%u\n", pbo[0], pbo[1]);
+    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
+  }
+
+  glCheckError();
 }
 
 void Texture::update(Image *new_image)
@@ -30,10 +87,15 @@ void Texture::update()
   if (!image)
     return;
 
-  GLenum format = GL_RGBA;
+  auto *data_ptr = &image->get_data()[0];
 
+  if (pbo[frame % 2] > 0)
+  {
+    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, pbo[frame % 2]);
+    data_ptr = 0;
+  }
+  
   glBindTexture(GL_TEXTURE_2D, this->id);
-
   glTexSubImage2D(
     GL_TEXTURE_2D,
     0,
@@ -41,45 +103,27 @@ void Texture::update()
     0,
     image->get_size().width(),
     image->get_size().height(),
-    format,
+    GL_BGRA,
     GL_UNSIGNED_INT_8_8_8_8,
-    &image->get_data()[0]);
+    data_ptr);
 
   if (generate_mipmap)
   {
+    glBindTexture(GL_TEXTURE_2D, this->id);
     glGenerateMipmap(GL_TEXTURE_2D);
   }
-}
-
-void Texture::generate(TextureParameters params)
-{
-  glGenTextures(1, &id);
-  glBindTexture(GL_TEXTURE_2D, id);
-  GLenum format = GL_RGBA;
-
-  //printf("Texture %p format=%s\n", this, format == GL_RGB ? "RGB" : "RGBA");
-  glTexImage2D(
-    GL_TEXTURE_2D,
-    0,
-    format,
-    image->get_size().width(),
-    image->get_size().height(),
-    0,
-    format,
-    GL_UNSIGNED_INT_8_8_8_8,
-    &image->get_data()[0]);
-
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 0);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, params.mag_filter);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, params.min_filter);
-
-  glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-
-  if (generate_mipmap)
+  
+  if (pbo[(frame+1) % 2] > 0)
   {
-    glGenerateMipmap(GL_TEXTURE_2D);
+    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, pbo[(frame+1) % 2]);
+    auto *pbo_ptr = glMapBuffer(GL_PIXEL_UNPACK_BUFFER, GL_WRITE_ONLY);
+    if (pbo_ptr)
+    {
+      memcpy(pbo_ptr, &image->get_data()[0], image->get_size().area() * sizeof(uint32_t));
+      glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER);
+    }
+    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
+    frame++;
   }
 }
 
@@ -102,4 +146,9 @@ void Texture::bind(const ShaderProgram &shader)
   }
 
   glCheckError();
+
+  if (frame % 2 == 1)
+  {
+    update();
+  }
 }
