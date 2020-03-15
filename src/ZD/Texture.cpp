@@ -54,7 +54,13 @@ void Texture::generate(TextureParameters params)
     glGenerateMipmap(GL_TEXTURE_2D);
   }
 
-  if (glewGetExtension("GL_ARB_pixel_buffer_object"))
+  static const bool IS_GL_4_5_SUPPORTED =
+    glewGetExtension("ARB_get_texture_sub_image") &&
+    glewGetExtension("ARB_texture_barrier");
+
+  if (
+    glewGetExtension("GL_ARB_pixel_buffer_object") &&
+    IS_GL_4_5_SUPPORTED /* to be sure implementation is proper and reliable */)
   {
     glGenBuffers(2, pbo);
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, pbo[0]);
@@ -94,7 +100,7 @@ void Texture::update()
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, pbo[frame % 2]);
     data_ptr = 0;
   }
-  
+
   glBindTexture(GL_TEXTURE_2D, this->id);
   glTexSubImage2D(
     GL_TEXTURE_2D,
@@ -112,14 +118,17 @@ void Texture::update()
     glBindTexture(GL_TEXTURE_2D, this->id);
     glGenerateMipmap(GL_TEXTURE_2D);
   }
-  
-  if (pbo[(frame+1) % 2] > 0)
+
+  if (pbo[(frame + 1) % 2] > 0)
   {
-    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, pbo[(frame+1) % 2]);
+    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, pbo[(frame + 1) % 2]);
     auto *pbo_ptr = glMapBuffer(GL_PIXEL_UNPACK_BUFFER, GL_WRITE_ONLY);
     if (pbo_ptr)
     {
-      memcpy(pbo_ptr, &image->get_data()[0], image->get_size().area() * sizeof(uint32_t));
+      memcpy(
+        pbo_ptr,
+        &image->get_data()[0],
+        image->get_size().area() * sizeof(uint32_t));
       glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER);
     }
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
