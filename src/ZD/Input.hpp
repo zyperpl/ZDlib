@@ -176,6 +176,12 @@ public:
   }
 
   inline int button(MouseButton button) const { return buttons.at(button); }
+  inline int consume_button(MouseButton button) const
+  {
+    auto v = buttons.at(button);
+    buttons.at(button) = 0;
+    return v;
+  }
 
 protected:
   MousePosition<double> position_window_space { 0.0, 0.0 };
@@ -183,7 +189,7 @@ protected:
   Size view_size { 0, 0 };
   mutable double scroll_y_offset { 0.0 };
   mutable double scroll_x_offset { 0.0 };
-  std::unordered_map<MouseButton, int> buttons;
+  mutable std::unordered_map<MouseButton, int> buttons;
 
   friend class Input;
   friend class Input_GLFW;
