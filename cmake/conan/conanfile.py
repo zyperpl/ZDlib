@@ -1,14 +1,16 @@
 import os
+import pathlib
 
 from conans import ConanFile
 
 class ZDConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
     generators = "cmake"
-    url = "https://github.com/zyperpl"
+    url = "https://github.com/zyperpl/ZDLib"
 
     def include_package(self, name, version, recipe=None):
-        recipes_path = os.path.join("../cmake/conan/", ".")
+        current_path = pathlib.Path(__file__).parent.absolute()
+        recipes_path = os.path.join("./cmake/conan/", current_path)
         if recipe is None:
             recipe = name + "_recipe.py"
             
