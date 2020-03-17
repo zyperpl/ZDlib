@@ -22,18 +22,20 @@ struct TextureParameters
 class Texture
 {
 public:
+  Texture(TextureParameters params = {});
   Texture(std::shared_ptr<Image> image);
   Texture(std::shared_ptr<Image> image, TextureParameters params);
   virtual ~Texture();
 
   void update();
-  void update(Image *new_image);
-
   void bind(const ShaderProgram &shader);
+
+  void set_image(std::shared_ptr<Image> new_image);
   const std::shared_ptr<Image> get_image() const { return this->image; }
 
 private:
   void generate(TextureParameters params);
+  void set_buffer_data();
   bool set_uniform(const ShaderUniform &uniform);
 
   std::shared_ptr<Image> image;

@@ -16,6 +16,7 @@
 class Entity
 {
 public:
+  Entity() = default;
   Entity(glm::vec3 position, glm::vec3 rotation, glm::vec3 scale);
   void update();
   void draw(const ShaderProgram &shader_program, const View &view);
