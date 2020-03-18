@@ -28,7 +28,9 @@ public:
   virtual ~Texture();
 
   void update();
-  void bind(const ShaderProgram &shader);
+  void bind(
+    const ShaderProgram &shader, GLuint sampler_id = 0,
+    std::string_view sampler_name = "sampler");
 
   void set_image(std::shared_ptr<Image> new_image);
   const std::shared_ptr<Image> get_image() const { return this->image; }
@@ -43,7 +45,6 @@ private:
   bool generate_mipmap { false };
 
   GLuint id { 0 };
-  GLuint sampler_id { 0 };
   GLuint pbo[2] { 0, 0 };
   long frame { 0 };
 };

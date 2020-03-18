@@ -167,15 +167,15 @@ void Texture::update()
   }
 }
 
-void Texture::bind(const ShaderProgram &shader)
+void Texture::bind(const ShaderProgram &shader, GLuint sampler_id, std::string_view sampler_name)
 {
-  glActiveTexture(GL_TEXTURE0 + this->sampler_id);
+  glActiveTexture(GL_TEXTURE0 + sampler_id);
   glBindTexture(GL_TEXTURE_2D, this->id);
 
-  if (auto sampler_uniform = shader.get_uniform("sampler"))
+  if (auto sampler_uniform = shader.get_uniform(sampler_name.data()))
   {
     assert(sampler_uniform->type == GL_SAMPLER_2D);
-    glUniform1i(sampler_uniform->location, this->sampler_id);
+    glUniform1i(sampler_uniform->location, sampler_id);
   }
 
   if (auto wrap_uniform = shader.get_uniform("texture_wrap"))
