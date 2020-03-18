@@ -81,6 +81,8 @@ public:
     return Color(r, g, b);
   }
 
+  static Color from_value(uint32_t v) { return Color(v); }
+
   inline void set_value(u8 r, u8 g, u8 b, u8 a = 255)
   {
     // internally BGRA
