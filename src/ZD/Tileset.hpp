@@ -296,6 +296,8 @@ public:
   inline int get_tile_width() { return tile_width; }
   inline int get_tile_height() { return tile_height; }
 
+  std::shared_ptr<Image> get_source() { return source; }
+
 private:
   std::shared_ptr<Image> source;
   int tile_width { 0 };
