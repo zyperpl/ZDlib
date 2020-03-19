@@ -64,7 +64,7 @@ uint8_t *ImageLoader::u32_to_u8(
   for (ssize_t i = 0; i < width * height; i++)
   {
     const uint32_t v = bitmap[i];
-    const Color color = Color(v);
+    const Color color = Color::from_value(v);
 
     const ssize_t d_idx = i * channels;
     data[d_idx + 0] = color.red();

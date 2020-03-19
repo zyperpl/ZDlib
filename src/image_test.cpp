@@ -12,9 +12,10 @@
 #include "ZD/OpenGLRenderer.hpp"
 #include "ZD/File.hpp"
 #include "ZD/Input.hpp"
+#include "ZD/Tileset.hpp"
 
-#define W 800
-#define H 450
+#define W 1280
+#define H 720
 
 std::shared_ptr<Image> load_image(std::string_view name)
 {
@@ -77,6 +78,13 @@ auto image_test_main(int, char **) -> int
   auto rnoise = Image::create(Size(W, H), PixelFormat::RGB);
   int x = 10;
   int y = 11;
+
+  puts("Creating tilesets...");
+  auto tileset = std::make_shared<Tileset>(image, 32, 32);
+  auto tilemap = std::make_shared<Tilemap>();
+  tilemap->insert(Tile(TileGridPosition(2,3), TileIndex(1,2)));
+  auto tileset_wrapper = std::make_shared<TilesetImageWrapper>(tileset, tilemap);
+  tileset_wrapper->redraw();
 
   auto canvas_image = Image::load("images/user_canvas.png");
 
@@ -212,6 +220,8 @@ auto image_test_main(int, char **) -> int
     screen2->painter()->draw_circle(W / 2, H / 2, 30, Color(255, 0, 0));
     
     painter->draw_image(x, y, *image);
+
+    tileset_wrapper->draw(*screen2->painter());
 
     renderer.render();
   }
