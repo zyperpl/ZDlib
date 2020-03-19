@@ -13,6 +13,7 @@
 #include "ZD/File.hpp"
 #include "ZD/Input.hpp"
 #include "ZD/Tileset.hpp"
+#include "ZD/TilesetRenderer.hpp"
 
 #define W 1280
 #define H 720
@@ -54,6 +55,7 @@ auto image_test_main(int, char **) -> int
   puts("Adding a window");
   auto window = renderer.add_window({ Size(W, H), "ZDTest" });
   renderer.enable_blend();
+  renderer.set_background_color(Color(10, 10, 10));
   auto input = window->input();
 
   puts("Creating screens...");
@@ -83,8 +85,14 @@ auto image_test_main(int, char **) -> int
   auto tileset = std::make_shared<Tileset>(image, 32, 32);
   auto tilemap = std::make_shared<Tilemap>();
   tilemap->insert(Tile(TileGridPosition(2,3), TileIndex(1,2)));
+  tilemap->insert(Tile(TileGridPosition(0,0), TileIndex(1,1)));
   auto tileset_wrapper = std::make_shared<TilesetImageWrapper>(tileset, tilemap);
   tileset_wrapper->redraw();
+
+  puts("Creating a tileset renderer...");
+  auto tileset_renderer = std::make_shared<TilesetRenderer>(tileset);
+  tileset_renderer->update(*tilemap);
+  tileset_renderer->view_scale *= 4.;
 
   auto canvas_image = Image::load("images/user_canvas.png");
 
@@ -162,7 +170,7 @@ auto image_test_main(int, char **) -> int
         Color(r(255), r(255), r(255)));
     }
 
-    painter->clear(Color(0, 0, 0, 255));
+    painter->clear(Color(0, 0, 0, 0));
     painter->draw_image(x, y, *rnoise, 0.3333, -0.3333);
     painter->draw_rectangle(
       x, y, x + W * 0.3333, y + H * 0.3333, Color(255, 255, 120));
@@ -222,6 +230,9 @@ auto image_test_main(int, char **) -> int
     painter->draw_image(x, y, *image);
 
     tileset_wrapper->draw(*screen2->painter());
+
+    // tileset rendering with megatexture
+    tileset_renderer->render(*window);
 
     renderer.render();
   }

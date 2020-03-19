@@ -55,9 +55,7 @@ OGLRenderer::OGLRenderer()
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, OPENGL_MINOR);
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
   if ((OPENGL_MAJOR == 3 && OPENGL_MINOR >= 2) || OPENGL_MAJOR > 3)
-  {
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-  }
+  { glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); }
 
 #ifdef GLFW_ERROR_CALLBACK
   glfwSetErrorCallback([](int error_code, const char* description) {
@@ -104,8 +102,7 @@ void OGLRenderer::remove_window(size_t index)
 
 void OGLRenderer::initialize_gl()
 {
-  if (OGL_LOADED)
-    return;
+  if (OGL_LOADED) return;
 
   // must be done after window creation
   assert(!windows.empty());
@@ -133,21 +130,17 @@ void OGLRenderer::initialize_gl()
                               GLsizei,
                               const GLchar* message,
                               const void*) {
-    if (type == GL_DEBUG_TYPE_ERROR && severity != 0x9146)
-    {
-      static int glerrors = 0;
-      fprintf(
-        stderr,
-        "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n",
-        (type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : ""),
-        type,
-        severity,
-        message);
+    static int glerrors = 0;
+    fprintf(
+      stderr,
+      "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n",
+      (type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : ""),
+      type,
+      severity,
+      message);
 
-      glerrors++;
-      if (glerrors >= 500)
-        exit(3);
-    }
+    glerrors++;
+    if (glerrors >= 500) exit(3);
   };
 
   if (glewGetExtension("GL_KHR_debug"))
@@ -170,9 +163,12 @@ void OGLRenderer::initialize_gl()
   if (glewGetExtension("GL_ARB_internalformat_query2"))
   {
     GLint format, type;
-    glGetInternalformativ(GL_TEXTURE_2D, GL_RGBA8, GL_TEXTURE_IMAGE_FORMAT, 1, &format);
-    glGetInternalformativ(GL_TEXTURE_2D, GL_RGBA8, GL_TEXTURE_IMAGE_TYPE, 1, &type);
-    printf("Internal format: IMAGE_FORMAT=%8x ; IMAGE_TYPE=%8x\n", format, type);
+    glGetInternalformativ(
+      GL_TEXTURE_2D, GL_RGBA8, GL_TEXTURE_IMAGE_FORMAT, 1, &format);
+    glGetInternalformativ(
+      GL_TEXTURE_2D, GL_RGBA8, GL_TEXTURE_IMAGE_TYPE, 1, &type);
+    printf(
+      "Internal format: IMAGE_FORMAT=%8x ; IMAGE_TYPE=%8x\n", format, type);
   }
 
   generate_vertex_array_object();
@@ -181,8 +177,7 @@ void OGLRenderer::initialize_gl()
 
 void OGLRenderer::uninitialize_gl()
 {
-  if (!OGL_LOADED)
-    return;
+  if (!OGL_LOADED) return;
 
   OGL_LOADED = false;
   glDeleteVertexArrays(1, &vao);
@@ -199,10 +194,8 @@ void OGLRenderer::update() { glfwWaitEventsTimeout(1. / poll_rate); }
 
 void OGLRenderer::clear()
 {
-  if (clear_depth)
-  {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  } else
+  if (clear_depth) { glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); }
+  else
   {
     glClear(GL_COLOR_BUFFER_BIT);
   }
@@ -219,8 +212,7 @@ void OGLRenderer::render_screens()
 
 void OGLRenderer::render()
 {
-  if (!window()->is_open())
-    return;
+  if (!window()->is_open()) return;
 
 #ifdef OPENGL_ERROR_CALLBACK
   if (!OGL_ERROR_CALLBACK_SET)
@@ -232,10 +224,7 @@ void OGLRenderer::render()
       fprintf(stderr, "OpenGL ERROR: %d\n", err);
       gl_errors++;
     }
-    if (gl_errors > 60)
-    {
-      exit(3);
-    }
+    if (gl_errors > 60) { exit(3); }
   }
 #endif
 

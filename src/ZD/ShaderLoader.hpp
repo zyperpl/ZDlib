@@ -12,6 +12,8 @@ enum class ShaderDefault
   ScreenTextureFragment,
   CenterModelTextureVertex,
   CenterModelTextureFragment,
+  TilesetVertex,
+  TilesetFragment,
   Invalid
 };
 

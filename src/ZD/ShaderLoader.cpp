@@ -69,6 +69,57 @@ const GLchar *z_mvp_model_vertex_shader = R"glsl(
   }
 )glsl";
 
+const GLchar *z_tileset_vertex_shader = R"glsl(
+  #version 330 
+  precision highp float;
+
+  in vec2 position;
+  out vec2 map_uv;
+  out vec2 screen_uv;
+  uniform vec2 framebuffer_size;
+  uniform vec2 view_size;
+  uniform vec2 view_scale;
+  uniform vec2 view_offset;
+  uniform vec2 screen_position;
+  uniform vec2 screen_scale;
+  uniform vec2 texture_size;
+  uniform vec2 tile_size;
+  
+  void main()
+  {
+    vec2 pixel_size = view_size / texture_size / 2.;
+    gl_Position = vec4(position.x, position.y, 0.0, 1.0);
+    vec2 uv = gl_Position.xy / 2.0 + 0.5;
+    uv.y = 1.0 - uv.y;
+    uv += pixel_size * 0.000005;
+    screen_uv = uv * view_size / view_scale + view_offset;
+    map_uv = screen_uv / texture_size / tile_size;
+    gl_Position.xy *= screen_scale;
+    gl_Position.xy += (vec2(screen_position.x, 1.0-screen_position.y) / view_size) * 2.0;
+  }
+)glsl";
+const GLchar *z_tileset_fragment_shader = R"glsl(
+  #version 330 
+
+  in vec2 map_uv;
+  in vec2 screen_uv;
+  uniform sampler2D tileset_sampler;
+  uniform sampler2D map_sampler;
+  uniform vec2 spritesheet_size;
+  uniform vec2 tile_size;
+
+  out vec4 fragColor;
+  void main()
+  {
+    if (screen_uv.x < 0.0 || screen_uv.y < 0.0) { discard; }
+    vec2 uv = texture(map_sampler, map_uv).rg;
+    if (uv.x == 1.0 && uv.y == 1.0) { discard; }
+    vec2 spriteOffset = floor(uv * 256.0) * tile_size;
+    vec2 spriteCoord = mod(screen_uv, tile_size);
+    fragColor = texture(tileset_sampler, (spriteOffset + spriteCoord) / spritesheet_size);
+  }
+)glsl";
+
 auto print_shader_errors(
   void (*fInfoLog)(GLuint, GLsizei, GLsizei *, GLchar *), GLuint sop) -> int
 {
@@ -226,6 +277,12 @@ GLuint ShaderLoader::load_shader(ShaderDefault default_name, GLuint type)
       break;
     case ShaderDefault::CenterModelTextureVertex:
       shader_source = z_mvp_model_vertex_shader;
+      break;
+    case ShaderDefault::TilesetVertex:
+      shader_source = z_tileset_vertex_shader;
+      break;
+    case ShaderDefault::TilesetFragment:
+      shader_source = z_tileset_fragment_shader;
       break;
 
     case ShaderDefault::Invalid:
