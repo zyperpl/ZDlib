@@ -87,11 +87,9 @@ const GLchar *z_tileset_vertex_shader = R"glsl(
   
   void main()
   {
-    vec2 pixel_size = view_size / texture_size / 2.;
     gl_Position = vec4(position.x, position.y, 0.0, 1.0);
     vec2 uv = gl_Position.xy / 2.0 + 0.5;
     uv.y = 1.0 - uv.y;
-    uv += pixel_size * 0.000005;
     screen_uv = uv * view_size / view_scale + view_offset;
     map_uv = screen_uv / texture_size / tile_size;
     gl_Position.xy *= screen_scale;
