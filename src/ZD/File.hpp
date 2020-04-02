@@ -31,9 +31,10 @@ public:
 
   void rewind();
   std::optional<std::string> read_line(int max_size = FILE_BUF_SIZE);
-  std::vector<std::string> read_lines();
+  std::vector<std::string> read_lines() const;
   std::vector<uint8_t> read_bytes(int max_size = FILE_BUF_SIZE);
-  std::vector<uint8_t> read_all_bytes();
+  std::vector<uint8_t> read_all_bytes() const;
+  std::string read_all_chars() const;
 
   ssize_t write(std::vector<uint8_t> data);
   ssize_t write(std::string_view str);
@@ -47,11 +48,11 @@ public:
   int get_fd() const { return fd; }
 
 protected:
-  size_t obtain_size();
+   size_t obtain_size() const;
 
 private:
   std::string_view name;
-  size_t size { 0 };
+  mutable size_t size { 0 };
   OpenMode mode;
 
   int fd { -1 };

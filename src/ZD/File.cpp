@@ -56,10 +56,9 @@ File::~File()
 void File::rewind()
 {
   lseek(fd, 0, SEEK_SET);
-  assert(lseek(fd, 0, SEEK_CUR) == 0);
 }
 
-size_t File::obtain_size()
+size_t File::obtain_size() const
 {
   struct stat sb;
   if (fstat(fd, &sb) == -1)
@@ -96,10 +95,10 @@ std::optional<std::string> File::read_line(int max_size)
   return {};
 }
 
-std::vector<std::string> File::read_lines()
+std::vector<std::string> File::read_lines() const
 {
   assert(mode == Read || mode == ReadWrite);
-  rewind();
+  lseek(fd, 0, SEEK_SET);
   assert(lseek(fd, 0, SEEK_CUR) == 0);
 
   std::vector<std::string> strings;
@@ -141,10 +140,10 @@ std::vector<uint8_t> File::read_bytes(int max_size)
   return data;
 }
 
-std::vector<uint8_t> File::read_all_bytes()
+std::vector<uint8_t> File::read_all_bytes() const
 {
   assert(mode == Read || mode == ReadWrite);
-  rewind();
+  lseek(fd, 0, SEEK_SET);
   assert(lseek(fd, 0, SEEK_CUR) == 0);
   obtain_size();
   std::vector<uint8_t> data(this->size);
@@ -162,6 +161,37 @@ std::vector<uint8_t> File::read_all_bytes()
 
   assert(saved == this->size);
   return data;
+}
+
+std::string File::read_all_chars() const
+{
+  assert(mode == Read || mode == ReadWrite);
+  lseek(fd, 0, SEEK_SET);
+  assert(lseek(fd, 0, SEEK_CUR) == 0);
+  obtain_size();
+  std::string str;
+  str.resize(this->size);
+
+  auto *ptr = str.data();
+  std::unique_ptr<uint8_t[]> buf(new uint8_t[FILE_BUF_SIZE]);
+  size_t readed = 0;
+  size_t saved = 0;
+  while ((readed = read(fd, buf.get(), FILE_BUF_SIZE)) > 0)
+  {
+    printf("%p %lu %lu\n", ptr, readed, saved);
+    std::memcpy(&ptr[0], buf.get(), readed);
+    ptr += readed;
+    saved += readed;
+  }
+  if (*ptr != '\0') 
+  {
+    str.resize(this->size + 1);
+    *ptr = '\0';
+  }
+  str.shrink_to_fit();
+
+  assert(saved == this->size);
+  return str;
 }
 
 ssize_t File::write(std::vector<uint8_t> data)
