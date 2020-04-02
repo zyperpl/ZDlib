@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "Shader.hpp"
+#include "File.hpp"
 
 enum class ShaderDefault
 {
@@ -39,7 +40,7 @@ public:
   ShaderLoader() = default;
 
   ShaderLoader &add(ShaderDefault name, GLuint type);
-  ShaderLoader &add(std::string_view name, GLuint type);
+  ShaderLoader &add(const File &file, GLuint type);
   std::shared_ptr<ShaderProgram> compile();
 
   static void free_cache();
@@ -49,7 +50,7 @@ private:
   std::shared_ptr<ShaderProgram> compiled_program { nullptr };
 
   static GLuint load_shader(ShaderDefault default_name, GLuint type);
-  static GLuint load_shader(std::string_view name, GLuint type);
+  static GLuint load_shader(std::string_view data, GLuint type);
 
   friend class Shader;
 };

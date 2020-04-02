@@ -36,6 +36,10 @@ int file_test_main(int, char **)
     assert(strncmp((char *)all.data(), "# Ble", 5) == 0);
     assert(all[270] == 'g');
     assert(all[271] == '\n');
+
+    auto all_chars = f.read_all_chars();
+    printf("Read %lu chars.\n", all_chars.size());
+    assert(all_chars.size() == 272);
   }
 
   {

@@ -125,10 +125,7 @@ auto print_shader_errors(
   char *log = new char[512];
   fInfoLog(sop, 512, &logLength, log);
 
-  if (logLength > 0)
-  {
-    printf("Compilation error:\n%s\n", log);
-  }
+  if (logLength > 0) { printf("Compilation error:\n%s\n", log); }
 
   delete[] log;
   return logLength;
@@ -139,15 +136,11 @@ std::optional<ShaderInfo::Shader> find_shader_in_cache(
 {
   for (const ShaderInfo::Shader &shader : cached_shaders)
   {
-    if (shader.type != type)
-      continue;
+    if (shader.type != type) continue;
 
     if (auto other_name = std::get_if<std::string_view>(&shader.name))
     {
-      if (*other_name == name)
-      {
-        return shader;
-      }
+      if (*other_name == name) { return shader; }
     }
   }
   return std::nullopt;
@@ -158,15 +151,11 @@ std::optional<ShaderInfo::Shader> find_shader_in_cache(
 {
   for (const ShaderInfo::Shader &shader : cached_shaders)
   {
-    if (shader.type != type)
-      continue;
+    if (shader.type != type) continue;
 
     if (auto other_name = std::get_if<ShaderDefault>(&shader.name))
     {
-      if (*other_name == name)
-      {
-        return shader;
-      }
+      if (*other_name == name) { return shader; }
     }
   }
   return std::nullopt;
@@ -183,15 +172,10 @@ std::optional<std::shared_ptr<ShaderProgram>> find_program_in_cache(
       for (const ShaderInfo::Shader &other_sh : program_info.shaders)
       {
         if (other_sh.name != sh.name || other_sh.type != sh.type)
-        {
-          the_same = false;
-        }
+        { the_same = false; }
       }
     }
-    if (the_same)
-    {
-      return program_info.program;
-    }
+    if (the_same) { return program_info.program; }
   }
   return std::nullopt;
 }
@@ -217,21 +201,22 @@ ShaderLoader &ShaderLoader::add(ShaderDefault name, GLuint type)
   return *this;
 }
 
-ShaderLoader &ShaderLoader::add(std::string_view name, GLuint type)
+ShaderLoader &ShaderLoader::add(const File &file, GLuint type)
 {
   assert(compiled_program == nullptr);
 
-  if (auto shader_info = find_shader_in_cache(name, type))
+  if (auto shader_info = find_shader_in_cache(file.get_name(), type))
   {
     //printf("Shader '%s' found in cache (%zu records).\n", name.data(), cached_shaders.size());
     loaded_shaders.push_back(*shader_info);
     return *this;
   }
 
-  GLuint shader_id = ShaderLoader::load_shader(name, type);
+  GLuint shader_id =
+    ShaderLoader::load_shader(std::string_view(file.read_all_chars()), type);
   assert(shader_id > 0);
 
-  ShaderInfo::Shader shader_info { shader_id, name, type };
+  ShaderInfo::Shader shader_info { shader_id, file.get_name(), type };
   cached_shaders.push_back(shader_info);
   loaded_shaders.push_back(shader_info);
 
@@ -240,10 +225,7 @@ ShaderLoader &ShaderLoader::add(std::string_view name, GLuint type)
 
 std::shared_ptr<ShaderProgram> ShaderLoader::compile()
 {
-  if (compiled_program)
-  {
-    return compiled_program;
-  }
+  if (compiled_program) { return compiled_program; }
 
   std::shared_ptr<ShaderProgram> program = std::make_shared<ShaderProgram>();
   auto s_id = program->get_id();
@@ -290,17 +272,20 @@ GLuint ShaderLoader::load_shader(ShaderDefault default_name, GLuint type)
   GLuint id = glCreateShader(type);
   glShaderSource(id, 1, &shader_source, NULL);
   glCompileShader(id);
-  if (print_shader_errors(glGetShaderInfoLog, id) > 0)
-    return 0;
+  if (print_shader_errors(glGetShaderInfoLog, id) > 0) return 0;
 
   return id;
 }
 
-GLuint ShaderLoader::load_shader(std::string_view, GLuint)
+GLuint ShaderLoader::load_shader(std::string_view data, GLuint type)
 {
-  assert(false);
-  //TODO: add File class
-  return 0;
+  GLuint id = glCreateShader(type);
+  const GLchar *shader_source = &data[0];
+  glShaderSource(id, 1, &shader_source, NULL);
+  glCompileShader(id);
+  if (print_shader_errors(glGetShaderInfoLog, id) > 0) return 0;
+  
+  return id;
 }
 
 void ShaderLoader::free_cache()
