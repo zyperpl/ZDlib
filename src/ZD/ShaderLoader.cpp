@@ -236,6 +236,7 @@ std::shared_ptr<ShaderProgram> ShaderLoader::compile()
   }
   program->link();
   print_shader_errors(glGetProgramInfoLog, program->id);
+  assert(program->is_linked());
 
   compiled_program = program;
 

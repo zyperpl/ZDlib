@@ -75,8 +75,6 @@ void ShaderProgram::link()
 
   extract_uniforms();
   extract_attributes();
-
-  assert(is_linked());
 }
 
 void ShaderProgram::use() const
