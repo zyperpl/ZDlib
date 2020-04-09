@@ -132,15 +132,15 @@ auto print_shader_errors(
 };
 
 std::optional<ShaderInfo::Shader> find_shader_in_cache(
-  const std::string_view name, const GLuint type)
+  const std::string_view name_or_data, const GLuint type)
 {
   for (const ShaderInfo::Shader &shader : cached_shaders)
   {
     if (shader.type != type) continue;
 
-    if (auto other_name = std::get_if<std::string_view>(&shader.name))
+    if (auto other_name = std::get_if<std::string_view>(&shader.unique_identifier))
     {
-      if (*other_name == name) { return shader; }
+      if (*other_name == name_or_data) { return shader; }
     }
   }
   return std::nullopt;
@@ -153,7 +153,7 @@ std::optional<ShaderInfo::Shader> find_shader_in_cache(
   {
     if (shader.type != type) continue;
 
-    if (auto other_name = std::get_if<ShaderDefault>(&shader.name))
+    if (auto other_name = std::get_if<ShaderDefault>(&shader.unique_identifier))
     {
       if (*other_name == name) { return shader; }
     }
@@ -171,7 +171,7 @@ std::optional<std::shared_ptr<ShaderProgram>> find_program_in_cache(
     {
       for (const ShaderInfo::Shader &other_sh : program_info.shaders)
       {
-        if (other_sh.name != sh.name || other_sh.type != sh.type)
+        if (other_sh.unique_identifier != sh.unique_identifier || other_sh.type != sh.type)
         { the_same = false; }
       }
     }
@@ -217,6 +217,28 @@ ShaderLoader &ShaderLoader::add(const File &file, GLuint type)
   assert(shader_id > 0);
 
   ShaderInfo::Shader shader_info { shader_id, file.get_name(), type };
+  cached_shaders.push_back(shader_info);
+  loaded_shaders.push_back(shader_info);
+
+  return *this;
+}
+
+ShaderLoader &ShaderLoader::add(const std::string_view data, GLuint type)
+{
+  assert(compiled_program == nullptr);
+
+  if (auto shader_info = find_shader_in_cache(data, type))
+  {
+    //printf("Shader '%s' found in cache (%zu records).\n", name.data(), cached_shaders.size());
+    loaded_shaders.push_back(*shader_info);
+    return *this;
+  }
+
+  GLuint shader_id =
+    ShaderLoader::load_shader(data, type);
+  assert(shader_id > 0);
+
+  ShaderInfo::Shader shader_info { shader_id, data, type };
   cached_shaders.push_back(shader_info);
   loaded_shaders.push_back(shader_info);
 

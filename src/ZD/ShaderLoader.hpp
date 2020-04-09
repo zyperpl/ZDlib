@@ -23,7 +23,8 @@ namespace ShaderInfo
   struct Shader
   {
     GLuint id;
-    std::variant<std::string_view, ShaderDefault> name;
+    /* Can be name as string_view, data as string_view or type as ShaderDefault enum */
+    std::variant<std::string_view, ShaderDefault> unique_identifier;
     GLuint type;
   };
 
@@ -41,6 +42,7 @@ public:
 
   ShaderLoader &add(ShaderDefault name, GLuint type);
   ShaderLoader &add(const File &file, GLuint type);
+  ShaderLoader &add(const std::string_view data, GLuint type);
   std::shared_ptr<ShaderProgram> compile();
 
   static void free_cache();
