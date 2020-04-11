@@ -5,6 +5,7 @@ extern int model_test_main(int, char **);
 extern int file_test_main(int, char **);
 extern int shader_test_main(int, char **);
 extern int minimal_test_main(int, char **);
+extern int network_test_main(int, char **);
 
 #define DUMMY(a, b) 0
 
@@ -14,6 +15,7 @@ extern int minimal_test_main(int, char **);
 #define SHADER_TEST(a, b)  shader_test_main(a, b)
 #define MODEL_TEST(a, b)   model_test_main(a, b)
 #define MINIMAL_TEST(a, b) minimal_test_main(a, b)
+#define NETWORK_TEST(a, b) network_test_main(a, b)
 
 #ifndef IMAGE_TEST
 #define IMAGE_TEST(a, b) DUMMY(a, b)
@@ -35,6 +37,10 @@ extern int minimal_test_main(int, char **);
 #define MINIMAL_TEST(a, b) DUMMY(a, b)
 #endif
 
+#ifndef NETWORK_TEST
+#define NETWORK_TEST(a, b) DUMMY(a, b)
+#endif
+
 auto main(int argc, char *argv[]) -> int
 {
   if (MINIMAL_TEST(argc, argv) > 0)
@@ -53,6 +59,12 @@ auto main(int argc, char *argv[]) -> int
   {
     puts("Image test ERROR");
     return 1;
+  }
+
+  if (NETWORK_TEST(argc, argv) > 0)
+  {
+    puts("Network test ERROR");
+    return 6;
   }
 
   if (SHADER_TEST(argc, argv) > 0)
