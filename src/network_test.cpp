@@ -11,33 +11,48 @@ void tcp_server_loop()
   puts("Entered TCP server loop");
 
   auto server = NetworkSocket::server(SocketType::TCP, PORT);
-  puts("Created TCP server");
   assert(server != nullptr);
+  puts("Created TCP server");
 
   bool received = false;
   long iterations = 0;
-  while (iterations++ < 10 && !received)
+  while (iterations++ < 6 && !received)
   {
-    std::vector<uint8_t> data;
-    auto d = server->read();
-    if (d.size() > 0)
+    puts("TCP Server reading...");
+    auto sdata = server->read();
+    auto data = sdata.data;
+    auto other = sdata.other_socket;
+    assert(!data.empty());
+    if (data.size() > 0)
     {
-      printf("Received data size (iter=%lu): %lu\n", iterations, d.size());
-      for (size_t i = 0; i < d.size(); i++)
+      printf("Received data size (iter=%lu): %lu\n", iterations, data.size());
+      for (size_t i = 0; i < data.size(); i++)
       {
-        printf("%c(%d)  ", d[i], d[i]);
+        printf("%c(%d)  ", data[i], data[i]);
       }
       printf("\n");
-      assert(d.size() > 3);
+      assert(data.size() > 3);
       received = true;
-      assert(d[0] == 'h');
-      assert(d[1] == 'e');
-      assert(d[2] == 'l');
-      assert(d[3] == 'l');
-      assert(d[4] == 'o');
+      assert(data[0] == 'h');
+      assert(data[1] == 'e');
+      assert(data[2] == 'l');
+      assert(data[3] == 'l');
+      assert(data[4] == 'o');
+
+      assert(other != nullptr);
+      // send some data back
+      std::vector<uint8_t> answer;
+      answer.push_back('p');
+      answer.push_back('o');
+      answer.push_back('n');
+      answer.push_back('g');
+      puts("TCP server: sending back data...");
+      int sent = other->send(answer);
+      assert(sent > 0);
+
       break;
     }
-    
+
     sleep(1);
   }
   assert(received);
@@ -47,12 +62,15 @@ void tcp_client_loop()
 {
   puts("Entered TCP client loop");
 
+  sleep(1);
   auto client = NetworkSocket::client(SocketType::TCP, "127.0.0.1", PORT);
-  puts("Created TCP client");
   assert(client != nullptr);
+  puts("Created TCP client");
+  sleep(1);
 
+  bool received = false;
   long iterations = 0;
-  while (iterations++ < 3)
+  while (iterations++ < 5 && !received)
   {
     std::vector<uint8_t> data;
     data.push_back('h');
@@ -60,9 +78,27 @@ void tcp_client_loop()
     data.push_back('l');
     data.push_back('l');
     data.push_back('o');
+    puts("TCP client sending...");
     int ret = client->send(data);
     assert(ret > 0);
-    
+    sleep(1);
+
+    puts("TCP client reading...");
+    auto sdata = client->read();
+    assert(!sdata.data.empty());
+    if (sdata.data.size() > 0)
+    {
+      received = true;
+      auto vdata = sdata.data;
+      auto other = sdata.other_socket;
+
+      assert(vdata[0] == 'p');
+      assert(vdata[1] == 'o');
+      assert(vdata[2] == 'n');
+      assert(vdata[3] == 'g');
+      break;
+    }
+
     sleep(1);
   }
   puts("TCP Client: Done");
@@ -77,39 +113,54 @@ void udp_server_loop()
 
   bool received = false;
   long iterations = 0;
-  while (iterations++ < 20 && !received)
+  while (iterations++ < 10 && !received)
   {
-    auto d = server->read();
-    if (d.size() > 0)
+    SocketData sdata = server->read();
+    auto data = sdata.data;
+    auto other = sdata.other_socket;
+    assert(other);
+    if (data.size() > 0)
     {
-      printf("Received data size (iter=%lu): %lu\n", iterations, d.size());
-      for (size_t i = 0; i < d.size(); i++)
+      printf("Received data size (iter=%lu): %lu\n", iterations, data.size());
+      for (size_t i = 0; i < data.size(); i++)
       {
-        printf("%c(%d)  ", d[i], d[i]);
+        printf("%c(%d)  ", data[i], data[i]);
       }
       printf("\n");
-      assert(d.size() > 3);
+      assert(data.size() > 3);
       received = true;
-      assert(d[0] == 'h');
-      assert(d[1] == 'e');
-      assert(d[2] == 'l');
-      assert(d[3] == 'l');
-      assert(d[4] == 'o');
+      assert(data[0] == 'h');
+      assert(data[1] == 'e');
+      assert(data[2] == 'l');
+      assert(data[3] == 'l');
+      assert(data[4] == 'o');
+
+      // send some data back
+      std::vector<uint8_t> answer;
+      answer.push_back('p');
+      answer.push_back('o');
+      answer.push_back('n');
+      answer.push_back('g');
+      other->send(answer);
+
       break;
     }
-    
+
     sleep(1);
   }
   assert(received);
+  puts("UDP server done.");
 }
 
 void udp_client_loop()
 {
   puts("UDP Client loop entered");
-  auto client = NetworkSocket::client(SocketType::UDP, "", PORT);
+  sleep(1);
+  auto client = NetworkSocket::client(SocketType::UDP, "127.0.0.1", PORT);
 
+  bool received = false;
   long iterations = 0;
-  while (iterations++ < 3)
+  while (iterations++ < 3 && !received)
   {
     std::vector<uint8_t> data;
     data.push_back('h');
@@ -119,9 +170,21 @@ void udp_client_loop()
     data.push_back('o');
     int ret = client->send(data);
     assert(ret > 0);
-    
+    if (ret > 0)
+    {
+      auto sdata = client->read();
+      assert(sdata.data.size() > 0);
+      assert(sdata.other_socket != nullptr);
+      auto data = sdata.data;
+      assert(data[0] == 'p');
+      assert(data[3] == 'g');
+      received = true;
+    }
+
     sleep(1);
   }
+  assert(received);
+  puts("UDP client done.");
 }
 
 int network_test_main(int, char **)
@@ -135,7 +198,10 @@ int network_test_main(int, char **)
   udp_client_thread.join();
   udp_server_thread.join();
   puts("UDP Network test complete");
-  
+
+  sleep(1);
+  puts("-");
+
   std::thread tcp_server_thread(tcp_server_loop);
   std::thread tcp_client_thread(tcp_client_loop);
   puts("Threads initialized");
