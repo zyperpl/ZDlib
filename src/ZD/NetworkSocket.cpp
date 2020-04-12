@@ -34,6 +34,13 @@ std::shared_ptr<NetworkSocket> NetworkSocket::server(SocketType type, int port)
     return {};
   }
 
+  int opt = 1;
+  if (setsockopt(
+        fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt)))
+  {
+    perror("server setsockopt");
+  }
+
   auto ns = std::shared_ptr<NetworkSocket>(new NetworkSocket(fd, type));
   ns->port = port;
 
