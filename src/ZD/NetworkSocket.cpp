@@ -66,6 +66,10 @@ std::shared_ptr<NetworkSocket> NetworkSocket::client(
 
   auto ns = std::shared_ptr<NetworkSocket>(new NetworkSocket(fd, type));
   ns->ip = ip;
+  if (ip == "")
+  {
+    ip = "127.0.0.1";
+  }
   ns->port = port;
 
   if (type == SocketType::TCP)
@@ -140,16 +144,25 @@ std::vector<uint8_t> NetworkSocket::read()
   data.resize(MAX_BUFFER_SIZE);
   int ret = -1;
   struct sockaddr_in addr;
+  socklen_t len = sizeof(addr);
 
   switch (type)
   {
     case SocketType::TCP:
-      puts("not implemented");
-      assert(false);
+      {
+        if (is_server())
+        {
+          int client_socket = ::accept(socket_fd, (struct sockaddr*)&addr, &len);
+          ret = ::read(client_socket, data.data(), data.size());
+        } else
+        {
+          ret = ::read(socket_fd, data.data(), data.size());
+        }
+      }
       break;
     case SocketType::UDP:
       {
-        socklen_t len = sizeof(addr);
+
         ret = ::recvfrom(socket_fd, data.data(), data.size(), 0, (struct sockaddr*)&addr, &len);
       }
       break;

@@ -29,6 +29,8 @@ public:
   int send(std::vector<uint8_t> data);
   std::vector<uint8_t> read();
 
+  inline bool is_server() { return ip == ""; }
+
 private:
   NetworkSocket(int socket_fd, SocketType type);
   SocketType type { SocketType::Invalid };
