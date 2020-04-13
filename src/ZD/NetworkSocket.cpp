@@ -166,6 +166,11 @@ int NetworkSocket::send(std::vector<uint8_t> data)
       if (is_server())
       {
         addr.sin_addr.s_addr = INADDR_BROADCAST;
+
+        for (const auto &other : other_sockets)
+        {
+          other->send(data);
+        }
       }
 
       if (!ip.empty())
