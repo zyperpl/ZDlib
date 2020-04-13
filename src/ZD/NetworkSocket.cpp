@@ -9,6 +9,21 @@
 
 #define MAX_BUFFER_SIZE 4096
 
+bool NetworkSocket::enable_broadcast = true;
+
+bool set_socket_option(int socket, int option, int value = 1)
+{
+  int ret = setsockopt(socket, SOL_SOCKET, option, &value, sizeof(value));
+
+  if (ret < 0)
+  {
+    fprintf(stderr, "Cannot set option %d = %d for socket %d!\n", option, value, socket);
+    perror("socket setsockopt");
+  }
+
+  return ret >= 0;
+}
+
 NetworkSocket::NetworkSocket(int socket_fd, SocketType type)
 : type { type }
 , socket_fd { socket_fd }
@@ -33,12 +48,18 @@ std::shared_ptr<NetworkSocket> NetworkSocket::server(SocketType type, int port)
     fprintf(stderr, "Cannot create socket (fd=%d type=%d)\n", fd, t);
     return {};
   }
-
-  int opt = 1;
-  if (setsockopt(
-        fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt)))
+  
+  if (!set_socket_option(fd, SO_REUSEADDR | SO_REUSEPORT))
   {
-    perror("server setsockopt");
+    fprintf(stderr, "Cannot set address and port reuse options!\n");
+  }
+
+  if (enable_broadcast) 
+  {
+    if (!set_socket_option(fd, SO_BROADCAST))
+    {
+      fprintf(stderr, "Cannot set broadcast option for socket %d!", fd);
+    }
   }
 
   auto ns = std::shared_ptr<NetworkSocket>(new NetworkSocket(fd, type));
@@ -77,6 +98,15 @@ std::shared_ptr<NetworkSocket> NetworkSocket::client(
     perror("client socket");
     fprintf(stderr, "Cannot create socket (fd=%d type=%d)\n", fd, t);
     return {};
+  }
+
+  if (enable_broadcast) 
+  {
+    // to be able to receive broadcast messages
+    if (!set_socket_option(fd, SO_BROADCAST))
+    {
+      fprintf(stderr, "Cannot set broadcast option for socket %d!", fd);
+    }
   }
 
   if (ip == "")
@@ -132,6 +162,12 @@ int NetworkSocket::send(std::vector<uint8_t> data)
       addr.sin_family = AF_INET;
       addr.sin_port = htons(port);
       addr.sin_addr.s_addr = INADDR_ANY;
+
+      if (is_server())
+      {
+        addr.sin_addr.s_addr = INADDR_BROADCAST;
+      }
+
       if (!ip.empty())
       {
         if (inet_pton(AF_INET, ip.data(), &addr.sin_addr) <= 0)
@@ -146,6 +182,11 @@ int NetworkSocket::send(std::vector<uint8_t> data)
         0,
         (struct sockaddr *)&addr,
         sizeof(struct sockaddr));
+
+      if (ret < 0)
+      {
+        perror("sendto");
+      }
     }
     break;
     default:

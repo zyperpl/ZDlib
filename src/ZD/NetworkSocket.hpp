@@ -46,6 +46,7 @@ public:
   int get_port() const { return port; }
   std::string_view get_ip() const { return ip; }
 
+  static bool enable_broadcast;
 private:
   NetworkSocket(int socket_fd, SocketType type);
   SocketType type { SocketType::Invalid };
