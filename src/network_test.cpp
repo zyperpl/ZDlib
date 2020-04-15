@@ -26,10 +26,10 @@ void tcp_server_loop()
     if (data.size() > 0)
     {
       printf("Received data size (iter=%lu): %lu\n", iterations, data.size());
-      for (size_t i = 0; i < data.size(); i++)
+      /*for (size_t i = 0; i < data.size(); i++)
       {
         printf("%c(%d)  ", data[i], data[i]);
-      }
+      }*/
       printf("\n");
       assert(data.size() > 3);
       received = true;
@@ -78,6 +78,10 @@ void tcp_client_loop()
     data.push_back('l');
     data.push_back('l');
     data.push_back('o');
+    data.resize(1024*16);
+    data.push_back('c');
+    data.push_back('a');
+    data.push_back('t');
     puts("TCP client sending...");
     int ret = client->send(data);
     assert(ret > 0);
@@ -141,6 +145,7 @@ void udp_server_loop()
       answer.push_back('o');
       answer.push_back('n');
       answer.push_back('g');
+      printf("UDP server sending..\n");
       other->send(answer);
 
       break;

@@ -5,9 +5,11 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
+#include <cmath>
+
 #include "NetworkSocket.hpp"
 
-#define MAX_BUFFER_SIZE 4096
+#define MAX_BUFFER_SIZE 8192
 
 bool NetworkSocket::enable_broadcast = true;
 
@@ -148,13 +150,64 @@ int NetworkSocket::send(std::vector<uint8_t> data)
   assert(socket_fd != -1);
 
   //printf("Sending to %s:%d\n", ip.data(), port);
+  
+  auto send_tcp = [&](uint8_t *ptr, ssize_t size)->int
+  {
+    int bytes_sent = 0;
+    while (size > 0)
+    {
+      ssize_t bytes_to_send = std::min(size, decltype(size)(MAX_BUFFER_SIZE));
+      int ret = ::send(socket_fd, ptr, bytes_to_send, 0);
+      if (ret < 0)
+      {
+        return ret;
+      }
+      assert(ret == bytes_to_send);
+      size -= bytes_to_send;
+      ptr += bytes_to_send;
+      bytes_sent += bytes_to_send;
+    }
+    return bytes_sent;
+  };
+
+  auto send_udp = [&](struct sockaddr_in addr, uint8_t *ptr, ssize_t size)->int
+  {
+    int bytes_sent = 0;
+    while (size > 0)
+    {
+      ssize_t bytes_to_send = std::min(size, decltype(size)(MAX_BUFFER_SIZE));
+      int ret = ::sendto(
+        socket_fd,
+        data.data(),
+        data.size(),
+        0,
+        (struct sockaddr *)&addr,
+        sizeof(struct sockaddr));
+
+      if (ret < 0)
+      {
+        return ret;
+      }
+      assert(ret == bytes_to_send);
+      size -= bytes_to_send;
+      ptr += bytes_to_send;
+      bytes_sent += bytes_to_send;
+    }
+    return bytes_sent;
+  };
 
   int ret = -1;
 
   switch (type)
   {
     case SocketType::TCP:
-      ret = ::send(socket_fd, data.data(), data.size(), 0);
+      {
+        ret = send_tcp(data.data(), data.size());
+        if (ret < 0)
+        {
+          perror("tcp send");
+        }
+      }
       break;
     case SocketType::UDP:
     {
@@ -180,13 +233,7 @@ int NetworkSocket::send(std::vector<uint8_t> data)
           fprintf(stderr, "Unknown send address \"%s\"!\n", ip.data());
         }
       }
-      ret = ::sendto(
-        socket_fd,
-        data.data(),
-        data.size(),
-        0,
-        (struct sockaddr *)&addr,
-        sizeof(struct sockaddr));
+      ret = send_udp(addr, data.data(), data.size());
 
       if (ret < 0)
       {
@@ -206,20 +253,54 @@ int NetworkSocket::send(std::vector<uint8_t> data)
 SocketData NetworkSocket::read()
 {
   std::vector<uint8_t> data;
-  data.resize(MAX_BUFFER_SIZE);
+
   int ret = -1;
   struct sockaddr_in addr;
   socklen_t len = sizeof(addr);
   std::shared_ptr<NetworkSocket> other_socket;
 
+  auto read_tcp = [&](int fd)->int
+  {
+    int readed = 0;
+    int ret = MAX_BUFFER_SIZE;
+    while (ret == MAX_BUFFER_SIZE) //TODO: allow packets equal to MAX_BUFFER_SIZE
+    {
+      data.resize(data.size() + MAX_BUFFER_SIZE);
+      ret = ::read(fd, data.data() + readed, MAX_BUFFER_SIZE);
+      if (ret < 0)
+      {
+        return ret;
+      }
+      readed += ret;
+    }
+    return readed;
+  };
+  auto read_udp = [&](int fd, struct sockaddr_in &addr)->int
+  {
+    int readed = 0;
+    int ret = MAX_BUFFER_SIZE;
+    while (ret == MAX_BUFFER_SIZE) //TODO: allow packets equal to MAX_BUFFER_SIZE
+    {
+      data.resize(data.size() + MAX_BUFFER_SIZE);
+      ret = ::recvfrom(
+        fd, data.data() + readed, MAX_BUFFER_SIZE, 0, (struct sockaddr *)&addr, &len);
+      if (ret < 0)
+      {
+        return ret;
+      }
+      readed += ret;
+    }
+    return readed;
+  };
+
   switch (type)
   {
     case SocketType::TCP:
     {
-      // existing connections
+      // read from any existing connection
       for (const auto &other : other_sockets)
       {
-        ret = ::read(other->get_fd(), data.data(), data.size());
+        ret = read_tcp(other->get_fd());
         if (ret > 0)
         {
           other_socket = other;
@@ -249,7 +330,7 @@ SocketData NetworkSocket::read()
           other_socket = shared_from_this();
         }
 
-        ret = ::read(read_fd, data.data(), data.size());
+        ret = read_tcp(read_fd);
       }
     }
     break;
@@ -259,8 +340,7 @@ SocketData NetworkSocket::read()
       addr.sin_port = htons(port);
       addr.sin_addr.s_addr = INADDR_ANY;
 
-      ret = ::recvfrom(
-        socket_fd, data.data(), data.size(), 0, (struct sockaddr *)&addr, &len);
+      ret = read_udp(socket_fd, addr);
       if (ret > 0)
       {
         char oip_cstr[INET6_ADDRSTRLEN];
