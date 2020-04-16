@@ -85,10 +85,16 @@ void Painter::draw_image(const int x, const int y, const Image &image)
 
 void Painter::draw_image(
   const int x, const int y, const Image &image, const int width,
-  const int height)
+  const int height, AspectRatioOptions aspect_ratio_options)
 {
   const double scale_x = (double)(width) / (double)(image.width());
   const double scale_y = (double)(height) / (double)(image.height());
+
+  if (aspect_ratio_options == PreserveAspectRatio)
+  {
+    const double scale = scale_y < scale_x ? scale_y : scale_x;
+    return draw_image(x, y, image, scale, scale);
+  }
 
   return draw_image(x, y, image, scale_x, scale_y);
 }

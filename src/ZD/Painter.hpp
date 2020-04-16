@@ -8,6 +8,12 @@ class Image;
 
 #include "Color.hpp"
 
+enum AspectRatioOptions
+{
+  PreserveAspectRatio,
+  NoPreserveAspectRatio
+};
+
 class Painter
 {
 public:
@@ -22,7 +28,8 @@ public:
     double scale_y);
   virtual void draw_image(
     const int x, const int y, const Image &image, const int width,
-    const int height);
+    const int height,
+    AspectRatioOptions aspect_ratio_options = NoPreserveAspectRatio);
   virtual void draw_line(
     const int x1, const int y1, const int x2, const int y2, const Color &color);
   virtual void draw_rectangle(
