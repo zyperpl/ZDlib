@@ -19,8 +19,9 @@ void tcp_server_loop()
   while (iterations++ < 6 && !received)
   {
     puts("TCP Server reading...");
-    auto sdata = server->read();
-    auto data = sdata.data;
+    std::vector<uint8_t> data;
+    data.resize(2048);
+    auto sdata = server->read(data.data(), data.size());
     auto other = sdata.other_socket;
     assert(!data.empty());
     if (data.size() > 0)
@@ -47,7 +48,7 @@ void tcp_server_loop()
       answer.push_back('n');
       answer.push_back('g');
       puts("TCP server: sending back data...");
-      int sent = other->send(answer);
+      int sent = other->send(answer.data(), answer.size());
       assert(sent > 0);
 
       break;
@@ -83,14 +84,16 @@ void tcp_client_loop()
     data.push_back('a');
     data.push_back('t');
     puts("TCP client sending...");
-    int ret = client->send(data);
+    int ret = client->send(data.data(), data.size());
     assert(ret > 0);
     sleep(1);
 
     puts("TCP client reading...");
-    auto sdata = client->read();
-    assert(!sdata.data.empty());
-    if (sdata.data.size() > 0)
+    std::vector<uint8_t> response;
+    response.resize(2048);
+    auto sdata = client->read(response.data(), response.size());
+    assert(sdata.data_length > 0);
+    if (sdata.data_length > 0)
     {
       received = true;
       auto vdata = sdata.data;
@@ -119,11 +122,12 @@ void udp_server_loop()
   long iterations = 0;
   while (iterations++ < 10 && !received)
   {
-    SocketData sdata = server->read();
-    auto data = sdata.data;
+    std::vector<uint8_t> data;
+    data.resize(2048);
+    SocketData sdata = server->read(data.data(), data.size());
     auto other = sdata.other_socket;
     assert(other);
-    if (data.size() > 0)
+    if (sdata.data_length > 0)
     {
       printf("Received data size (iter=%lu): %lu\n", iterations, data.size());
       for (size_t i = 0; i < data.size(); i++)
@@ -146,7 +150,7 @@ void udp_server_loop()
       answer.push_back('n');
       answer.push_back('g');
       printf("UDP server sending..\n");
-      other->send(answer);
+      other->send(answer.data(), answer.size());
 
       break;
     }
@@ -173,12 +177,14 @@ void udp_client_loop()
     data.push_back('l');
     data.push_back('l');
     data.push_back('o');
-    int ret = client->send(data);
+    int ret = client->send(data.data(), data.size());
     assert(ret > 0);
     if (ret > 0)
     {
-      auto sdata = client->read();
-      assert(sdata.data.size() > 0);
+      std::vector<uint8_t> response;
+      response.resize(2048);
+      auto sdata = client->read(response.data(), response.size());
+      assert(sdata.data_length > 0);
       assert(sdata.other_socket != nullptr);
       auto data = sdata.data;
       assert(data[0] == 'p');

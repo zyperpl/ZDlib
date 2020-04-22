@@ -1,25 +1,31 @@
+#include <arpa/inet.h>
 #include <cassert>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <arpa/inet.h>
+#include <netinet/tcp.h>
 
 #include <cmath>
 
 #include "NetworkSocket.hpp"
 
-#define MAX_BUFFER_SIZE 8192
+#define MAX_BUFFER_SIZE 8192LU
 
 bool NetworkSocket::enable_broadcast = true;
 
-bool set_socket_option(int socket, int option, int value = 1)
+bool set_option(int socket, int level, int option, int value = 1)
 {
-  int ret = setsockopt(socket, SOL_SOCKET, option, &value, sizeof(value));
+  int ret = setsockopt(socket, level, option, &value, sizeof(value));
 
   if (ret < 0)
   {
-    fprintf(stderr, "Cannot set option %d = %d for socket %d!\n", option, value, socket);
+    fprintf(
+      stderr,
+      "Cannot set option %d = %d for socket %d!\n",
+      option,
+      value,
+      socket);
     perror("socket setsockopt");
   }
 
@@ -50,17 +56,25 @@ std::shared_ptr<NetworkSocket> NetworkSocket::server(SocketType type, int port)
     fprintf(stderr, "Cannot create socket (fd=%d type=%d)\n", fd, t);
     return {};
   }
-  
-  if (!set_socket_option(fd, SO_REUSEADDR | SO_REUSEPORT))
+
+  if (!set_option(fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT))
   {
     fprintf(stderr, "Cannot set address and port reuse options!\n");
   }
 
-  if (enable_broadcast) 
+  if (enable_broadcast)
   {
-    if (!set_socket_option(fd, SO_BROADCAST))
+    if (!set_option(fd, SOL_SOCKET, SO_BROADCAST))
     {
-      fprintf(stderr, "Cannot set broadcast option for socket %d!", fd);
+      fprintf(stderr, "Cannot set broadcast option for socket %d!\n", fd);
+    }
+  }
+
+  if (type == SocketType::TCP)
+  {
+    if (!set_option(fd, IPPROTO_TCP, TCP_NODELAY))
+    {
+      fprintf(stderr, "Cannot set TCP no delay for socket %d!\n", fd);
     }
   }
 
@@ -102,12 +116,20 @@ std::shared_ptr<NetworkSocket> NetworkSocket::client(
     return {};
   }
 
-  if (enable_broadcast) 
+  if (enable_broadcast)
   {
     // to be able to receive broadcast messages
-    if (!set_socket_option(fd, SO_BROADCAST))
+    if (!set_option(fd, SOL_SOCKET, SO_BROADCAST))
     {
-      fprintf(stderr, "Cannot set broadcast option for socket %d!", fd);
+      fprintf(stderr, "Cannot set broadcast option for socket %d!\n", fd);
+    }
+  }
+
+  if (type == SocketType::TCP)
+  {
+    if (!set_option(fd, IPPROTO_TCP, TCP_NODELAY))
+    {
+      fprintf(stderr, "Cannot set TCP no delay for socket %d!\n", fd);
     }
   }
 
@@ -145,70 +167,22 @@ std::shared_ptr<NetworkSocket> NetworkSocket::client(
   return ns;
 }
 
-int NetworkSocket::send(std::vector<uint8_t> data)
+int NetworkSocket::send(uint8_t *data, ssize_t data_length)
 {
   assert(socket_fd != -1);
-
-  //printf("Sending to %s:%d\n", ip.data(), port);
-  
-  auto send_tcp = [&](uint8_t *ptr, ssize_t size)->int
-  {
-    int bytes_sent = 0;
-    while (size > 0)
-    {
-      ssize_t bytes_to_send = std::min(size, decltype(size)(MAX_BUFFER_SIZE));
-      int ret = ::send(socket_fd, ptr, bytes_to_send, 0);
-      if (ret < 0)
-      {
-        return ret;
-      }
-      assert(ret == bytes_to_send);
-      size -= bytes_to_send;
-      ptr += bytes_to_send;
-      bytes_sent += bytes_to_send;
-    }
-    return bytes_sent;
-  };
-
-  auto send_udp = [&](struct sockaddr_in addr, uint8_t *ptr, ssize_t size)->int
-  {
-    int bytes_sent = 0;
-    while (size > 0)
-    {
-      ssize_t bytes_to_send = std::min(size, decltype(size)(MAX_BUFFER_SIZE));
-      int ret = ::sendto(
-        socket_fd,
-        data.data(),
-        data.size(),
-        0,
-        (struct sockaddr *)&addr,
-        sizeof(struct sockaddr));
-
-      if (ret < 0)
-      {
-        return ret;
-      }
-      assert(ret == bytes_to_send);
-      size -= bytes_to_send;
-      ptr += bytes_to_send;
-      bytes_sent += bytes_to_send;
-    }
-    return bytes_sent;
-  };
-
-  int ret = -1;
+  ssize_t ret = -1;
 
   switch (type)
   {
     case SocketType::TCP:
+    {
+      ret = ::send(socket_fd, data, data_length, 0);
+      if (ret < 0)
       {
-        ret = send_tcp(data.data(), data.size());
-        if (ret < 0)
-        {
-          perror("tcp send");
-        }
+        perror("tcp send");
       }
-      break;
+    }
+    break;
     case SocketType::UDP:
     {
       struct sockaddr_in addr;
@@ -222,7 +196,7 @@ int NetworkSocket::send(std::vector<uint8_t> data)
 
         for (const auto &other : other_sockets)
         {
-          other->send(data);
+          other->send(data, data_length);
         }
       }
 
@@ -233,11 +207,12 @@ int NetworkSocket::send(std::vector<uint8_t> data)
           fprintf(stderr, "Unknown send address \"%s\"!\n", ip.data());
         }
       }
-      ret = send_udp(addr, data.data(), data.size());
+      ret = ::sendto(socket_fd, data, data_length, 0, (struct sockaddr *)&addr,
+        sizeof(struct sockaddr));
 
       if (ret < 0)
       {
-        perror("sendto");
+        perror("udp sendto");
       }
     }
     break;
@@ -250,71 +225,25 @@ int NetworkSocket::send(std::vector<uint8_t> data)
   return ret;
 }
 
-SocketData NetworkSocket::read()
+SocketData NetworkSocket::read(uint8_t *buffer, ssize_t buffer_size)
 {
-  std::vector<uint8_t> data;
-
-  int ret = -1;
+  ssize_t ret = -1;
   struct sockaddr_in addr;
   socklen_t len = sizeof(addr);
   std::shared_ptr<NetworkSocket> other_socket;
-
-  auto read_tcp = [&](int fd)->int
-  {
-    int readed = 0;
-    int ret = MAX_BUFFER_SIZE;
-    while (ret == MAX_BUFFER_SIZE) //TODO: allow packets equal to MAX_BUFFER_SIZE
-    {
-      data.resize(data.size() + MAX_BUFFER_SIZE);
-      ret = ::read(fd, data.data() + readed, MAX_BUFFER_SIZE);
-      if (ret < 0)
-      {
-        return ret;
-      }
-      readed += ret;
-    }
-    return readed;
-  };
-  auto read_udp = [&](int fd, struct sockaddr_in &addr)->int
-  {
-    int readed = 0;
-    int ret = MAX_BUFFER_SIZE;
-    while (ret == MAX_BUFFER_SIZE) //TODO: allow packets equal to MAX_BUFFER_SIZE
-    {
-      data.resize(data.size() + MAX_BUFFER_SIZE);
-      ret = ::recvfrom(
-        fd, data.data() + readed, MAX_BUFFER_SIZE, 0, (struct sockaddr *)&addr, &len);
-      if (ret < 0)
-      {
-        return ret;
-      }
-      readed += ret;
-    }
-    return readed;
-  };
 
   switch (type)
   {
     case SocketType::TCP:
     {
-      // read from any existing connection
-      for (const auto &other : other_sockets)
-      {
-        ret = read_tcp(other->get_fd());
-        if (ret > 0)
-        {
-          other_socket = other;
-          break;
-        }
-      }
-
       if (ret <= 0)
       {
         int read_fd = socket_fd;
 
         if (is_server())
         {
-          int client_fd = ::accept(socket_fd, (struct sockaddr *)&addr, &len);
+          const int client_fd =
+            ::accept(socket_fd, (struct sockaddr *)&addr, &len);
           if (client_fd > 0)
           {
             // new connection
@@ -330,7 +259,7 @@ SocketData NetworkSocket::read()
           other_socket = shared_from_this();
         }
 
-        ret = read_tcp(read_fd);
+        ret = ::read(read_fd, buffer, buffer_size);
       }
     }
     break;
@@ -340,7 +269,13 @@ SocketData NetworkSocket::read()
       addr.sin_port = htons(port);
       addr.sin_addr.s_addr = INADDR_ANY;
 
-      ret = read_udp(socket_fd, addr);
+      ret = ::recvfrom(
+        socket_fd,
+        buffer,
+        buffer_size,
+        0,
+        (struct sockaddr *)&addr,
+        &len);
       if (ret > 0)
       {
         char oip_cstr[INET6_ADDRSTRLEN];
@@ -371,9 +306,7 @@ SocketData NetworkSocket::read()
   if (ret < 0)
     ret = 0;
 
-  data.resize(ret);
-
-  return { other_socket, data };
+  return { other_socket, buffer, ret };
 }
 
 std::optional<std::shared_ptr<NetworkSocket>> NetworkSocket::find_socket(

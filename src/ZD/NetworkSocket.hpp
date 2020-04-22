@@ -24,7 +24,8 @@ enum class SocketType
 struct SocketData
 {
   std::shared_ptr<NetworkSocket> other_socket;
-  std::vector<uint8_t> data;
+  uint8_t *data { nullptr };
+  ssize_t data_length { 0 };
 };
 
 class NetworkSocket : public std::enable_shared_from_this<NetworkSocket>
@@ -37,8 +38,8 @@ public:
   static std::shared_ptr<NetworkSocket> client(
     SocketType type, std::string_view ip, int port);
 
-  int send(std::vector<uint8_t> data);
-  SocketData read();
+  int send(uint8_t *data, ssize_t data_length);
+  SocketData read(uint8_t *buffer, ssize_t buffer_size);
 
   inline bool is_server() { return ip == ""; }
 
@@ -47,6 +48,7 @@ public:
   std::string_view get_ip() const { return ip; }
 
   static bool enable_broadcast;
+
 private:
   NetworkSocket(int socket_fd, SocketType type);
   SocketType type { SocketType::Invalid };
@@ -56,5 +58,6 @@ private:
 
   std::vector<std::shared_ptr<NetworkSocket>> other_sockets;
 
-  std::optional<std::shared_ptr<NetworkSocket>> find_socket(std::string_view ip, int port);
+  std::optional<std::shared_ptr<NetworkSocket>> find_socket(
+    std::string_view ip, int port);
 };
