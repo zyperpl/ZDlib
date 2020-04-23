@@ -207,7 +207,12 @@ int NetworkSocket::send(uint8_t *data, ssize_t data_length)
           fprintf(stderr, "Unknown send address \"%s\"!\n", ip.data());
         }
       }
-      ret = ::sendto(socket_fd, data, data_length, 0, (struct sockaddr *)&addr,
+      ret = ::sendto(
+        socket_fd,
+        data,
+        data_length,
+        0,
+        (struct sockaddr *)&addr,
         sizeof(struct sockaddr));
 
       if (ret < 0)
@@ -270,12 +275,7 @@ SocketData NetworkSocket::read(uint8_t *buffer, ssize_t buffer_size)
       addr.sin_addr.s_addr = INADDR_ANY;
 
       ret = ::recvfrom(
-        socket_fd,
-        buffer,
-        buffer_size,
-        0,
-        (struct sockaddr *)&addr,
-        &len);
+        socket_fd, buffer, buffer_size, 0, (struct sockaddr *)&addr, &len);
       if (ret > 0)
       {
         char oip_cstr[INET6_ADDRSTRLEN];

@@ -6,6 +6,7 @@
 #include <memory>
 #include <optional>
 
+#include <fcntl.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -48,6 +49,11 @@ public:
   std::string_view get_ip() const { return ip; }
 
   static bool enable_broadcast;
+
+  void set_blocking(bool value)
+  {
+    fcntl(socket_fd, F_SETFL, value ? 0 : O_NONBLOCK);
+  }
 
 private:
   NetworkSocket(int socket_fd, SocketType type);
