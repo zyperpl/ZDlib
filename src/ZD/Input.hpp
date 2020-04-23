@@ -143,6 +143,35 @@ struct MousePosition
   T x;
   T y;
 
+  MousePosition &operator+=(const MousePosition &other)
+  {
+    x += other.x;
+    y += other.y;
+    return *this;
+  }
+
+  MousePosition &operator-=(const MousePosition &other)
+  {
+    x -= other.x;
+    y -= other.y;
+    return *this;
+  }
+
+  MousePosition operator+(const MousePosition &other)
+  {
+    return { x + other.x, y + other.y };
+  }
+
+  MousePosition operator-(const MousePosition &other)
+  {
+    return { x - other.x, y - other.y };
+  }
+
+  bool operator==(const MousePosition &other) const
+  {
+    return x == other.x && y == other.y;
+  }
+
   operator glm::vec<2, T>() const { return { x, y }; }
   operator glm::vec2() const { return { x, y }; }
 };

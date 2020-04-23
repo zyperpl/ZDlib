@@ -84,9 +84,10 @@ auto image_test_main(int, char **) -> int
   puts("Creating tilesets...");
   auto tileset = std::make_shared<Tileset>(image, 32, 32);
   auto tilemap = std::make_shared<Tilemap>();
-  tilemap->insert(Tile(TileGridPosition(2,3), TileIndex(1,2)));
-  tilemap->insert(Tile(TileGridPosition(0,0), TileIndex(1,1)));
-  auto tileset_wrapper = std::make_shared<TilesetImageWrapper>(tileset, tilemap);
+  tilemap->insert(Tile(TileGridPosition(2, 3), TileIndex(1, 2)));
+  tilemap->insert(Tile(TileGridPosition(0, 0), TileIndex(1, 1)));
+  auto tileset_wrapper =
+    std::make_shared<TilesetImageWrapper>(tileset, tilemap);
   tileset_wrapper->redraw();
 
   puts("Creating a tileset renderer...");
@@ -155,6 +156,11 @@ auto image_test_main(int, char **) -> int
     {
       y++;
     }
+
+    auto mouse_pos = input->mouse().position();
+    auto mouse_x = mouse_pos.x;
+    auto double_mouse_pos = mouse_pos + mouse_pos;
+    assert(double_mouse_pos.x == mouse_x * 2);
 
     static int rnoise_c = 0;
     if (rnoise_c++ > 10000)
@@ -226,7 +232,7 @@ auto image_test_main(int, char **) -> int
 
     screen2->painter()->clear();
     screen2->painter()->draw_circle(W / 2, H / 2, 30, Color(255, 0, 0));
-    
+
     painter->draw_image(x, y, *image);
 
     tileset_wrapper->draw(*screen2->painter());
