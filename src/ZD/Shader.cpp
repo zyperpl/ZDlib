@@ -125,6 +125,17 @@ bool ShaderProgram::set_uniform<int>(std::string name, int value)
   return false;
 }
 
+template<>
+bool ShaderProgram::set_uniform<float>(std::string name, float value)
+{
+  if (auto uniform = get_uniform(name))
+  {
+    glUniform1f(uniform->location, value);
+    return true;
+  }
+  return false;
+}
+
 std::optional<ShaderUniform> ShaderProgram::get_uniform(std::string name) const
 {
   if (uniforms.find(name) == uniforms.end())
