@@ -252,19 +252,31 @@ SocketData NetworkSocket::read(uint8_t *buffer, ssize_t buffer_size)
           if (client_fd > 0)
           {
             // new connection
+            char oip_cstr[INET6_ADDRSTRLEN];
+            inet_ntop(addr.sin_family, &addr.sin_addr, oip_cstr, sizeof(oip_cstr));
+            std::string other_ip(oip_cstr);
+            int other_port = ntohs(addr.sin_port);
+
             auto new_other = std::shared_ptr<NetworkSocket>(
               new NetworkSocket(client_fd, SocketType::TCP));
+            new_other->ip = other_ip;
+            new_other->port = other_port;
+            printf("New connection from %s:%d\n", other_ip.c_str(), other_port);
             other_sockets.emplace_back(new_other);
             other_socket = new_other;
+            read_fd = client_fd;
+          } else
+          {
+            read_fd = socket_fd;
           }
-          read_fd = client_fd;
+
         }
         else
         {
           other_socket = shared_from_this();
         }
 
-        ret = ::read(read_fd, buffer, buffer_size);
+        ret = ::recv(read_fd, buffer, buffer_size, 0);
       }
     }
     break;
