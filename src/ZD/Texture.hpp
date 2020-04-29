@@ -17,6 +17,7 @@ struct TextureParameters
   bool generate_mipmap { false };
   int mag_filter { GL_NEAREST };
   int min_filter { GL_NEAREST };
+  int wrap_mode { GL_CLAMP_TO_EDGE };
 };
 
 class Texture
