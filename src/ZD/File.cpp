@@ -178,7 +178,6 @@ std::string File::read_all_chars() const
   size_t saved = 0;
   while ((readed = read(fd, buf.get(), FILE_BUF_SIZE)) > 0)
   {
-    printf("%p %lu %lu\n", ptr, readed, saved);
     std::memcpy(&ptr[0], buf.get(), readed);
     ptr += readed;
     saved += readed;
