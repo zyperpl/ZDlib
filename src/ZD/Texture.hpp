@@ -36,6 +36,7 @@ public:
   void set_image(std::shared_ptr<Image> new_image);
   const std::shared_ptr<Image> get_image() const { return this->image; }
 
+  GLuint get_id() { return id; }
 private:
   void generate(TextureParameters params);
   void set_buffer_data();
