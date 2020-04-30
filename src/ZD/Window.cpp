@@ -130,6 +130,7 @@ void Window_GLFW::set_current()
 {
   assert(handle != NULL);
   glfwMakeContextCurrent(handle);
+  set_framebuffer_size(width, height);
 }
 
 bool Window_GLFW::is_open() const

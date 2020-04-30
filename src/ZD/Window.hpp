@@ -113,9 +113,13 @@ private:
   {
     this->width = width;
     this->height = height;
+
     if (should_center_view_port)
     {
       center_view_port();
+    } else
+    {
+      glViewport(0, 0, width, height);
     }
   }
   void center_view_port();
