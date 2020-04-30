@@ -125,6 +125,7 @@ void udp_server_loop()
     std::vector<uint8_t> data;
     data.resize(2048);
     SocketData sdata = server->read(data.data(), data.size());
+    data.resize(sdata.data_length);
     auto other = sdata.other_socket;
     assert(other);
     if (sdata.data_length > 0)
