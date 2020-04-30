@@ -55,7 +55,7 @@ auto image_test_main(int, char **) -> int
   puts("Adding a window");
   auto window = renderer.add_window({ Size(W, H), "ZDTest" });
   renderer.enable_blend();
-  renderer.set_background_color(Color(10, 10, 10));
+  renderer.clear_background_color(Color(10, 10, 10));
   auto input = window->input();
 
   puts("Creating screens...");

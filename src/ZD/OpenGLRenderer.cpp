@@ -55,7 +55,9 @@ OGLRenderer::OGLRenderer()
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, OPENGL_MINOR);
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
   if ((OPENGL_MAJOR == 3 && OPENGL_MINOR >= 2) || OPENGL_MAJOR > 3)
-  { glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); }
+  {
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+  }
 
 #ifdef GLFW_ERROR_CALLBACK
   glfwSetErrorCallback([](int error_code, const char* description) {
@@ -102,7 +104,8 @@ void OGLRenderer::remove_window(size_t index)
 
 void OGLRenderer::initialize_gl()
 {
-  if (OGL_LOADED) return;
+  if (OGL_LOADED)
+    return;
 
   // must be done after window creation
   assert(!windows.empty());
@@ -140,7 +143,8 @@ void OGLRenderer::initialize_gl()
       message);
 
     glerrors++;
-    if (glerrors >= 500) exit(3);
+    if (glerrors >= 500)
+      exit(3);
   };
 
   if (glewGetExtension("GL_KHR_debug"))
@@ -177,7 +181,8 @@ void OGLRenderer::initialize_gl()
 
 void OGLRenderer::uninitialize_gl()
 {
-  if (!OGL_LOADED) return;
+  if (!OGL_LOADED)
+    return;
 
   OGL_LOADED = false;
   glDeleteVertexArrays(1, &vao);
@@ -194,7 +199,10 @@ void OGLRenderer::update() { glfwWaitEventsTimeout(1. / poll_rate); }
 
 void OGLRenderer::clear()
 {
-  if (clear_depth) { glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); }
+  if (clear_depth)
+  {
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  }
   else
   {
     glClear(GL_COLOR_BUFFER_BIT);
@@ -212,7 +220,8 @@ void OGLRenderer::render_screens()
 
 void OGLRenderer::render()
 {
-  if (!window()->is_open()) return;
+  if (!window()->is_open())
+    return;
 
 #ifdef OPENGL_ERROR_CALLBACK
   if (!OGL_ERROR_CALLBACK_SET)
@@ -224,7 +233,10 @@ void OGLRenderer::render()
       fprintf(stderr, "OpenGL ERROR: %d\n", err);
       gl_errors++;
     }
-    if (gl_errors > 60) { exit(3); }
+    if (gl_errors > 60)
+    {
+      exit(3);
+    }
   }
 #endif
 
@@ -273,4 +285,54 @@ void OGLRenderer::disable_depth_test()
   assert(!windows.empty());
   glDisable(GL_DEPTH_TEST);
   clear_depth = false;
+}
+
+FramebufferObject OGLRenderer::generate_framebuffer(size_t width, size_t height)
+{
+  FramebufferObject fbo;
+  fbo.width = width;
+  fbo.height = height;
+
+  glGenFramebuffers(1, &fbo.id);
+  glBindFramebuffer(GL_FRAMEBUFFER, fbo.id);
+
+  fbo.texture = std::make_shared<Texture>(
+    TextureParameters { .mag_filter = GL_LINEAR, .min_filter = GL_LINEAR });
+
+  glBindTexture(GL_TEXTURE_2D, fbo.texture->get_id());
+  glTexImage2D(
+    GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+  glFramebufferTexture2D(
+    GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, fbo.texture->get_id(), 0);
+
+  glGenRenderbuffers(1, &fbo.renderbuffer_id);
+  glBindRenderbuffer(GL_RENDERBUFFER, fbo.renderbuffer_id);
+  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
+
+  glFramebufferRenderbuffer(
+    GL_FRAMEBUFFER,
+    GL_DEPTH_STENCIL_ATTACHMENT,
+    GL_RENDERBUFFER,
+    fbo.renderbuffer_id);
+
+  unbind_framebuffer();
+
+  if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+  {
+    fprintf(stderr, "Framebuffer %d not complete!\n", fbo.id);
+    glDeleteFramebuffers(1, &fbo.id);
+    return {};
+  }
+
+  return fbo;
+}
+
+void OGLRenderer::bind_framebuffer(const FramebufferObject& fbo)
+{
+  assert(fbo.id > 0);
+  glBindFramebuffer(GL_FRAMEBUFFER, fbo.id);
+  clear();
+
+  assert(fbo.width > 0 && fbo.height > 0);
+  glViewport(0, 0, fbo.width, fbo.height);
 }

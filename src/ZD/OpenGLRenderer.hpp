@@ -4,14 +4,22 @@
 #include <GLFW/glfw3.h>
 #include <memory>
 
-#include "Window.hpp"
-#include "Size.hpp"
 #include "Renderer.hpp"
-#include "Texture.hpp"
 #include "Screen.hpp"
+#include "Size.hpp"
+#include "Texture.hpp"
+#include "Window.hpp"
 
-extern GLenum glCheckError_(const char*, int);
+extern GLenum glCheckError_(const char *, int);
 #define glCheckError() glCheckError_(__FILE__, __LINE__)
+
+struct FramebufferObject
+{
+  GLuint id { 0 };
+  std::shared_ptr<Texture> texture;
+  GLuint renderbuffer_id { 0 };
+  size_t width { 0 }, height { 0 };
+};
 
 class OGLRenderer : public Renderer
 {
@@ -37,12 +45,21 @@ public:
   void enable_depth_test(GLenum func = GL_LEQUAL);
   void disable_depth_test();
 
-  inline void set_background_color(const Color &c)
+  inline void clear_background_color(const Color &c)
   {
     glClearColor(c.red_float(), c.green_float(), c.blue_float(), 1.0);
   }
 
   inline void set_events_poll_rate(double rate) { this->poll_rate = rate; }
+
+  FramebufferObject generate_framebuffer(size_t width, size_t height);
+  void unbind_framebuffer()
+  {
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    clear();
+    window()->set_current();
+  }
+  void bind_framebuffer(const FramebufferObject &fbo);
 
 private:
   void generate_vertex_array_object();

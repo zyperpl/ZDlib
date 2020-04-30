@@ -28,7 +28,7 @@ int model_test_main(int, char **)
   auto renderer = OGLRenderer();
   auto window =
     renderer.add_window(WindowParameters(Size(WIDTH, HEIGHT), "ZD model test"));
-  renderer.set_background_color(Color(10, 10, 20));
+  renderer.clear_background_color(Color(10, 10, 20));
   puts("Enabling cull face");
   renderer.enable_cull_face();
   puts("Enabling depth test");
