@@ -33,7 +33,7 @@ static const std::string_view SPRITE_RENDERER_VERTEX_SHADER = R"glsl(
     uv += pixel_size * 0.000005;
     gl_Position.xy /= pixel_size;
     gl_Position.xy *= sprite_scale;
-    gl_Position.xy += (vec2(sprite_position.x, 1.0-sprite_position.y) / view_size) * 2.0;
+    gl_Position.xy += (vec2(sprite_position.x, -sprite_position.y) / view_size) * 2.0;
   }
 )glsl";
 
@@ -54,9 +54,6 @@ static const std::string_view SPRITE_RENDERER_FRAGMENT_SHADER = R"glsl(
     vec2 suv = uv / frames_number;
     suv.x += (1.0 / frames_number.x) * frame;
     fragColor = texture(sampler, suv);
-    //vec2 spriteOffset = floor(uv * 256.0) * tile_size;
-    //vec2 spriteCoord = mod(screen_uv, tile_size);
-    //fragColor = texture(tileset_sampler, (spriteOffset + spriteCoord) / spritesheet_size);
   }
 )glsl";
 
