@@ -143,7 +143,7 @@ void OGLRenderer::initialize_gl()
       message);
 
     glerrors++;
-    if (glerrors >= 500)
+    if (glerrors >= 40)
       exit(3);
   };
 
@@ -296,8 +296,7 @@ FramebufferObject OGLRenderer::generate_framebuffer(size_t width, size_t height)
   glGenFramebuffers(1, &fbo.id);
   glBindFramebuffer(GL_FRAMEBUFFER, fbo.id);
 
-  fbo.texture = std::make_shared<Texture>(
-    TextureParameters { .mag_filter = GL_LINEAR, .min_filter = GL_LINEAR });
+  fbo.texture = std::make_shared<Texture>();
 
   glBindTexture(GL_TEXTURE_2D, fbo.texture->get_id());
   glTexImage2D(
