@@ -50,6 +50,7 @@ protected:
 class Screen_GL : public Screen
 {
 public:
+  Screen_GL(std::shared_ptr<Texture> texture, int x, int y, int width, int height);
   Screen_GL(
     std::shared_ptr<ShaderProgram> shader, int x, int y, int width, int height);
   Screen_GL(int x, int y, int width, int height);
@@ -58,7 +59,7 @@ public:
 
 private:
   std::shared_ptr<Input_GLFW> input_gl;
-  std::unique_ptr<Texture> texture;
+  std::shared_ptr<Texture> texture;
   std::unique_ptr<Model> model;
   std::shared_ptr<ShaderProgram> shader_program;
 

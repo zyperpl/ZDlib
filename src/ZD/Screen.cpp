@@ -16,13 +16,30 @@ Screen::Screen(int x, int y, int width, int height)
 }
 
 Screen_GL::Screen_GL(
+  std::shared_ptr<Texture> texture, int x, int y, int width, int height)
+: Screen(x, y, width, height)
+, texture { texture }
+{
+  auto screen_input = std::make_shared<ScreenInput>(*this);
+  input_gl = std::make_shared<Input_GLFW>(screen_input);
+
+  model = std::make_unique<Model>(ModelDefault::Screen);
+
+  shader_program =
+    ShaderLoader()
+      .add(ShaderDefault::ScreenTextureVertex, GL_VERTEX_SHADER)
+      .add(ShaderDefault::ScreenTextureFragment, GL_FRAGMENT_SHADER)
+      .compile();
+}
+
+Screen_GL::Screen_GL(
   std::shared_ptr<ShaderProgram> shader, int x, int y, int width, int height)
 : Screen(x, y, width, height)
 , shader_program { shader }
 {
   auto screen_input = std::make_shared<ScreenInput>(*this);
   input_gl = std::make_shared<Input_GLFW>(screen_input);
-  texture = std::make_unique<Texture>(canvas_image);
+  texture = std::make_shared<Texture>(canvas_image);
   model = std::make_unique<Model>(ModelDefault::Screen);
 }
 
@@ -31,7 +48,7 @@ Screen_GL::Screen_GL(int x, int y, int width, int height)
 {
   auto screen_input = std::make_shared<ScreenInput>(*this);
   input_gl = std::make_shared<Input_GLFW>(screen_input);
-  texture = std::make_unique<Texture>(canvas_image);
+  texture = std::make_shared<Texture>(canvas_image);
   model = std::make_unique<Model>(ModelDefault::Screen);
 
   shader_program =
@@ -62,8 +79,7 @@ void Screen_GL::render(Window &window)
     canvas_image->reset_change_counter();
   }
   shader_program->set_uniform<glm::vec2>(
-    "texture_size",
-    { texture->get_image()->width(), texture->get_image()->height() });
+    "texture_size", { texture->get_width(), texture->get_height() });
 
   if (texture)
   {
