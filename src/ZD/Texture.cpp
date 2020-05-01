@@ -18,6 +18,8 @@ Texture::Texture(std::shared_ptr<Image> image)
 {
   this->generate(TextureParameters {});
   this->set_buffer_data();
+  width = image->width();
+  height = image->height();
 }
 
 Texture::Texture(std::shared_ptr<Image> image, TextureParameters params)
@@ -27,6 +29,8 @@ Texture::Texture(std::shared_ptr<Image> image, TextureParameters params)
 {
   this->generate(params);
   this->set_buffer_data();
+  width = image->width();
+  height = image->height();
 }
 
 Texture::~Texture()
@@ -113,6 +117,8 @@ void Texture::set_image(std::shared_ptr<Image> new_image)
     current_height = this->image->height();
   }
   this->image = new_image;
+  width = this->image->width();
+  height = this->image->height();
   if (current_width != new_image->width() || current_height != new_image->height())
   {
     set_buffer_data();
@@ -188,4 +194,21 @@ void Texture::bind(const ShaderProgram &shader, GLuint sampler_id, std::string_v
   glCheckError();
 
   if (frame % 2 == 1) { update(); }
+}
+
+
+int Texture::get_width(int mip_level)
+{
+  if (mip_level <= 0 && width > 0) return width;
+
+  glGetTexLevelParameteriv(GL_TEXTURE_2D, mip_level, GL_TEXTURE_WIDTH, &width);
+  return width;
+}
+
+int Texture::get_height(int mip_level)
+{
+  if (mip_level <= 0 && height > 0) return height;
+
+  glGetTexLevelParameteriv(GL_TEXTURE_2D, mip_level, GL_TEXTURE_HEIGHT, &height);
+  return height;
 }

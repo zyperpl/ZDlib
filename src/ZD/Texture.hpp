@@ -33,6 +33,8 @@ public:
     const ShaderProgram &shader, GLuint sampler_id = 0,
     std::string_view sampler_name = "sampler");
 
+  int get_width(int mip_level = 0);
+  int get_height(int mip_level = 0);
   void set_image(std::shared_ptr<Image> new_image);
   const std::shared_ptr<Image> get_image() const { return this->image; }
 
@@ -49,4 +51,6 @@ private:
   GLuint id { 0 };
   GLuint pbo[2] { 0, 0 };
   long frame { 0 };
+  int width { 0 };
+  int height { 0 };
 };
