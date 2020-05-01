@@ -29,7 +29,7 @@ const GLchar *z_screen_texture_vertex_shader = R"glsl(
     uv.y = 1.0 - uv.y;
     uv += pixel_size * 0.000005;
     gl_Position.xy *= screen_scale;
-    gl_Position.xy += (vec2(screen_position.x, 1.0-screen_position.y) / view_size) * 2.0;
+    gl_Position.xy += (vec2(screen_position.x, -screen_position.y) / view_size) * 2.0;
   }
 )glsl";
 const GLchar *z_texture_frag_shader = R"glsl(
@@ -87,13 +87,15 @@ const GLchar *z_tileset_vertex_shader = R"glsl(
   
   void main()
   {
+    vec2 pixel_size = view_size / texture_size;
     gl_Position = vec4(position.x, position.y, 0.0, 1.0);
     vec2 uv = gl_Position.xy / 2.0 + 0.5;
     uv.y = 1.0 - uv.y;
     screen_uv = uv * view_size / view_scale + view_offset;
+    screen_uv += pixel_size * 0.02;
     map_uv = screen_uv / texture_size / tile_size;
     gl_Position.xy *= screen_scale;
-    gl_Position.xy += (vec2(screen_position.x, 1.0-screen_position.y) / view_size) * 2.0;
+    gl_Position.xy += (vec2(screen_position.x, -screen_position.y) / view_size) * 2.;
   }
 )glsl";
 const GLchar *z_tileset_fragment_shader = R"glsl(
