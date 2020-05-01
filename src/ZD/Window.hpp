@@ -105,6 +105,7 @@ public:
   void set_current();
   bool is_open() const;
   const Input *input() const;
+  bool should_center_view_port { true };
 
 private:
   GLFWwindow *handle;
@@ -123,7 +124,6 @@ private:
     }
   }
   void center_view_port();
-  bool should_center_view_port { true };
 
   friend void key_callback_glfw(GLFWwindow *, int, int, int, int);
   friend void cursor_position_callback_glfw(GLFWwindow *, double, double);
