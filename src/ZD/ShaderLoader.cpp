@@ -20,13 +20,17 @@ const GLchar *z_screen_texture_vertex_shader = R"glsl(
   uniform vec2 screen_position;
   uniform vec2 screen_scale;
   uniform vec2 texture_size;
+  uniform bool flip_y;
   
   void main()
   {
     vec2 pixel_size = view_size / texture_size / 2.;
     gl_Position = vec4(position.x, position.y, 0.0, 1.0);
     uv = gl_Position.xy / 2.0 + 0.5;
-    uv.y = 1.0 - uv.y;
+    if (!flip_y)
+    {
+      uv.y = 1.0 - uv.y;
+    }
     uv += pixel_size * 0.000005;
     gl_Position.xy *= screen_scale;
     gl_Position.xy += (vec2(screen_position.x, -screen_position.y) / view_size) * 2.0;

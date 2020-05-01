@@ -42,6 +42,7 @@ public:
   int x { 0 }, y { 0 }, width, height;
   ScreenScale scale;
 
+  bool flip_y { false };
 protected:
   std::shared_ptr<Image> canvas_image;
   std::shared_ptr<Painter> image_painter;

@@ -68,6 +68,7 @@ void Screen_GL::render(Window &window)
     "frambuffer_size", { window.get_width(), window.get_height() });
   shader_program->set_uniform<glm::vec2>("screen_position", { x, y });
   shader_program->set_uniform<glm::vec2>("screen_scale", { scale.x, scale.y });
+  shader_program->set_uniform<int>("flip_y", flip_y);
 
   //printf("image=%p changes=%d\n", &canvas_image, canvas_image->change_counter());
   if (canvas_image && canvas_image->is_changed())
