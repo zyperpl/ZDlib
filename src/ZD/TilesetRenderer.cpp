@@ -40,24 +40,22 @@ void TilesetRenderer::update(const Tilemap &tilemap)
   map_texture->set_image(image);
 }
 
-void TilesetRenderer::render(const Window &window)
+void TilesetRenderer::render(const RenderTarget &target)
 {
-  if (!map_texture->get_image()) return;
+  if (!map_texture->get_image())
+    return;
 
   shader_program->use();
 
   shader_program->set_uniform<glm::vec2>("view_offset", view_offset);
   shader_program->set_uniform<glm::vec2>("view_scale", view_scale);
   shader_program->set_uniform<glm::vec2>(
-    "view_size", { window.get_view_width(), window.get_view_height() });
-  shader_program->set_uniform<glm::vec2>(
-    "frambuffer_size", { window.get_width(), window.get_height() });
+    "view_size", { target.get_width(), target.get_height() });
   shader_program->set_uniform<glm::vec2>("screen_position", position);
   shader_program->set_uniform<glm::vec2>("screen_scale", scale);
   shader_program->set_uniform<glm::vec2>(
     "texture_size",
     { map_texture->get_image()->width(), map_texture->get_image()->height() });
-
   shader_program->set_uniform<glm::vec2>(
     "spritesheet_size",
     { tileset_texture->get_image()->width(),

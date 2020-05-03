@@ -4,11 +4,11 @@
 #include "Model.hpp"
 #include "Texture.hpp"
 #include "Shader.hpp"
+#include "RenderTarget.hpp"
 
 #include <memory>
 
 class SpriteRenderer;
-class Window;
 
 class Sprite
 {
@@ -36,7 +36,7 @@ public:
     return frame;
   }
 
-  void render(const Window &window);
+  void render(const RenderTarget &target);
   void set_renderer(std::shared_ptr<SpriteRenderer> renderer);
 
   int x { 0 }, y { 0 };
@@ -67,7 +67,7 @@ public:
   void set_sheet(std::shared_ptr<Image> source) { sheet_image = source; }
   std::shared_ptr<Image> get_sheet() const { return sheet_image; }
 
-  void render(const Window &window, int x, int y, int frame = 0);
+  void render(const RenderTarget &target, int x, int y, int frame = 0);
 
 private:
   SpriteRenderer(

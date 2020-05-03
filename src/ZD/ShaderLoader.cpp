@@ -15,7 +15,6 @@ const GLchar *z_screen_texture_vertex_shader = R"glsl(
 
   in vec2 position;
   out vec2 uv;
-  uniform vec2 framebuffer_size;
   uniform vec2 view_size;
   uniform vec2 screen_position;
   uniform vec2 screen_scale;
@@ -80,7 +79,6 @@ const GLchar *z_tileset_vertex_shader = R"glsl(
   in vec2 position;
   out vec2 map_uv;
   out vec2 screen_uv;
-  uniform vec2 framebuffer_size;
   uniform vec2 view_size;
   uniform vec2 view_scale;
   uniform vec2 view_offset;

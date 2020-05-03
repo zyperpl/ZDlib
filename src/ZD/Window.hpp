@@ -9,6 +9,7 @@
 
 #include "Color.hpp"
 #include "Size.hpp"
+#include "RenderTarget.hpp"
 
 class Input;
 class Input_GLFW;
@@ -33,7 +34,7 @@ struct WindowParameters
   }
 };
 
-class Window
+class Window : public RenderTarget
 {
 public:
   virtual ~Window() {};
@@ -47,8 +48,8 @@ public:
 
   int get_width() const { return width; }
   int get_height() const { return height; }
-  int get_view_width() const { return view_width; }
-  int get_view_height() const { return view_height; }
+  int get_window_width() const { return render_width; }
+  int get_window_height() const { return render_height; }
   double get_aspect_ratio() const { return aspect_ratio; }
   PixelFormat::Type get_format() const { return format; }
 
@@ -64,25 +65,27 @@ protected:
   Window(int w, int h, PixelFormat::Type format, std::string_view name)
   : width { w }
   , height { h }
+  , name { name }
+  , render_width { width }
+  , render_height { height }
   , aspect_ratio { float(w) / float(h) }
   , format { format }
-  , name { name }
-  , view_width { width }
-  , view_height { height }
   {
   }
 
   Window() = default;
 
-  int width { 0 };
-  int height { 0 };
+  int width { 0 }; // pixel buffer width
+  int height { 0 }; // pixel buffer height
+
+  std::string_view name;
+
+  int render_width { 0 }; // framebuffer/window width
+  int render_height { 0 }; // framebuffer/window height
 
   double aspect_ratio;
   PixelFormat::Type format;
-  std::string_view name;
 
-  const int view_width { 0 };
-  const int view_height { 0 };
   std::vector<std::shared_ptr<Screen>> screens;
 };
 
@@ -110,17 +113,18 @@ public:
 private:
   GLFWwindow *handle;
   std::shared_ptr<Input_GLFW> input_ptr;
-  void set_framebuffer_size(int width, int height)
+  void set_framebuffer_size(int w, int h)
   {
-    this->width = width;
-    this->height = height;
+    this->render_width = w;
+    this->render_height = h;
 
     if (should_center_view_port)
     {
       center_view_port();
-    } else
+    }
+    else
     {
-      glViewport(0, 0, width, height);
+      glViewport(0, 0, w, h);
     }
   }
   void center_view_port();

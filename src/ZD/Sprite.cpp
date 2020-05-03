@@ -71,9 +71,9 @@ void Sprite::set_renderer(std::shared_ptr<SpriteRenderer> renderer)
   this->renderer = renderer;
 }
 
-void Sprite::render(const Window &window)
+void Sprite::render(const RenderTarget &target)
 {
-  renderer->render(window, x, y, frame);
+  renderer->render(target, x, y, frame);
 }
 
 std::shared_ptr<SpriteRenderer> SpriteRenderer::create(
@@ -108,12 +108,12 @@ SpriteRenderer::SpriteRenderer(
   sheet_texture = std::make_shared<Texture>(sheet_image);
 }
 
-void SpriteRenderer::render(const Window &window, int x, int y, int frame)
+void SpriteRenderer::render(const RenderTarget &target, int x, int y, int frame)
 {
   shader_program->use();
 
-  const glm::vec2 view_size { window.get_view_width(),
-                              window.get_view_height() };
+  const glm::vec2 view_size { target.get_width(),
+                              target.get_height() };
   const glm::vec2 sprite_position { x - view_size.x / 2.0,
                                     y - view_size.y / 2.0 };
 

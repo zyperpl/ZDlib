@@ -7,7 +7,7 @@
 #include "3rd/glm/glm.hpp"
 
 #include "Tileset.hpp"
-#include "Window.hpp"
+#include "RenderTarget.hpp"
 
 class TilesetRenderer
 {
@@ -16,7 +16,7 @@ public:
   TilesetRenderer(
     std::shared_ptr<Tileset> tileset, std::shared_ptr<ShaderProgram> shader);
   void update(const Tilemap &tilemap);
-  void render(const Window &window);
+  void render(const RenderTarget &target);
 
   glm::vec2 position { 0., 0. };
   glm::vec2 scale { 1., 1. };
