@@ -40,11 +40,15 @@ public:
   int right() const { return x + width; }
   int top() const { return y; }
   int bottom() const { return y + height; }
-  int x { 0 }, y { 0 }, width, height;
+  int x { 0 }, y { 0 };
   ScreenScale scale;
 
   bool flip_y { false };
+
+  int get_width() const { return width; }
+  int get_height() const { return height; }
 protected:
+  int width, height;
   std::shared_ptr<Image> canvas_image;
   std::shared_ptr<Painter> image_painter;
 };
