@@ -26,14 +26,14 @@ static const std::string_view SPRITE_RENDERER_VERTEX_SHADER = R"glsl(
   void main()
   {
     frames_number = texture_size / sprite_size;
-    vec2 pixel_size = view_size / texture_size * frames_number / 2.;
+    vec2 pixel_size = view_size / texture_size * frames_number;
     gl_Position = vec4(position.x, position.y, 0.0, 1.0);
     uv = gl_Position.xy / 2.0 + 0.5;
     uv.y = 1.0 - uv.y;
-    uv += pixel_size * 0.000005;
+    uv += pixel_size * 0.000002;
     gl_Position.xy /= pixel_size;
     gl_Position.xy *= sprite_scale;
-    gl_Position.xy += (vec2(sprite_position.x, -sprite_position.y) / view_size) * 2.0;
+    gl_Position.xy += (vec2(sprite_position.x, -sprite_position.y) / view_size) * 2.;
   }
 )glsl";
 
@@ -73,7 +73,7 @@ void Sprite::set_renderer(std::shared_ptr<SpriteRenderer> renderer)
 
 void Sprite::render(const RenderTarget &target)
 {
-  renderer->render(target, x, y, frame);
+  renderer->render(target, position, scale, frame);
 }
 
 std::shared_ptr<SpriteRenderer> SpriteRenderer::create(
@@ -108,20 +108,20 @@ SpriteRenderer::SpriteRenderer(
   sheet_texture = std::make_shared<Texture>(sheet_image);
 }
 
-void SpriteRenderer::render(const RenderTarget &target, int x, int y, int frame)
+void SpriteRenderer::render(const RenderTarget &target, const glm::vec2 &position, const glm::vec2 &scale, int frame)
 {
   shader_program->use();
 
   const glm::vec2 view_size { target.get_width(),
                               target.get_height() };
-  const glm::vec2 sprite_position { x - view_size.x / 2.0,
-                                    y - view_size.y / 2.0 };
+  const glm::vec2 sprite_position { position.x - view_size.x / 2.0,
+                                    position.y - view_size.y / 2.0 };
 
   shader_program->set_uniform<glm::vec2>("view_size", view_size);
   shader_program->set_uniform<glm::vec2>(
     "sprite_size", { image_width, image_height });
   shader_program->set_uniform<glm::vec2>("sprite_position", sprite_position);
-  shader_program->set_uniform<glm::vec2>("sprite_scale", { 1.0, 1.0 }); //TODO
+  shader_program->set_uniform<glm::vec2>("sprite_scale", scale); 
   shader_program->set_uniform<glm::vec2>(
     "texture_size", { sheet_image->width(), sheet_image->height() });
 

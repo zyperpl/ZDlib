@@ -8,6 +8,8 @@
 
 #include <memory>
 
+#include "3rd/glm/glm.hpp"
+
 class SpriteRenderer;
 
 class Sprite
@@ -39,8 +41,10 @@ public:
   void render(const RenderTarget &target);
   void set_renderer(std::shared_ptr<SpriteRenderer> renderer);
 
-  int x { 0 }, y { 0 };
-private:
+  glm::vec2 position { 0., 0. };
+  glm::vec2 scale { 1., 1. };
+
+protected:
   std::shared_ptr<SpriteRenderer> renderer;
   int frame { 0 };
   const int max_frames { 1 };
@@ -67,7 +71,9 @@ public:
   void set_sheet(std::shared_ptr<Image> source) { sheet_image = source; }
   std::shared_ptr<Image> get_sheet() const { return sheet_image; }
 
-  void render(const RenderTarget &target, int x, int y, int frame = 0);
+  void render(
+    const RenderTarget &target, const glm::vec2 &position, const glm::vec2 &scale,
+    int frame = 0);
 
 private:
   SpriteRenderer(
