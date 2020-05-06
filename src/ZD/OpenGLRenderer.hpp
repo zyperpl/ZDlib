@@ -4,6 +4,7 @@
 #include <GLFW/glfw3.h>
 #include <memory>
 
+#include "Framebuffer.hpp"
 #include "Renderer.hpp"
 #include "Screen.hpp"
 #include "Size.hpp"
@@ -12,14 +13,6 @@
 
 extern GLenum glCheckError_(const char *, int);
 #define glCheckError() glCheckError_(__FILE__, __LINE__)
-
-struct FramebufferObject
-{
-  GLuint id { 0 };
-  std::shared_ptr<Texture> texture;
-  GLuint renderbuffer_id { 0 };
-  size_t width { 0 }, height { 0 };
-};
 
 class OGLRenderer : public Renderer
 {
