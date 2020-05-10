@@ -3,48 +3,48 @@
 class Size
 {
 public:
-  Size(int w, int h)
+  constexpr Size(int w, int h)
   : w { w }
   , h { h }
   {
   }
 
-  bool is_valid() const { return w >= 0 && h >= 0; }
+  constexpr bool is_valid() const { return w >= 0 && h >= 0; }
 
-  int width() const { return w; }
-  int height() const { return h; }
+  constexpr int width() const { return w; }
+  constexpr int height() const { return h; }
 
-  void set_width(int new_width) { w = new_width; }
-  void set_height(int new_height) { h = new_height; }
+  constexpr void set_width(int new_width) { w = new_width; }
+  constexpr void set_height(int new_height) { h = new_height; }
 
-  int area() const { return w * h; }
+  constexpr int area() const { return w * h; }
 
-  bool operator==(const Size &other) { return other.w == w && other.h == h; }
+  constexpr bool operator==(const Size &other) { return other.w == w && other.h == h; }
 
-  bool operator!=(const Size &other) { return other.w != w || other.h != h; }
+  constexpr bool operator!=(const Size &other) { return other.w != w || other.h != h; }
 
-  Size &operator-=(const Size &other)
+  constexpr Size &operator-=(const Size &other)
   {
     this->w -= other.w;
     this->h -= other.h;
     return *this;
   }
 
-  Size &operator+=(const Size &other)
+  constexpr Size &operator+=(const Size &other)
   {
     this->w += other.w;
     this->h += other.h;
     return *this;
   }
 
-  Size &operator*=(const Size &other)
+  constexpr Size &operator*=(const Size &other)
   {
     this->w *= other.w;
     this->h *= other.h;
     return *this;
   }
 
-  Size &operator/=(const Size &other)
+  constexpr Size &operator/=(const Size &other)
   {
     if (other.w != 0)
     {
@@ -57,16 +57,16 @@ public:
     return *this;
   }
 
-  bool operator>(const Size &other) { return w > other.w && h > other.h; }
+  constexpr bool operator>(const Size &other) { return w > other.w && h > other.h; }
 
-  Size &operator++()
+  constexpr Size &operator++()
   {
     this->w++;
     this->h++;
     return *this;
   }
 
-  Size &operator--()
+  constexpr Size &operator--()
   {
     this->w--;
     this->h--;
