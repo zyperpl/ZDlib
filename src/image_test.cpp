@@ -15,6 +15,9 @@
 #include "ZD/Tileset.hpp"
 #include "ZD/TilesetRenderer.hpp"
 
+#include "ZD/Sprite.hpp"
+#include "ZD/Animation.hpp"
+
 #define W 1280
 #define H 720
 
@@ -130,6 +133,14 @@ auto image_test_main(int, char **) -> int
   scaled_painter.draw_line(0, 20, 20, 0, Color(255, 255, 0));
   scaled_painter.draw_line(0, 0, 20, 30, Color(255, 255, 0));
 
+  puts("Creaing Sprite & Animation...");
+  auto sprite = std::make_shared<Sprite>(Image::load("images/lena.png"), 16, 16);
+  sprite->position.x = W / 2;
+  sprite->position.y = H / 3;
+  auto animation = std::make_shared<Animation>();
+  animation->add("anim1", sprite, FrameSpan(0, 2), 0.1, Loop);
+  animation->add("anim2", sprite, 3, 0, NoLoop);
+
   puts("Starting main loop...");
   long iteration = 0;
   while (renderer.is_window_open())
@@ -239,6 +250,15 @@ auto image_test_main(int, char **) -> int
 
     // tileset rendering with megatexture
     tileset_renderer->render(*window);
+
+    animation->play("anim1");
+    if (input->key(Key::A))
+    {
+      animation->play("anim2");
+    }
+
+    animation->update();
+    animation->get_sprite()->render(*window);
 
     renderer.render();
   }
