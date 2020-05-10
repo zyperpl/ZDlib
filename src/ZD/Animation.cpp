@@ -23,6 +23,11 @@ void Animation::add(
   clip.length = length;
   clip.loop = loop_option == Loop;
   clips.insert(std::make_pair(key, std::move(clip)));
+
+  if (!current.sprite)
+  {
+    current.sprite = sprite;
+  }
 }
 
 void Animation::play(const std::string &key, bool force)
