@@ -3,6 +3,9 @@
 
 #include "TilesetRenderer.hpp"
 #include "ShaderLoader.hpp"
+  
+size_t TilesetRenderer::MAP_TEXTURE_WIDTH = 256;
+size_t TilesetRenderer::MAP_TEXTURE_HEIGHT = 256;
 
 TilesetRenderer::TilesetRenderer(std::shared_ptr<Tileset> tileset)
 : tileset { tileset }
@@ -29,8 +32,10 @@ TilesetRenderer::TilesetRenderer(
 
 void TilesetRenderer::update(const Tilemap &tilemap)
 {
-  std::shared_ptr<Image> image =
-    Image::create(Size(512, 512), Color(255, 255, 255), PixelFormat::RGBA);
+  std::shared_ptr<Image> image = Image::create(
+    Size(MAP_TEXTURE_WIDTH, MAP_TEXTURE_HEIGHT),
+    Color(255, 255, 255),
+    PixelFormat::RGBA);
   for (const auto &key_tile : tilemap.tiles)
   {
     const auto &tile = key_tile.second;

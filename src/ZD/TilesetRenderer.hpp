@@ -22,6 +22,9 @@ public:
   glm::vec2 scale { 1., 1. };
   glm::vec2 view_scale { 1., 1. };
   glm::vec2 view_offset { 0., 0. };
+
+  static size_t MAP_TEXTURE_WIDTH;
+  static size_t MAP_TEXTURE_HEIGHT;
 private:
   std::shared_ptr<Tileset> tileset;
   std::shared_ptr<ShaderProgram> shader_program;
