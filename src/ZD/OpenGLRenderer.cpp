@@ -216,6 +216,7 @@ void OGLRenderer::render_screens()
     //printf("rendering %p screen\n", &*screen);
     screen->render(*window());
   }
+  screens_rendered = true;
 }
 
 void OGLRenderer::render()
@@ -240,9 +241,11 @@ void OGLRenderer::render()
   }
 #endif
 
-  render_screens();
+  if (!screens_rendered)
+    render_screens();
 
   glfwSwapBuffers(glfwGetCurrentContext());
+  screens_rendered = false;
 }
 
 void OGLRenderer::enable_blend(GLenum sfactor, GLenum dfactor)
@@ -302,7 +305,11 @@ FramebufferObject OGLRenderer::generate_framebuffer(size_t width, size_t height)
   glTexImage2D(
     GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
   glFramebufferTexture2D(
-    GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, fbo.texture->get_id(), 0);
+    GL_FRAMEBUFFER,
+    GL_COLOR_ATTACHMENT0,
+    GL_TEXTURE_2D,
+    fbo.texture->get_id(),
+    0);
 
   glGenRenderbuffers(1, &fbo.renderbuffer_id);
   glBindRenderbuffer(GL_RENDERBUFFER, fbo.renderbuffer_id);

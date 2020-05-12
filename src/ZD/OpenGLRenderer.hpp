@@ -61,4 +61,5 @@ private:
   GLuint vao;
   double poll_rate { 144. };
   bool clear_depth { false };
+  bool screens_rendered { false };
 };
