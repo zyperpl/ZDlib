@@ -109,6 +109,7 @@ public:
   bool is_open() const;
   const Input *input() const;
   bool should_center_view_port { true };
+  GLFWwindow *get_handle() const { return handle; }
 
 private:
   GLFWwindow *handle;
