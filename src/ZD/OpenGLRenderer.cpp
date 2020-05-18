@@ -171,8 +171,7 @@ void OGLRenderer::initialize_gl()
       GL_TEXTURE_2D, GL_RGBA8, GL_TEXTURE_IMAGE_FORMAT, 1, &format);
     glGetInternalformativ(
       GL_TEXTURE_2D, GL_RGBA8, GL_TEXTURE_IMAGE_TYPE, 1, &type);
-    printf(
-      "Internal format: IMAGE_FORMAT=%8x ; IMAGE_TYPE=%8x\n", format, type);
+    //printf("Internal format: IMAGE_FORMAT=%8x ; IMAGE_TYPE=%8x\n", format, type);
   }
 
   generate_vertex_array_object();

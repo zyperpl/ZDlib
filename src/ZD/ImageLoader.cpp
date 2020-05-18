@@ -111,7 +111,7 @@ std::optional<std::shared_ptr<Image>> find_in_loaded(std::string_view path)
   auto name_image_pair = loaded_images.find(path);
   if (name_image_pair != loaded_images.end())
   {
-    printf("Found in loaded!\n");
+    //printf("Image %s found in loaded!\n", path.c_str());
     return name_image_pair->second;
   }
 
