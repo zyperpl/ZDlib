@@ -47,8 +47,13 @@ public:
 
   int get_width() const { return width; }
   int get_height() const { return height; }
+
+  bool is_enabled() const { return enabled; }
+  void disable() { enabled = false; }
+  void enable() { enabled = true; }
 protected:
   int width, height;
+  bool enabled { true };
   std::shared_ptr<Image> canvas_image;
   std::shared_ptr<Painter> image_painter;
 };

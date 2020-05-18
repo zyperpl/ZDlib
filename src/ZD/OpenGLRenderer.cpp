@@ -223,7 +223,10 @@ void OGLRenderer::render_screens()
   for (auto& screen : window()->get_screens())
   {
     //printf("rendering %p screen\n", &*screen);
-    screen->render(*window());
+    if (screen->is_enabled())
+    {
+      screen->render(*window());
+    }
   }
   screens_rendered = true;
 }

@@ -77,6 +77,9 @@ void Screen_GL::render(const RenderTarget &target)
     }
     canvas_image->reset_change_counter();
   }
+
+  if (!enabled) return;
+
   shader_program->set_uniform<glm::vec2>(
     "texture_size", { texture->get_width(), texture->get_height() });
 
