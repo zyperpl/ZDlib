@@ -125,6 +125,10 @@ int file_test_main(int, char **)
     assert(f.is_open());
     std::vector<uint8_t> data = { 't', 'e', 's', 't', '\n' };
     ssize_t ret = f.write(data);
+    if (ret <= 0) {
+      printf("Write error!");
+      assert(false);
+    }
     assert(ret == 5);
     ret = f.write("Hello, World!");
     assert(ret == 13);

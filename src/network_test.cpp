@@ -49,6 +49,11 @@ void tcp_server_loop()
       answer.push_back('g');
       puts("TCP server: sending back data...");
       int sent = other->send(answer.data(), answer.size());
+      if (sent <= 0)
+      {
+        printf("Socket send error\n");
+        assert(false);
+      }
       assert(sent > 0);
 
       break;
@@ -85,6 +90,11 @@ void tcp_client_loop()
     data.push_back('t');
     puts("TCP client sending...");
     int ret = client->send(data.data(), data.size());
+    if (ret <= 0)
+    {
+      printf("TCP clinet send error!\n");
+      assert(false);
+    }
     assert(ret > 0);
     sleep(1);
 
@@ -97,6 +107,11 @@ void tcp_client_loop()
     {
       received = true;
       auto vdata = sdata.data;
+      if (vdata[0] != 'p')
+      {
+        printf("Wrong data received!\n");
+        assert(false);
+      }
       auto other = sdata.other_socket;
 
       assert(vdata[0] == 'p');
@@ -188,6 +203,11 @@ void udp_client_loop()
       assert(sdata.data_length > 0);
       assert(sdata.other_socket != nullptr);
       auto data = sdata.data;
+      if (data[0] != 'p')
+      {
+        puts("Wrong data received!");
+        assert(false);
+      }
       assert(data[0] == 'p');
       assert(data[3] == 'g');
       received = true;

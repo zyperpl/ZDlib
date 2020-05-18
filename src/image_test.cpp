@@ -170,12 +170,11 @@ auto image_test_main(int, char **) -> int
 
     auto mouse_pos = input->mouse().position();
     auto mouse_x = mouse_pos.x;
-    auto double_mouse_pos = mouse_pos + mouse_pos;
-    assert(double_mouse_pos.x == mouse_x * 2);
 
     static int rnoise_c = 0;
     if (rnoise_c++ > 10000)
     {
+      printf("Mouse X = %ld\n", mouse_x);
       rnoise_c = 0;
       rnoise->clear();
     }

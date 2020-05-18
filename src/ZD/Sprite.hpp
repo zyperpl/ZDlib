@@ -39,7 +39,7 @@ public:
   }
 
   int get_frame() const { return frame; }
-  const int get_max_frames() const { return max_frames; }
+  int get_max_frames() const { return max_frames; }
 
   void render(const RenderTarget &target);
   void set_renderer(std::shared_ptr<SpriteRenderer> renderer);
