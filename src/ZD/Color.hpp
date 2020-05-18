@@ -20,7 +20,7 @@ struct PixelFormat
     BGRA,
     Invalid
   };
-  static int get_components_num(Type format)
+  static constexpr int get_components_num(Type format) 
   {
     switch (format)
     {
@@ -45,22 +45,22 @@ struct PixelFormat
 class Color
 {
 public:
-  Color(uint32_t v)
+  constexpr Color(uint32_t v)
   : color_value { v }
   {
   }
 
-  Color(u8 red, u8 green, u8 blue) { set_value(red, green, blue); }
+  constexpr Color(u8 red, u8 green, u8 blue) { set_value(red, green, blue); }
 
-  Color(u8 red, u8 green, u8 blue, u8 alpha)
+  constexpr Color(u8 red, u8 green, u8 blue, u8 alpha)
   {
     set_value(red, green, blue, alpha);
   }
 
-  bool operator==(const Color &o) { return o.color_value == color_value; }
-  bool operator!=(const Color &o) { return o.color_value != color_value; }
+  constexpr bool operator==(const Color &o) { return o.color_value == color_value; }
+  constexpr bool operator!=(const Color &o) { return o.color_value != color_value; }
 
-  static Color from_floats(
+  static constexpr Color from_floats(
     float red, float green, float blue, float alpha = 1.0)
   {
     u8 r = red * 255;
@@ -81,26 +81,26 @@ public:
     return Color(r, g, b);
   }
 
-  static Color from_value(uint32_t v) { return Color(v); }
+  static constexpr Color from_value(uint32_t v) { return Color(v); }
 
-  inline void set_value(u8 r, u8 g, u8 b, u8 a = 255)
+  inline constexpr void set_value(u8 r, u8 g, u8 b, u8 a = 255)
   {
     // internally BGRA
     color_value =
       ((b << BLUE_BIT) | (g << GREEN_BIT) | (r << RED_BIT) | (a << ALPHA_BIT));
   }
 
-  inline uint32_t value() const { return color_value; }
+  inline constexpr uint32_t value() const { return color_value; }
 
-  inline u8 red() const { return (color_value >> RED_BIT) & 0xff; }
-  inline u8 green() const { return (color_value >> GREEN_BIT) & 0xff; }
-  inline u8 blue() const { return (color_value >> BLUE_BIT) & 0xff; }
-  inline u8 alpha() const { return (color_value >> ALPHA_BIT) & 0xff; }
+  inline constexpr u8 red() const { return (color_value >> RED_BIT) & 0xff; }
+  inline constexpr u8 green() const { return (color_value >> GREEN_BIT) & 0xff; }
+  inline constexpr u8 blue() const { return (color_value >> BLUE_BIT) & 0xff; }
+  inline constexpr u8 alpha() const { return (color_value >> ALPHA_BIT) & 0xff; }
 
-  float red_float() const { return ((float)red()) / 255.0; }
-  float green_float() const { return ((float)green()) / 255.0; }
-  float blue_float() const { return ((float)blue()) / 255.0; }
-  float alpha_float() const { return ((float)alpha()) / 255.0; }
+  constexpr float red_float() const { return ((float)red()) / 255.0; }
+  constexpr float green_float() const { return ((float)green()) / 255.0; }
+  constexpr float blue_float() const { return ((float)blue()) / 255.0; }
+  constexpr float alpha_float() const { return ((float)alpha()) / 255.0; }
 
   inline void print() const
   {
