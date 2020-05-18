@@ -83,21 +83,37 @@ namespace Camera
 class View
 {
 public:
-  View(Camera::PerspectiveParameters params, glm::vec3 position);
-  View(Camera::OrtographicParameters params, glm::vec3 position);
+  constexpr View(Camera::PerspectiveParameters params, glm::vec3 position)
+  : projection { Camera::Projection::Perspective }
+  , fov { params.fov }
+  , aspect { params.aspect }
+  , clipping_plane { params.clipping_plane }
+  , position { position }
+  {
+    assert(projection == Camera::Projection::Perspective);
+  }
+
+  constexpr View(Camera::OrtographicParameters params, glm::vec3 position)
+  : projection { Camera::Projection::Ortographic }
+  , ortographic_box { params.box }
+  , clipping_plane { params.clipping_plane }
+  , position { position }
+  {
+    assert(projection == Camera::Projection::Ortographic);
+  }
 
   glm::mat4 get_projection_matrix() const;
   glm::mat4 get_view_matrix() const;
-  glm::vec3 get_position() const { return position; }
-  glm::vec3 get_rotation() const { return rotation; }
-  glm::vec3 get_scale() const { return scale; }
+  constexpr glm::vec3 get_position() const { return position; }
+  constexpr glm::vec3 get_rotation() const { return rotation; }
+  constexpr glm::vec3 get_scale() const { return scale; }
 
-  void set_position(glm::vec3 v) { position = v; }
-  void set_rotation(glm::vec3 v) { rotation = v; }
-  void set_scale(glm::vec3 v) { scale = v; }
+  constexpr void set_position(glm::vec3 v) { position = v; }
+  constexpr void set_rotation(glm::vec3 v) { rotation = v; }
+  constexpr void set_scale(glm::vec3 v) { scale = v; }
 
-  void set_fov(Camera::Fov new_fov) { fov = new_fov; }
-  void set_aspect(float new_aspect) { aspect = new_aspect; }
+  constexpr void set_fov(Camera::Fov new_fov) { fov = new_fov; }
+  constexpr void set_aspect(float new_aspect) { aspect = new_aspect; }
 
 private:
   Camera::Projection projection;

@@ -8,25 +8,6 @@
 #include "3rd/glm/ext/quaternion_float.hpp" // quat
 #include "3rd/glm/gtc/quaternion.hpp"
 
-View::View(Camera::PerspectiveParameters params, glm::vec3 position)
-: projection { Camera::Projection::Perspective }
-, fov { params.fov }
-, aspect { params.aspect }
-, clipping_plane { params.clipping_plane }
-, position { position }
-{
-  assert(projection == Camera::Projection::Perspective);
-}
-
-View::View(Camera::OrtographicParameters params, glm::vec3 position)
-: projection { Camera::Projection::Ortographic }
-, ortographic_box { params.box }
-, clipping_plane { params.clipping_plane }
-, position { position }
-{
-  assert(projection == Camera::Projection::Ortographic);
-}
-
 glm::mat4 View::get_projection_matrix() const
 {
   switch (projection)
@@ -44,6 +25,7 @@ glm::mat4 View::get_projection_matrix() const
         clipping_plane.far);
   }
   assert(false);
+  return {};
 }
 
 glm::mat4 View::get_view_matrix() const
