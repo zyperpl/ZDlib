@@ -59,7 +59,7 @@ private:
   void initialize_gl();
   void uninitialize_gl();
   GLuint vao;
-  double poll_rate { 144. };
+  double poll_rate { 0.0 };
   bool clear_depth { false };
   bool screens_rendered { false };
 };

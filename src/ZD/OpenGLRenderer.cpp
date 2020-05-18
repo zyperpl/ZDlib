@@ -195,7 +195,17 @@ void OGLRenderer::generate_vertex_array_object()
   //printf("Vertex array object id=%u\n", vao);
 }
 
-void OGLRenderer::update() { glfwWaitEventsTimeout(1. / poll_rate); }
+void OGLRenderer::update()
+{
+  if (poll_rate < 1.0)
+  {
+    glfwPollEvents();
+  }
+  else
+  {
+    glfwWaitEventsTimeout(1.0 / poll_rate);
+  }
+}
 
 void OGLRenderer::clear()
 {

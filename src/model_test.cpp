@@ -26,6 +26,7 @@ int model_test_main(int, char **)
 {
   puts("Creating renderer with window");
   auto renderer = OGLRenderer();
+  renderer.set_events_poll_rate(360.0);
   auto window =
     renderer.add_window(WindowParameters(Size(WIDTH, HEIGHT), "ZD model test"));
   renderer.clear_background_color(Color(10, 10, 20));
