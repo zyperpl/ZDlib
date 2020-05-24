@@ -203,6 +203,11 @@ public:
     rules.push_back({ range, func });
   };
 
+  const std::unordered_map<int64_t, Tile> get_tiles() const
+  {
+    return tiles;
+  }
+
 protected:
   TilesMask redraw_mask;
 

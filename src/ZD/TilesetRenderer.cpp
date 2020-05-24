@@ -36,7 +36,7 @@ void TilesetRenderer::update(const Tilemap &tilemap)
     Size(MAP_TEXTURE_WIDTH, MAP_TEXTURE_HEIGHT),
     Color(255, 255, 255),
     PixelFormat::RGBA);
-  for (const auto &key_tile : tilemap.tiles)
+  for (const auto &key_tile : tilemap.get_tiles())
   {
     const auto &tile = key_tile.second;
     Color c(tile.index.x, tile.index.y, 0);
