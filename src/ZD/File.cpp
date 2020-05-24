@@ -25,6 +25,7 @@ File::File(std::string_view file_name, OpenMode mode, CreateFile create)
   if (create == CreateFile::Yes)
   {
     oflag |= O_CREAT;
+    oflag |= O_TRUNC;
   }
 
   fd = open(file_name.data(), oflag, 0660);
