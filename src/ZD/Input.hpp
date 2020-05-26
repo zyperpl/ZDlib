@@ -5,6 +5,7 @@
 
 #include "3rd/glm/glm.hpp"
 #include "Size.hpp"
+#include "Screen.hpp"
 
 enum class Key
 {
@@ -181,6 +182,25 @@ class Mouse
 public:
   virtual ~Mouse() = default;
 
+  MousePosition<long> position_translated(const Screen &screen) const
+  {
+    const double vscl_x = view_size.width() / screen.get_width();
+    const double vscl_y = view_size.height() / screen.get_height();
+
+    const int mx = position_view_space.x / vscl_x + 0.5;
+    const int my = position_view_space.y / vscl_y + 0.5;
+
+    const int sx =
+      (((mx - screen.x / vscl_x) + (screen.get_width() / 2 * screen.scale.x)) -
+       (screen.get_width() / 2)) /
+      screen.scale.x;
+    const int sy =
+      (((my - screen.y / vscl_y) + (screen.get_height() / 2 * screen.scale.y)) -
+       (screen.get_height() / 2)) /
+      screen.scale.y;
+    return { sx, sy };
+  }
+
   inline const MousePosition<double> position_window() const
   {
     return position_window_space;
@@ -242,15 +262,12 @@ protected:
   mutable std::unordered_map<Key, int> keys;
   std::shared_ptr<Mouse> mouse_data;
   friend class Window;
-  friend class Input_GLFW;
 };
 
-class Input_GLFW
+class Input_GLFW : public Input
 {
 public:
   Input_GLFW();
-  Input_GLFW(std::shared_ptr<Input> input);
-  const Input *get() { return input.get(); }
   void update_key(const int k, const int value);
   void update_mouse_button(const int mb, const int value);
   void update_mouse_position(
@@ -260,5 +277,4 @@ public:
 
 private:
   void reset_data();
-  std::shared_ptr<Input> input;
 };

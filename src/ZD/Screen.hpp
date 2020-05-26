@@ -8,7 +8,6 @@
 #include "Model.hpp"
 #include "Shader.hpp"
 #include "Painter.hpp"
-#include "Input.hpp"
 #include "RenderTarget.hpp"
 
 struct ScreenScale
@@ -32,7 +31,6 @@ public:
   virtual ~Screen() = default;
   std::shared_ptr<Image> image() { return canvas_image; }
   std::shared_ptr<Painter> painter() { return image_painter; }
-  virtual const Input *input() = 0;
   virtual void render(const RenderTarget &) = 0;
   int center_x() const { return x + width / 2; }
   int center_y() const { return y + height / 2; }
@@ -65,11 +63,9 @@ public:
   Screen_GL(
     std::shared_ptr<ShaderProgram> shader, int x, int y, int width, int height);
   Screen_GL(int x, int y, int width, int height);
-  const Input *input();
   void render(const RenderTarget &target);
 
 private:
-  std::shared_ptr<Input_GLFW> input_gl;
   std::shared_ptr<Texture> texture;
   std::unique_ptr<Model> model;
   std::shared_ptr<ShaderProgram> shader_program;
