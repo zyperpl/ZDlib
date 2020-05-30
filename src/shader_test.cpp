@@ -5,6 +5,8 @@
 #include "ZD/View.hpp"
 #include "ZD/File.hpp"
 
+#include <thread>
+
 int shader_test_main(int, char**)
 {
   puts("Starting");
@@ -25,6 +27,8 @@ int shader_test_main(int, char**)
   {
     renderer.clear();
     renderer.update();
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(120));
 
     renderer.render();
   }
