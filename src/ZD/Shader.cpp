@@ -107,8 +107,18 @@ bool ShaderProgram::set_uniform<glm::vec2>(std::string name, glm::vec2 value)
 {
   if (auto uniform = get_uniform(name))
   {
-    //printf("Setting %s to %f;%f\n", name.data(), value.x, value.y);
     glUniform2f(uniform->location, value.x, value.y);
+    return true;
+  }
+  return false;
+}
+
+template<>
+bool ShaderProgram::set_uniform<glm::vec3>(std::string name, glm::vec3 value)
+{
+  if (auto uniform = get_uniform(name))
+  {
+    glUniform3f(uniform->location, value.x, value.y, value.z);
     return true;
   }
   return false;
