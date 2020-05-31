@@ -42,7 +42,7 @@ void Animation::play(const std::string &key, bool force)
   if (current.key != key || force)
   {
     current = clips.at(key);
-    animation_time = 0.0;
+    animation_time = current.length;
     if (current.sprite)
     {
       current.sprite->set_frame(current.start_frame);
@@ -58,13 +58,10 @@ void Animation::update(const double time_step)
   if (current.sprite)
   {
     auto frame = current.sprite->get_frame();
-    if (frame < current.start_frame && frame > current.end_frame)
+    if (frame < current.start_frame || frame > current.end_frame)
     {
-      if (current.loop)
-      {
-        frame = current.start_frame;
-        animation_time = -0.0;
-      }
+      frame = current.start_frame;
+      animation_time = -0.0;
     }
   }
 
@@ -74,10 +71,14 @@ void Animation::update(const double time_step)
     if (current.sprite)
     {
       auto frame = current.sprite->get_frame();
-      frame = (frame + 1) % (current.end_frame + 1);
-      if (frame < current.start_frame)
-        frame = current.start_frame;
-      current.sprite->set_frame(frame);
+      if (!current.loop && frame == current.end_frame) {}
+      else
+      {
+        frame = (frame + 1) % (current.end_frame + 1);
+        if (frame < current.start_frame)
+          frame = current.start_frame;
+        current.sprite->set_frame(frame);
+      }
     }
   }
   else
