@@ -44,9 +44,8 @@ public:
   void render(const RenderTarget &target);
   void set_renderer(std::shared_ptr<SpriteRenderer> renderer);
 
-  glm::vec2 position { 0., 0. };
+  glm::vec3 position { 0., 0., 0. };
   glm::vec2 scale { 1., 1. };
-
 protected:
   std::shared_ptr<SpriteRenderer> renderer;
   int frame { 0 };
@@ -75,7 +74,7 @@ public:
   std::shared_ptr<Image> get_sheet() const { return sheet_image; }
 
   void render(
-    const RenderTarget &target, const glm::vec2 &position, const glm::vec2 &scale,
+    const RenderTarget &target, const glm::vec3 &position, const glm::vec2 &scale,
     int frame = 0);
 
 private:

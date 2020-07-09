@@ -21,7 +21,7 @@ public:
   std::shared_ptr<Texture> get_tileset_texture() const { return tileset_texture; }
   std::shared_ptr<Texture> get_map_texture() const { return map_texture; }
 
-  glm::vec2 position { 0., 0. };
+  glm::vec3 position { 0., 0., 0. };
   glm::vec2 scale { 1., 1. };
   glm::vec2 view_scale { 1., 1. };
   glm::vec2 view_offset { 0., 0. };

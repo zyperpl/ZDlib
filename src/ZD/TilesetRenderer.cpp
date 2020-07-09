@@ -17,7 +17,7 @@ static const GLchar *TILESET_RENDERER_VERTEX_SHADER = R"glsl(
   uniform vec2 view_size;
   uniform vec2 view_scale;
   uniform vec2 view_offset;
-  uniform vec2 screen_position;
+  uniform vec3 screen_position;
   uniform vec2 screen_scale;
   uniform vec2 texture_size;
   uniform vec2 tile_size;
@@ -33,6 +33,7 @@ static const GLchar *TILESET_RENDERER_VERTEX_SHADER = R"glsl(
     map_uv = screen_uv / texture_size / tile_size;
     gl_Position.xy *= screen_scale;
     gl_Position.xy += (vec2(screen_position.x, -screen_position.y) / view_size) * 2.;
+    gl_Position.z = -screen_position.z;
   }
 )glsl";
 
@@ -55,6 +56,8 @@ static const GLchar *TILESET_RENDERER_FRAGMENT_SHADER = R"glsl(
     vec2 spriteOffset = floor(uv * 256.0) * tile_size;
     vec2 spriteCoord = mod(screen_uv, tile_size);
     fragColor = texture(tileset_sampler, (spriteOffset + spriteCoord) / spritesheet_size);
+
+    if (fragColor.a <= 0.0) discard;
   }
 )glsl";
 
@@ -107,7 +110,7 @@ void TilesetRenderer::render(const RenderTarget &target)
   shader_program->set_uniform<glm::vec2>("view_scale", view_scale);
   shader_program->set_uniform<glm::vec2>(
     "view_size", { target.get_width(), target.get_height() });
-  shader_program->set_uniform<glm::vec2>("screen_position", position);
+  shader_program->set_uniform<glm::vec3>("screen_position", position);
   shader_program->set_uniform<glm::vec2>("screen_scale", scale);
   shader_program->set_uniform<glm::vec2>(
     "texture_size",
