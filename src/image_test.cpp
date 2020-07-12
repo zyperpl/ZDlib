@@ -134,7 +134,8 @@ auto image_test_main(int, char **) -> int
   scaled_painter.draw_line(0, 0, 20, 30, Color(255, 255, 0));
 
   puts("Creaing Sprite & Animation...");
-  auto sprite = std::make_shared<Sprite>(Image::load("images/lena.png"), 16, 16);
+  auto sprite =
+    std::make_shared<Sprite>(Image::load("images/lena.png"), Size { 16, 16 });
   sprite->position.x = W / 2;
   sprite->position.y = H / 3;
   auto animation = std::make_shared<Animation>();
