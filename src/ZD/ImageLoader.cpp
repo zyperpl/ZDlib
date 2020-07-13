@@ -35,7 +35,6 @@ uint32_t *ImageLoader::u8_to_u32(
   const int size = width * height;
   uint32_t *data = new uint32_t[size];
 
-#pragma omp parallel for
   for (ssize_t i = 0; i < size; i++)
   {
     uint8_t r = 0, g = 0, b = 0, a = 255;
@@ -60,7 +59,6 @@ uint8_t *ImageLoader::u32_to_u8(
   const int size = width * height * channels;
   uint8_t *data = new uint8_t[size];
 
-#pragma omp parallel for
   for (ssize_t i = 0; i < width * height; i++)
   {
     const uint32_t v = bitmap[i];
