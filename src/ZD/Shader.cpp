@@ -1,10 +1,14 @@
 #include "Shader.hpp"
+
+#include <atomic>
 #include <cassert>
 #include <cstring>
 #include <string>
 #include <typeinfo>
 
 #include "3rd/glm/glm.hpp"
+
+std::atomic<GLuint> current_shader_program_id = 0;
 
 ShaderProgram::ShaderProgram() { id = glCreateProgram(); }
 
@@ -80,7 +84,11 @@ void ShaderProgram::link()
 void ShaderProgram::use() const
 {
   assert(is_linked());
-  glUseProgram(id);
+
+  if (current_shader_program_id != id)
+    glUseProgram(id);
+
+  current_shader_program_id = id;
 }
 
 bool ShaderProgram::is_linked() const
