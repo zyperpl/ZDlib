@@ -1,7 +1,7 @@
 #pragma once
 
 #include <memory>
-#include <map>
+#include <unordered_map>
 #include <string_view>
 #include <variant>
 #include <vector>
@@ -51,8 +51,8 @@ protected:
 
 private:
   GLuint id;
-  std::map<std::string, ShaderUniform> uniforms;
-  std::map<std::string, ShaderAttribute> attributes;
+  std::unordered_map<std::string, ShaderUniform> uniforms;
+  std::unordered_map<std::string, ShaderAttribute> attributes;
 
   void link();
   bool is_linked() const;
