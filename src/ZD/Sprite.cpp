@@ -17,7 +17,7 @@ static const std::string_view SPRITE_RENDERER_VERTEX_SHADER = R"glsl(
   out vec2 uv;
   uniform vec2 view_size;
   uniform vec3 sprite_position = vec3(0.,0.,0.);
-  uniform vec2 sprite_scale;
+  uniform vec2 sprite_scale = vec2(1., 1.);
   uniform vec2 sheet_size;
   uniform vec2 frame_size;
   
@@ -45,7 +45,7 @@ static const std::string_view SPRITE_RENDERER_FRAGMENT_SHADER = R"glsl(
   in vec2 frames_number;
   
   uniform sampler2D sampler;
-  uniform int frame;
+  uniform int frame = 0;
 
   out vec4 fragColor;
   void main()
@@ -62,13 +62,44 @@ Sprite::Sprite(std::shared_ptr<Image> image, const Size frame_size)
 : image { image }
 , max_frames { image->width() / frame_size.width() }
 , frame_size { frame_size }
-{
-  model = std::make_shared<Model>(ModelDefault::Screen);
-  texture = std::make_shared<Texture>(image);
-  shader_program = ShaderLoader()
+, model { std::make_shared<Model>(ModelDefault::Screen) }
+, texture { std::make_shared<Texture>(image) }
+, shader_program { ShaderLoader()
                      .add(SPRITE_RENDERER_VERTEX_SHADER, GL_VERTEX_SHADER)
                      .add(SPRITE_RENDERER_FRAGMENT_SHADER, GL_FRAGMENT_SHADER)
-                     .compile();
+                     .compile() }
+{
+}
+
+Sprite::Sprite(
+  std::shared_ptr<ShaderProgram> shader_program, std::shared_ptr<Image> image,
+  const Size frame_size)
+: image { image }
+, max_frames { image->width() / frame_size.width() }
+, frame_size { frame_size }
+, model { std::make_shared<Model>(ModelDefault::Screen) }
+, texture { std::make_shared<Texture>(image) }
+, shader_program { shader_program }
+{
+}
+
+void Sprite::set_shader_uniforms(
+  const RenderTarget &target, std::shared_ptr<ShaderProgram> &program)
+{
+  const glm::vec2 view_size { target.get_width(), target.get_height() };
+  const glm::vec3 sprite_position { position.x - view_size.x / 2.0,
+                                    position.y - view_size.y / 2.0,
+                                    position.z };
+  const glm::vec2 f_size { frame_size.width(), frame_size.height() };
+  const glm::vec2 sheet_size { image->width(), image->height() };
+
+  program->set_uniform<glm::vec2>("view_size", view_size);
+  program->set_uniform<glm::vec2>("frame_size", f_size);
+  program->set_uniform<glm::vec3>("sprite_position", sprite_position);
+  program->set_uniform<glm::vec2>("sprite_scale", scale);
+  program->set_uniform<glm::vec2>("sheet_size", sheet_size);
+
+  program->set_uniform("frame", frame);
 }
 
 void Sprite::render(const RenderTarget &target)
@@ -79,21 +110,7 @@ void Sprite::render(const RenderTarget &target)
   assert(image);
 
   shader_program->use();
-
-  const glm::vec2 view_size { target.get_width(), target.get_height() };
-  const glm::vec3 sprite_position { position.x - view_size.x / 2.0,
-                                    position.y - view_size.y / 2.0,
-                                    position.z };
-
-  shader_program->set_uniform<glm::vec2>("view_size", view_size);
-  shader_program->set_uniform<glm::vec2>(
-    "frame_size", { frame_size.width(), frame_size.height() });
-  shader_program->set_uniform<glm::vec3>("sprite_position", sprite_position);
-  shader_program->set_uniform<glm::vec2>("sprite_scale", scale);
-  shader_program->set_uniform<glm::vec2>(
-    "sheet_size", { image->width(), image->height() });
-
-  shader_program->set_uniform("frame", frame);
+  set_shader_uniforms(target, shader_program);
 
   texture->bind(*shader_program, 0, "sprite_sheet");
   model->draw(*shader_program);

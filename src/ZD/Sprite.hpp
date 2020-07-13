@@ -14,6 +14,9 @@ class Sprite
 {
 public:
   Sprite(std::shared_ptr<Image> image, const Size frame_size);
+  Sprite(
+    std::shared_ptr<ShaderProgram> shader_program, std::shared_ptr<Image> image,
+    const Size frame_size);
   virtual ~Sprite() {};
 
   int set_frame(int new_frame)
@@ -49,8 +52,9 @@ protected:
   const int max_frames { 1 };
   const Size frame_size { 0, 0 };
 
+  void set_shader_uniforms(const RenderTarget &, std::shared_ptr<ShaderProgram>&);
 private:
-  std::shared_ptr<Texture> texture;
   std::shared_ptr<Model> model;
+  std::shared_ptr<Texture> texture;
   std::shared_ptr<ShaderProgram> shader_program;
 };
