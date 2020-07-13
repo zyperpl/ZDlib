@@ -26,7 +26,7 @@ public:
     Yes = 1
   };
 
-  File(std::string_view file_name, OpenMode mode, CreateFile create = No);
+  File(std::string_view file_name, OpenMode mode = OpenMode::Read, CreateFile create = No);
   ~File();
 
   void rewind();
