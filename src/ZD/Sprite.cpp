@@ -58,6 +58,11 @@ static const std::string_view SPRITE_RENDERER_FRAGMENT_SHADER = R"glsl(
   }
 )glsl";
 
+Sprite::Sprite(std::shared_ptr<Image> image)
+: Sprite(image, { image->width(), image->height() })
+{
+}
+
 Sprite::Sprite(std::shared_ptr<Image> image, const Size frame_size)
 : image { image }
 , max_frames { image->width() / frame_size.width() }
@@ -71,9 +76,7 @@ Sprite::Sprite(std::shared_ptr<Image> image, const Size frame_size)
 {
 }
 
-Sprite::Sprite(
-  std::shared_ptr<ShaderProgram> shader_program, std::shared_ptr<Image> image,
-  const Size frame_size)
+Sprite::Sprite(std::shared_ptr<ShaderProgram> shader_program, std::shared_ptr<Image> image, const Size frame_size)
 : image { image }
 , max_frames { image->width() / frame_size.width() }
 , frame_size { frame_size }
@@ -83,13 +86,10 @@ Sprite::Sprite(
 {
 }
 
-void Sprite::set_shader_uniforms(
-  const RenderTarget &target, std::shared_ptr<ShaderProgram> &program)
+void Sprite::set_shader_uniforms(const RenderTarget &target, std::shared_ptr<ShaderProgram> &program)
 {
   const glm::vec2 view_size { target.get_width(), target.get_height() };
-  const glm::vec3 sprite_position { position.x - view_size.x / 2.0,
-                                    position.y - view_size.y / 2.0,
-                                    position.z };
+  const glm::vec3 sprite_position { position.x - view_size.x / 2.0, position.y - view_size.y / 2.0, position.z };
   const glm::vec2 f_size { frame_size.width(), frame_size.height() };
   const glm::vec2 sheet_size { image->width(), image->height() };
 

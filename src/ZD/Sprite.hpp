@@ -13,6 +13,7 @@
 class Sprite
 {
 public:
+  Sprite(std::shared_ptr<Image> image);
   Sprite(std::shared_ptr<Image> image, const Size frame_size);
   Sprite(std::shared_ptr<ShaderProgram> shader_program, std::shared_ptr<Image> image, const Size frame_size);
   virtual ~Sprite() = default;
