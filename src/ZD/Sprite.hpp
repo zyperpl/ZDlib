@@ -40,12 +40,23 @@ public:
 
   virtual void render(const RenderTarget &);
 
-  std::shared_ptr<Image> image;
+  std::shared_ptr<Image> get_image() const { return this->image; }
+
+  /* 
+   *  Changing image and texture to new image.
+   *  New image size ought to be the same as old one.
+   * */
+  void swap_image(std::shared_ptr<Image> new_image)
+  {
+    image = new_image;
+    texture->set_image(new_image);
+  }
 
   glm::vec3 position { 0., 0., 0. };
   glm::vec2 scale { 1., 1. };
 
 protected:
+  std::shared_ptr<Image> image;
   int frame { 0 };
   const int max_frames { 1 };
   const Size frame_size { 0, 0 };
