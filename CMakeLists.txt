@@ -60,9 +60,6 @@ include_directories(${OPENGL_INCLUDE_DIR})
 include(cmake/conan/ConanRun.cmake)
 run_conan()
 
-find_library(OpenMP CONFIG REQUIRED)
-find_library(glfw3 CONFIG REQUIRED)
-find_library(glew CONFIG REQUIRED)
 INCLUDE_DIRECTORIES (${GLFW_INCLUDE_DIR})
 INCLUDE_DIRECTORIES (${GLEW_INCLUDE_DIR})
 
