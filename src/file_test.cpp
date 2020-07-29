@@ -10,13 +10,13 @@
 int file_test_main(int, char **)
 {
   {
-    File f("test", File::Read);
+    ZD::File f("test", ZD::File::Read);
     assert(!f.is_open());
     assert(f.get_size() == 0);
   }
 
   {
-    File f("images/Crate1.mtl", File::Read);
+    ZD::File f("images/Crate1.mtl", ZD::File::Read);
     assert(f.is_open());
     if (f.is_open())
     {
@@ -44,7 +44,7 @@ int file_test_main(int, char **)
 
   {
     printf("Reading file... ");
-    File f("images/Crate1.mtl", File::Read);
+    ZD::File f("images/Crate1.mtl", ZD::File::Read);
     assert(f.is_open() && f.get_size() <= 272);
 
     auto b = f.read_bytes(370);
@@ -64,7 +64,7 @@ int file_test_main(int, char **)
 
   {
     printf("Reading line by line... ");
-    File f("images/Crate1.mtl", File::Read);
+    ZD::File f("images/Crate1.mtl", ZD::File::Read);
     assert(f.is_open() && f.get_size() > 0);
     auto line = f.read_line();
     assert(line != std::nullopt);
@@ -96,7 +96,7 @@ int file_test_main(int, char **)
 
   {
     printf("Reading all lines... ");
-    File f("images/Crate1.mtl", File::Read);
+    ZD::File f("images/Crate1.mtl", ZD::File::Read);
     assert(f.is_open() && f.get_size() > 0);
     auto lines = f.read_lines();
     printf("Read %lu. lines.\n", lines.size());
@@ -121,7 +121,7 @@ int file_test_main(int, char **)
   }
 
   {
-    File f("images/test.txt", File::Write, File::CreateFile::Yes);
+    ZD::File f("images/test.txt", ZD::File::Write, ZD::File::CreateFile::Yes);
     assert(f.is_open());
     std::vector<uint8_t> data = { 't', 'e', 's', 't', '\n' };
     ssize_t ret = f.write(data);
@@ -133,46 +133,46 @@ int file_test_main(int, char **)
     ret = f.write("Hello, World!");
     assert(ret == 13);
 
-    File f2("images/test.txt", File::Read);
+    ZD::File f2("images/test.txt", ZD::File::Read);
     assert(f2.is_open());
     auto line = f2.read_line();
     assert(line == "test");
   }
 
   {
-    File f("images/not-existing.txt", File::Write, File::CreateFile::No);
+    ZD::File f("images/not-existing.txt", ZD::File::Write, ZD::File::CreateFile::No);
     assert(!f.is_open());
   }
 
-  if (FileWatcher::supported)
+  if (ZD::FileWatcher::supported)
   {
     {
-      File f0("images/Crate1.obj", File::Read);
-      f0.set_watch([](const File &file, std::unordered_set<FileEvent> events) {
+      ZD::File f0("images/Crate1.obj", ZD::File::Read);
+      f0.set_watch([](const ZD::File &file, std::unordered_set<ZD::FileEvent> events) {
         printf(
           "File watcher 3 '%s' %zu events.\n",
           file.get_name().data(),
           events.size());
       });
     }
-    File f1("images/Crate1.mtl", File::Read);
-    f1.set_watch([](const File &file, std::unordered_set<FileEvent> events) {
+    ZD::File f1("images/Crate1.mtl", ZD::File::Read);
+    f1.set_watch([](const ZD::File &file, std::unordered_set<ZD::FileEvent> events) {
       printf(
-        "File watch 1 '%s' %zu events.\n",
+        "ZD::File watch 1 '%s' %zu events.\n",
         file.get_name().data(),
         events.size());
     });
-    File f2("images/Crate1.mtl", File::Read);
-    f2.set_watch([](const File &file, std::unordered_set<FileEvent> events) {
+    ZD::File f2("images/Crate1.mtl", ZD::File::Read);
+    f2.set_watch([](const ZD::File &file, std::unordered_set<ZD::FileEvent> events) {
       printf(
-        "File watcher 2 '%s' %zu events.\n",
+        "ZD::File watcher 2 '%s' %zu events.\n",
         file.get_name().data(),
         events.size());
     });
-    File f3("images/Crate1.obj", File::Read);
-    f3.set_watch([](const File &file, std::unordered_set<FileEvent> events) {
+    ZD::File f3("images/Crate1.obj", ZD::File::Read);
+    f3.set_watch([](const ZD::File &file, std::unordered_set<ZD::FileEvent> events) {
       printf(
-        "File watcher 3 '%s' %zu events.\n",
+        "ZD::File watcher 3 '%s' %zu events.\n",
         file.get_name().data(),
         events.size());
     });

@@ -9,39 +9,44 @@
 #include "Texture.hpp"
 #include "Window.hpp"
 
-class Renderer
+namespace ZD
 {
-public:
-  virtual ~Renderer() {}
-
-  virtual std::shared_ptr<Window> add_window(const WindowParameters &params) = 0;
-
-  virtual void set_window_current(size_t index)
+  class Renderer
   {
-    current_window_index = index;
-  }
+  public:
+    virtual ~Renderer() {}
 
-  virtual std::shared_ptr<Window> window() const
-  {
-    return windows.at(current_window_index);
-  }
+    virtual std::shared_ptr<Window> add_window(
+      const WindowParameters &params) = 0;
 
-  virtual void remove_window(size_t index)
-  {
-    windows.erase(windows.begin() + index);
-  }
+    virtual void set_window_current(size_t index)
+    {
+      current_window_index = index;
+    }
 
-  bool is_window_open() { return !windows.empty() && window()->is_open(); }
+    virtual std::shared_ptr<Window> window() const
+    {
+      return windows.at(current_window_index);
+    }
 
-  virtual void clear() = 0;
-  virtual void update() = 0;
-  virtual void render() = 0;
+    virtual void remove_window(size_t index)
+    {
+      windows.erase(windows.begin() + index);
+    }
 
-protected:
-  std::vector<std::shared_ptr<Window>> windows;
-  size_t current_window_index { 0 };
+    bool is_window_open() { return !windows.empty() && window()->is_open(); }
 
-  friend class Painter;
+    virtual void clear() = 0;
+    virtual void update() = 0;
+    virtual void render() = 0;
 
-private:
-};
+  protected:
+    std::vector<std::shared_ptr<Window>> windows;
+    size_t current_window_index { 0 };
+
+    friend class Painter;
+
+  private:
+  };
+
+} // namespace ZD

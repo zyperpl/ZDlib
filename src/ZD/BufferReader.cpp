@@ -1,17 +1,20 @@
 #include "BufferReader.hpp"
 
-template<>
-std::string BufferReader::get()
+namespace ZD
 {
-  std::string str { "" };
-  if (data_left <= 0)
-    errors++;
-  while (data_left > 0)
+  template<>
+  std::string BufferReader::get()
   {
-    uint8_t ch = get<uint8_t>();
-    if (ch == '\0')
-      break;
-    str += ch;
+    std::string str { "" };
+    if (data_left <= 0)
+      errors++;
+    while (data_left > 0)
+    {
+      uint8_t ch = get<uint8_t>();
+      if (ch == '\0')
+        break;
+      str += ch;
+    }
+    return str;
   }
-  return str;
-}
+} // namespace ZD

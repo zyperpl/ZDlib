@@ -5,7 +5,6 @@
 #include <memory>
 #include <string_view>
 
-#include "ZD/ZD.hpp"
 #include "ZD/Painter.hpp"
 #include "ZD/ScaledPainter.hpp"
 #include "ZD/Screen.hpp"
@@ -21,9 +20,9 @@
 #define W 1280
 #define H 720
 
-std::shared_ptr<Image> load_image(std::string_view name)
+std::shared_ptr<ZD::Image> load_image(std::string_view name)
 {
-  auto img = Image::load(name);
+  auto img = ZD::Image::load(name);
   if (!img)
   {
     printf("Image '%s' cannot be loaded!\n", name.data());
@@ -46,6 +45,8 @@ static int r(int m = 100)
 
 auto image_test_main(int, char **) -> int
 {
+  using namespace ZD;
+
   puts("Image load tests.");
   load_image("images/lena.png");
   load_image("images/lena.png");

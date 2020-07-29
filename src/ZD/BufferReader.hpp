@@ -4,44 +4,46 @@
 #include <cstring>
 #include <string>
 #include <vector>
-
-class BufferReader
+namespace ZD
 {
-public:
-  BufferReader(std::vector<uint8_t> buffer)
-  : buffer { buffer }
+  class BufferReader
   {
-  }
-  BufferReader(std::vector<uint8_t> &&buffer)
-  : buffer { buffer }
-  {
-  }
-
-  template<typename D>
-  D get()
-  {
-    if (data_left <= 0)
+  public:
+    BufferReader(std::vector<uint8_t> buffer)
+    : buffer { buffer }
     {
-      errors++;
-      return D {};
+    }
+    BufferReader(std::vector<uint8_t> &&buffer)
+    : buffer { buffer }
+    {
     }
 
-    D v;
-    memcpy(&v, buffer_ptr, sizeof(D));
-    buffer_ptr += sizeof(D);
-    data_left -= sizeof(D);
-    return v;
-  }
+    template<typename D>
+    D get()
+    {
+      if (data_left <= 0)
+      {
+        errors++;
+        return D {};
+      }
 
-  bool end() { return data_left <= 0; }
-  bool error() { return errors > 0; }
+      D v;
+      memcpy(&v, buffer_ptr, sizeof(D));
+      buffer_ptr += sizeof(D);
+      data_left -= sizeof(D);
+      return v;
+    }
 
-private:
-  std::vector<uint8_t> buffer;
-  uint8_t *buffer_ptr { buffer.data() };
-  size_t data_left { buffer.size() };
-  ssize_t errors { 0 };
-};
+    bool end() { return data_left <= 0; }
+    bool error() { return errors > 0; }
 
-template<>
-std::string BufferReader::get();
+  private:
+    std::vector<uint8_t> buffer;
+    uint8_t *buffer_ptr { buffer.data() };
+    size_t data_left { buffer.size() };
+    ssize_t errors { 0 };
+  };
+
+  template<>
+  std::string BufferReader::get();
+} // namespace ZD

@@ -4,16 +4,21 @@
 #include <string_view>
 #include <vector>
 
-struct ModelData
+namespace ZD
 {
-  std::vector<unsigned int> indices;
-  std::vector<float> vertices;
-  std::vector<float> normals;
-  std::vector<float> uvs;
-};
+  struct ModelData
+  {
+    std::vector<unsigned int> indices;
+    std::vector<float> vertices;
+    std::vector<float> normals;
+    std::vector<float> uvs;
+  };
 
-class ModelLoader
-{
-public:
-  static std::optional<std::vector<ModelData>> load(std::string_view file_name);
-};
+  class ModelLoader
+  {
+  public:
+    static std::optional<std::vector<ModelData>> load(
+      std::string_view file_name);
+  };
+
+} // namespace ZD

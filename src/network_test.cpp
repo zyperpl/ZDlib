@@ -10,7 +10,7 @@ void tcp_server_loop()
 {
   puts("Entered TCP server loop");
 
-  auto server = NetworkSocket::server(SocketType::TCP, PORT);
+  auto server = ZD::NetworkSocket::server(ZD::SocketType::TCP, PORT);
   assert(server != nullptr);
   puts("Created TCP server");
 
@@ -69,7 +69,7 @@ void tcp_client_loop()
   puts("Entered TCP client loop");
 
   sleep(1);
-  auto client = NetworkSocket::client(SocketType::TCP, "127.0.0.1", PORT);
+  auto client = ZD::NetworkSocket::client(ZD::SocketType::TCP, "127.0.0.1", PORT);
   assert(client != nullptr);
   puts("Created TCP client");
   sleep(1);
@@ -130,7 +130,7 @@ void udp_server_loop()
 {
   puts("UDP Server loop entered");
 
-  auto server = NetworkSocket::server(SocketType::UDP, PORT);
+  auto server = ZD::NetworkSocket::server(ZD::SocketType::UDP, PORT);
   assert(server != nullptr);
 
   bool received = false;
@@ -139,7 +139,7 @@ void udp_server_loop()
   {
     std::vector<uint8_t> data;
     data.resize(2048);
-    SocketData sdata = server->read(data.data(), data.size());
+    ZD::SocketData sdata = server->read(data.data(), data.size());
     data.resize(sdata.data_length);
     auto other = sdata.other_socket;
     assert(other);
@@ -181,7 +181,7 @@ void udp_client_loop()
 {
   puts("UDP Client loop entered");
   sleep(1);
-  auto client = NetworkSocket::client(SocketType::UDP, "127.0.0.1", PORT);
+  auto client = ZD::NetworkSocket::client(ZD::SocketType::UDP, "127.0.0.1", PORT);
 
   bool received = false;
   long iterations = 0;

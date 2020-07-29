@@ -24,6 +24,8 @@ static int r(int m = 100)
 
 int model_test_main(int, char **)
 {
+  using namespace ZD;
+
   puts("Creating renderer with window");
   auto renderer = OGLRenderer();
   renderer.set_events_poll_rate(360.0);

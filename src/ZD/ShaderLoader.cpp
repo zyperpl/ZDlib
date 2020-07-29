@@ -6,10 +6,12 @@
 
 #pragma GCC optimize("O3")
 
-std::vector<ShaderInfo::Program> cached_programs;
-std::vector<ShaderInfo::Shader> cached_shaders;
+namespace ZD
+{
+  std::vector<ShaderInfo::Program> cached_programs;
+  std::vector<ShaderInfo::Shader> cached_shaders;
 
-const GLchar *z_screen_texture_vertex_shader = R"glsl(
+  const GLchar *z_screen_texture_vertex_shader = R"glsl(
   #version 330 
   precision highp float;
 
@@ -35,7 +37,7 @@ const GLchar *z_screen_texture_vertex_shader = R"glsl(
     gl_Position.xy += (vec2(screen_position.x, -screen_position.y) / view_size) * 2.0;
   }
 )glsl";
-const GLchar *z_texture_frag_shader = R"glsl(
+  const GLchar *z_texture_frag_shader = R"glsl(
   #version 330 
 
   in vec2 uv;
@@ -48,7 +50,7 @@ const GLchar *z_texture_frag_shader = R"glsl(
   }
 )glsl";
 
-const GLchar *z_mvp_model_vertex_shader = R"glsl(
+  const GLchar *z_mvp_model_vertex_shader = R"glsl(
   #version 330 
 
   #ifdef GL_ES
@@ -72,200 +74,227 @@ const GLchar *z_mvp_model_vertex_shader = R"glsl(
   }
 )glsl";
 
-auto print_shader_errors(
-  void (*fInfoLog)(GLuint, GLsizei, GLsizei *, GLchar *), GLuint sop) -> int
-{
-  int logLength;
-  char *log = new char[512];
-  fInfoLog(sop, 512, &logLength, log);
-
-  if (logLength > 0) { printf("Compilation error:\n%s\n", log); }
-
-  delete[] log;
-  return logLength;
-};
-
-std::optional<ShaderInfo::Shader> find_shader_in_cache(
-  const std::string_view name_or_data, const GLuint type)
-{
-  for (const ShaderInfo::Shader &shader : cached_shaders)
+  auto print_shader_errors(
+    void (*fInfoLog)(GLuint, GLsizei, GLsizei *, GLchar *), GLuint sop) -> int
   {
-    if (shader.type != type) continue;
+    int logLength;
+    char *log = new char[512];
+    fInfoLog(sop, 512, &logLength, log);
 
-    if (auto other_name = std::get_if<std::string_view>(&shader.unique_identifier))
+    if (logLength > 0)
     {
-      if (*other_name == name_or_data) { return shader; }
+      printf("Compilation error:\n%s\n", log);
     }
-  }
-  return std::nullopt;
-}
 
-std::optional<ShaderInfo::Shader> find_shader_in_cache(
-  const ShaderDefault name, const GLuint type)
-{
-  for (const ShaderInfo::Shader &shader : cached_shaders)
+    delete[] log;
+    return logLength;
+  };
+
+  std::optional<ShaderInfo::Shader> find_shader_in_cache(
+    const std::string_view name_or_data, const GLuint type)
   {
-    if (shader.type != type) continue;
-
-    if (auto other_name = std::get_if<ShaderDefault>(&shader.unique_identifier))
+    for (const ShaderInfo::Shader &shader : cached_shaders)
     {
-      if (*other_name == name) { return shader; }
-    }
-  }
-  return std::nullopt;
-}
+      if (shader.type != type)
+        continue;
 
-std::optional<std::shared_ptr<ShaderProgram>> find_program_in_cache(
-  const std::vector<ShaderInfo::Shader> shaders)
-{
-  for (const ShaderInfo::Program &program_info : cached_programs)
-  {
-    bool the_same = true;
-    for (const ShaderInfo::Shader &sh : shaders)
-    {
-      for (const ShaderInfo::Shader &other_sh : program_info.shaders)
+      if (
+        auto other_name =
+          std::get_if<std::string_view>(&shader.unique_identifier))
       {
-        if (other_sh.unique_identifier != sh.unique_identifier || other_sh.type != sh.type)
-        { the_same = false; }
+        if (*other_name == name_or_data)
+        {
+          return shader;
+        }
       }
     }
-    if (the_same) { return program_info.program; }
+    return std::nullopt;
   }
-  return std::nullopt;
-}
 
-ShaderLoader &ShaderLoader::add(ShaderDefault name, GLuint type)
-{
-  assert(compiled_program == nullptr);
-
-  if (auto shader_info = find_shader_in_cache(name, type))
+  std::optional<ShaderInfo::Shader> find_shader_in_cache(
+    const ShaderDefault name, const GLuint type)
   {
-    //printf("Shader default_name=%d found in cache (%zu records).\n", (int)name, cached_shaders.size());
-    loaded_shaders.push_back(*shader_info);
+    for (const ShaderInfo::Shader &shader : cached_shaders)
+    {
+      if (shader.type != type)
+        continue;
+
+      if (
+        auto other_name = std::get_if<ShaderDefault>(&shader.unique_identifier))
+      {
+        if (*other_name == name)
+        {
+          return shader;
+        }
+      }
+    }
+    return std::nullopt;
+  }
+
+  std::optional<std::shared_ptr<ShaderProgram>> find_program_in_cache(
+    const std::vector<ShaderInfo::Shader> shaders)
+  {
+    for (const ShaderInfo::Program &program_info : cached_programs)
+    {
+      bool the_same = true;
+      for (const ShaderInfo::Shader &sh : shaders)
+      {
+        for (const ShaderInfo::Shader &other_sh : program_info.shaders)
+        {
+          if (
+            other_sh.unique_identifier != sh.unique_identifier ||
+            other_sh.type != sh.type)
+          {
+            the_same = false;
+          }
+        }
+      }
+      if (the_same)
+      {
+        return program_info.program;
+      }
+    }
+    return std::nullopt;
+  }
+
+  ShaderLoader &ShaderLoader::add(ShaderDefault name, GLuint type)
+  {
+    assert(compiled_program == nullptr);
+
+    if (auto shader_info = find_shader_in_cache(name, type))
+    {
+      //printf("Shader default_name=%d found in cache (%zu records).\n", (int)name, cached_shaders.size());
+      loaded_shaders.push_back(*shader_info);
+      return *this;
+    }
+
+    GLuint shader_id = ShaderLoader::load_shader(name, type);
+    assert(shader_id > 0);
+
+    ShaderInfo::Shader shader_info { shader_id, name, type };
+    cached_shaders.push_back(shader_info);
+    loaded_shaders.push_back(shader_info);
+
     return *this;
   }
 
-  GLuint shader_id = ShaderLoader::load_shader(name, type);
-  assert(shader_id > 0);
-
-  ShaderInfo::Shader shader_info { shader_id, name, type };
-  cached_shaders.push_back(shader_info);
-  loaded_shaders.push_back(shader_info);
-
-  return *this;
-}
-
-ShaderLoader &ShaderLoader::add(const File &file, GLuint type)
-{
-  assert(compiled_program == nullptr);
-
-  if (auto shader_info = find_shader_in_cache(file.get_name(), type))
+  ShaderLoader &ShaderLoader::add(const File &file, GLuint type)
   {
-    //printf("Shader '%s' found in cache (%zu records).\n", name.data(), cached_shaders.size());
-    loaded_shaders.push_back(*shader_info);
+    assert(compiled_program == nullptr);
+
+    if (auto shader_info = find_shader_in_cache(file.get_name(), type))
+    {
+      //printf("Shader '%s' found in cache (%zu records).\n", name.data(), cached_shaders.size());
+      loaded_shaders.push_back(*shader_info);
+      return *this;
+    }
+
+    GLuint shader_id =
+      ShaderLoader::load_shader(std::string_view(file.read_all_chars()), type);
+    assert(shader_id > 0);
+
+    ShaderInfo::Shader shader_info { shader_id, file.get_name(), type };
+    cached_shaders.push_back(shader_info);
+    loaded_shaders.push_back(shader_info);
+
     return *this;
   }
 
-  GLuint shader_id =
-    ShaderLoader::load_shader(std::string_view(file.read_all_chars()), type);
-  assert(shader_id > 0);
-
-  ShaderInfo::Shader shader_info { shader_id, file.get_name(), type };
-  cached_shaders.push_back(shader_info);
-  loaded_shaders.push_back(shader_info);
-
-  return *this;
-}
-
-ShaderLoader &ShaderLoader::add(const std::string_view data, GLuint type)
-{
-  assert(compiled_program == nullptr);
-
-  if (auto shader_info = find_shader_in_cache(data, type))
+  ShaderLoader &ShaderLoader::add(const std::string_view data, GLuint type)
   {
-    //printf("Shader '%s' found in cache (%zu records).\n", name.data(), cached_shaders.size());
-    loaded_shaders.push_back(*shader_info);
+    assert(compiled_program == nullptr);
+
+    if (auto shader_info = find_shader_in_cache(data, type))
+    {
+      //printf("Shader '%s' found in cache (%zu records).\n", name.data(), cached_shaders.size());
+      loaded_shaders.push_back(*shader_info);
+      return *this;
+    }
+
+    GLuint shader_id = ShaderLoader::load_shader(data, type);
+    assert(shader_id > 0);
+
+    ShaderInfo::Shader shader_info { shader_id, data, type };
+    cached_shaders.push_back(shader_info);
+    loaded_shaders.push_back(shader_info);
+
     return *this;
   }
 
-  GLuint shader_id =
-    ShaderLoader::load_shader(data, type);
-  assert(shader_id > 0);
-
-  ShaderInfo::Shader shader_info { shader_id, data, type };
-  cached_shaders.push_back(shader_info);
-  loaded_shaders.push_back(shader_info);
-
-  return *this;
-}
-
-std::shared_ptr<ShaderProgram> ShaderLoader::compile()
-{
-  if (compiled_program) { return compiled_program; }
-
-  std::shared_ptr<ShaderProgram> program = std::make_shared<ShaderProgram>();
-  auto s_id = program->get_id();
-
-  for (const ShaderInfo::Shader &shader_info : loaded_shaders)
+  std::shared_ptr<ShaderProgram> ShaderLoader::compile()
   {
-    glAttachShader(s_id, shader_info.id);
-  }
-  program->link();
-  print_shader_errors(glGetProgramInfoLog, program->id);
-  assert(program->is_linked());
+    if (compiled_program)
+    {
+      return compiled_program;
+    }
 
-  compiled_program = program;
+    std::shared_ptr<ShaderProgram> program = std::make_shared<ShaderProgram>();
+    auto s_id = program->get_id();
 
-  return compiled_program;
-}
+    for (const ShaderInfo::Shader &shader_info : loaded_shaders)
+    {
+      glAttachShader(s_id, shader_info.id);
+    }
+    program->link();
+    print_shader_errors(glGetProgramInfoLog, program->id);
+    assert(program->is_linked());
 
-GLuint ShaderLoader::load_shader(ShaderDefault default_name, GLuint type)
-{
-  const char *shader_source = nullptr;
+    compiled_program = program;
 
-  switch (default_name)
-  {
-    case ShaderDefault::ScreenTextureVertex:
-      shader_source = z_screen_texture_vertex_shader;
-      break;
-    case ShaderDefault::ScreenTextureFragment:
-    case ShaderDefault::CenterModelTextureFragment:
-      shader_source = z_texture_frag_shader;
-      break;
-    case ShaderDefault::CenterModelTextureVertex:
-      shader_source = z_mvp_model_vertex_shader;
-      break;
-
-    case ShaderDefault::Invalid:
-    default: assert(false);
+    return compiled_program;
   }
 
-  GLuint id = glCreateShader(type);
-  glShaderSource(id, 1, &shader_source, NULL);
-  glCompileShader(id);
-  if (print_shader_errors(glGetShaderInfoLog, id) > 0) return 0;
-
-  return id;
-}
-
-GLuint ShaderLoader::load_shader(std::string_view data, GLuint type)
-{
-  GLuint id = glCreateShader(type);
-  const GLchar *shader_source = &data[0];
-  glShaderSource(id, 1, &shader_source, NULL);
-  glCompileShader(id);
-  if (print_shader_errors(glGetShaderInfoLog, id) > 0) return 0;
-  
-  return id;
-}
-
-void ShaderLoader::free_cache()
-{
-  for (const auto &shader_info : cached_shaders)
+  GLuint ShaderLoader::load_shader(ShaderDefault default_name, GLuint type)
   {
-    glDeleteShader(shader_info.id);
+    const char *shader_source = nullptr;
+
+    switch (default_name)
+    {
+      case ShaderDefault::ScreenTextureVertex:
+        shader_source = z_screen_texture_vertex_shader;
+        break;
+      case ShaderDefault::ScreenTextureFragment:
+      case ShaderDefault::CenterModelTextureFragment:
+        shader_source = z_texture_frag_shader;
+        break;
+      case ShaderDefault::CenterModelTextureVertex:
+        shader_source = z_mvp_model_vertex_shader;
+        break;
+
+      case ShaderDefault::Invalid:
+      default: assert(false);
+    }
+
+    GLuint id = glCreateShader(type);
+    glShaderSource(id, 1, &shader_source, NULL);
+    glCompileShader(id);
+    if (print_shader_errors(glGetShaderInfoLog, id) > 0)
+      return 0;
+
+    return id;
   }
 
-  cached_shaders.clear();
-  cached_programs.clear();
-}
+  GLuint ShaderLoader::load_shader(std::string_view data, GLuint type)
+  {
+    GLuint id = glCreateShader(type);
+    const GLchar *shader_source = &data[0];
+    glShaderSource(id, 1, &shader_source, NULL);
+    glCompileShader(id);
+    if (print_shader_errors(glGetShaderInfoLog, id) > 0)
+      return 0;
+
+    return id;
+  }
+
+  void ShaderLoader::free_cache()
+  {
+    for (const auto &shader_info : cached_shaders)
+    {
+      glDeleteShader(shader_info.id);
+    }
+
+    cached_shaders.clear();
+    cached_programs.clear();
+  }
+
+} // namespace ZD

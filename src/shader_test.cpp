@@ -9,6 +9,8 @@
 
 int shader_test_main(int, char**)
 {
+  using namespace ZD;
+
   puts("Starting");
 
   OGLRenderer renderer;

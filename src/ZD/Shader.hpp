@@ -8,54 +8,57 @@
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
-
-class ShaderLoader;
-class ShaderProgram;
-
-struct ShaderUniform
+namespace ZD
 {
-  GLuint program_id;
-  GLint index;
-  GLint size;
-  GLenum type;
-  GLint location;
-};
+  class ShaderLoader;
+  class ShaderProgram;
 
-struct ShaderAttribute
-{
-  GLuint program_id;
-  GLint index;
-  GLint size;
-  GLenum type;
-  GLint location;
-};
+  struct ShaderUniform
+  {
+    GLuint program_id;
+    GLint index;
+    GLint size;
+    GLenum type;
+    GLint location;
+  };
 
-class ShaderProgram
-{
-public:
-  ShaderProgram();
-  ~ShaderProgram();
+  struct ShaderAttribute
+  {
+    GLuint program_id;
+    GLint index;
+    GLint size;
+    GLenum type;
+    GLint location;
+  };
 
-  template<typename T>
-  bool set_uniform(std::string name, T value);
+  class ShaderProgram
+  {
+  public:
+    ShaderProgram();
+    ~ShaderProgram();
 
-  std::optional<ShaderUniform> get_uniform(std::string name) const;
-  std::optional<ShaderAttribute> get_attribute(std::string name) const;
-  void use() const;
+    template<typename T>
+    bool set_uniform(std::string name, T value);
 
-  inline GLuint get_id() const { return id; }
+    std::optional<ShaderUniform> get_uniform(std::string name) const;
+    std::optional<ShaderAttribute> get_attribute(std::string name) const;
+    void use() const;
 
-protected:
-  void extract_uniforms();
-  void extract_attributes();
+    inline GLuint get_id() const { return id; }
 
-private:
-  GLuint id;
-  std::unordered_map<std::string, ShaderUniform> uniforms;
-  std::unordered_map<std::string, ShaderAttribute> attributes;
+  protected:
+    void extract_uniforms();
+    void extract_attributes();
 
-  void link();
-  bool is_linked() const;
+  private:
+    GLuint id;
+    std::unordered_map<std::string, ShaderUniform> uniforms;
+    std::unordered_map<std::string, ShaderAttribute> attributes;
 
-  friend class ShaderLoader;
-};
+    void link();
+    bool is_linked() const;
+
+    friend class ShaderLoader;
+  };
+
+} // namespace ZD

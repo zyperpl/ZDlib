@@ -2,6 +2,8 @@
 
 int minimal_test_main(int, char**)
 {
+  using namespace ZD;
+
   puts("Starting");
 
   puts("Creating renderer...");

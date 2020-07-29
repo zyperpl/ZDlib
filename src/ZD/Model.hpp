@@ -8,39 +8,41 @@
 
 #include "Texture.hpp"
 #include "Shader.hpp"
-
-enum class ModelDefault
+namespace ZD
 {
-  Screen,
-  Cube,
-  Ball,
-  Plane,
-  Invalid
-};
-
-class Model
-{
-public:
-  Model(ModelDefault default_name);
-  Model(std::string_view file_name);
-  ~Model();
-  void generate_vbo();
-  void generate_ebo();
-  inline void add_texture(std::shared_ptr<Texture> texture)
+  enum class ModelDefault
   {
-    textures.push_back(texture);
-  }
-  void draw(const ShaderProgram &program);
+    Screen,
+    Cube,
+    Ball,
+    Plane,
+    Invalid
+  };
 
-private:
-  GLuint vbo { 0 };
-  GLuint ebo { 0 };
-  GLuint uvbo { 0 };
-  GLuint nbo { 0 };
-  std::vector<GLfloat> vertices;
-  std::vector<GLuint> elements;
-  std::vector<GLfloat> uvs;
-  std::vector<GLfloat> normals;
+  class Model
+  {
+  public:
+    Model(ModelDefault default_name);
+    Model(std::string_view file_name);
+    ~Model();
+    void generate_vbo();
+    void generate_ebo();
+    inline void add_texture(std::shared_ptr<Texture> texture)
+    {
+      textures.push_back(texture);
+    }
+    void draw(const ShaderProgram &program);
 
-  std::vector<std::shared_ptr<Texture>> textures;
-};
+  private:
+    GLuint vbo { 0 };
+    GLuint ebo { 0 };
+    GLuint uvbo { 0 };
+    GLuint nbo { 0 };
+    std::vector<GLfloat> vertices;
+    std::vector<GLuint> elements;
+    std::vector<GLfloat> uvs;
+    std::vector<GLfloat> normals;
+
+    std::vector<std::shared_ptr<Texture>> textures;
+  };
+} // namespace ZD
