@@ -15,6 +15,12 @@ Library provides many features:
 - Support for 2D Animation
 - 2D bitmap pixel drawing
 
+## Showcase
+<img src=test/images/screenshot2.png width=600 height=320/>
+<img src=test/images/screenshot3.png width=600 height=320/>
+<img src=test/images/screenshot1.png width=600 height=320/>
+<img src=test/images/zdlib3.gif width=600 height=320/>
+
 ## Dependencies
 (for X11 rendering)
 - The OpenGL Extension Wrangler Library ([GLEW](http://glew.sourceforge.net/))
