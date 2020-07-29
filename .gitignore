@@ -1,35 +1,21 @@
-
-# Prerequisites
 *.d
-
-# Object files
 *.o
 *.ko
 *.obj
 *.elf
-
-# Linker output
 *.ilk
 *.map
 *.exp
-
-# Precompiled Headers
 *.gch
 *.pch
-
-# Libraries
 *.lib
 *.a
 *.la
 *.lo
-
-# Shared objects (inc. Windows DLLs)
 *.dll
 *.so
 *.so.*
 *.dylib
-
-# Executables
 *.exe
 *.out
 *.app
@@ -37,13 +23,10 @@
 *.x86_64
 *.hex
 
-# Debug files
 *.dSYM/
 *.su
 *.idb
 *.pdb
-
-# Kernel Module Compile Results
 *.mod*
 *.cmd
 .tmp_versions/
@@ -51,41 +34,60 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
-
-# Compiled Object files
 *.slo
-
-# Precompiled Headers
-
-# Compiled Dynamic libraries
-
-# Fortran module files
 *.mod
 *.smod
-
-# Compiled Static libraries
 *.lai
-
-### Valgrind ###
-# Callgrind output files
 callgrind.out
 callgrind.out.*
-
-# Cachegrind output files
 cachegrind.out
 cachegrind.out.*
 
-# Massif output files
 massif.out
 massif.out.*
 
-# BBV output files
 bb.out
 bb.out.*
 
+*.files
+
+*.includes
+*.config
+*.creator
+*.creator.user*
+*.autosave
+CMakeLists.txt.user
+CMakeCache.txt
+CMakeFiles
+CMakeScripts
+Testing
+Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+_deps
+*-prefix/
+[._]*.s[a-v][a-z]
+[._]*.sw[a-p]
+[._]s[a-rt-v][a-z]
+[._]ss[a-gi-z]
+[._]sw[a-p]
+Session.vim
+Sessionx.vim
+.netrwhist
+*~
+tags
+[._]*.un~
+.vim
+
+.ycm_extra_conf.py
+
 zdlib_test
 zdlib_demo*
+zdtest
 
-test_img.png
-
-tags
+build/*
+images/test.txt
+test_image.*
+zdtest.zip
