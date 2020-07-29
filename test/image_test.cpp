@@ -101,9 +101,9 @@ auto image_test_main(int, char **) -> int
 
   auto canvas_image = Image::load("images/user_canvas.png");
 
+  auto file = File("images/user_canvas.png", File::Read);
   if (FileWatcher::supported)
   {
-    auto file = File("images/user_canvas.png", File::Read);
     assert(file.is_open());
     file.set_watch([&canvas_image](
                      const File &file, std::unordered_set<FileEvent> events) {
