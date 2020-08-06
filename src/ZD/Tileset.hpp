@@ -10,6 +10,9 @@
 #include "Image.hpp"
 #include "Painter.hpp"
 
+#include "BufferBuilder.hpp"
+#include "BufferReader.hpp"
+
 namespace ZD
 {
   struct Tile;
@@ -85,6 +88,23 @@ namespace ZD
     }
     TileGridPosition position;
     TileIndex index;
+
+    void serialize(BufferBuilder &builder) const
+    {
+      builder.add<int8_t>(index.x);
+      builder.add<int8_t>(index.y);
+      builder.add<int32_t>(position.x);
+      builder.add<int32_t>(position.y);
+    }
+
+    static Tile deserialize(BufferReader &reader)
+    {
+      const int8_t index_x = reader.get<int8_t>();
+      const int8_t index_y = reader.get<int8_t>();
+      const int32_t position_x = reader.get<int32_t>();
+      const int32_t position_y = reader.get<int32_t>();
+      return Tile(position_x, position_y, index_x, index_y);
+    }
   };
 
   struct TilesMask
