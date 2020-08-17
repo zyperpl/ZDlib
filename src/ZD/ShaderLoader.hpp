@@ -35,14 +35,24 @@ namespace ZD
     };
   } // namespace ShaderInfo
 
+  enum ShaderForceReload
+  {
+    No = 0,
+    Yes = 1
+  };
+
   class ShaderLoader
   {
   public:
     ShaderLoader() = default;
 
     ShaderLoader &add(ShaderDefault name, GLuint type);
-    ShaderLoader &add(const File &file, GLuint type);
-    ShaderLoader &add(const std::string_view data, GLuint type);
+    ShaderLoader &add(
+      const File &file, GLuint type,
+      ShaderForceReload force = ShaderForceReload::No);
+    ShaderLoader &add(
+      const std::string_view data, GLuint type,
+      ShaderForceReload force = ShaderForceReload::No);
     std::shared_ptr<ShaderProgram> compile();
 
     static void free_cache();

@@ -178,15 +178,19 @@ namespace ZD
     return *this;
   }
 
-  ShaderLoader &ShaderLoader::add(const File &file, GLuint type)
+  ShaderLoader &ShaderLoader::add(
+    const File &file, GLuint type, ShaderForceReload force)
   {
     assert(compiled_program == nullptr);
 
-    if (auto shader_info = find_shader_in_cache(file.get_name(), type))
+    if (force == ShaderForceReload::No)
     {
-      //printf("Shader '%s' found in cache (%zu records).\n", name.data(), cached_shaders.size());
-      loaded_shaders.push_back(*shader_info);
-      return *this;
+      if (auto shader_info = find_shader_in_cache(file.get_name(), type))
+      {
+        //printf("Shader '%s' found in cache (%zu records).\n", name.data(), cached_shaders.size());
+        loaded_shaders.push_back(*shader_info);
+        return *this;
+      }
     }
 
     GLuint shader_id =
@@ -200,15 +204,19 @@ namespace ZD
     return *this;
   }
 
-  ShaderLoader &ShaderLoader::add(const std::string_view data, GLuint type)
+  ShaderLoader &ShaderLoader::add(
+    const std::string_view data, GLuint type, ShaderForceReload force)
   {
     assert(compiled_program == nullptr);
 
-    if (auto shader_info = find_shader_in_cache(data, type))
+    if (force == ShaderForceReload::No)
     {
-      //printf("Shader '%s' found in cache (%zu records).\n", name.data(), cached_shaders.size());
-      loaded_shaders.push_back(*shader_info);
-      return *this;
+      if (auto shader_info = find_shader_in_cache(data, type))
+      {
+        //printf("Shader '%s' found in cache (%zu records).\n", name.data(), cached_shaders.size());
+        loaded_shaders.push_back(*shader_info);
+        return *this;
+      }
     }
 
     GLuint shader_id = ShaderLoader::load_shader(data, type);
