@@ -59,6 +59,7 @@ namespace ZD
 
     glm::vec3 position { 0., 0., 0. };
     glm::vec2 scale { 1., 1. };
+    float rotation { 0.0f };
 
   protected:
     std::shared_ptr<Image> image;

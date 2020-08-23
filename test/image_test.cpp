@@ -136,7 +136,7 @@ auto image_test_main(int, char **) -> int
 
   puts("Creaing Sprite & Animation...");
   auto sprite =
-    std::make_shared<Sprite>(Image::load("images/lena.png"), Size { 16, 16 });
+    std::make_shared<Sprite>(Image::load("images/lena.png"), Size { 32, 64 });
   sprite->position.x = W / 2;
   sprite->position.y = H / 3;
   auto animation = std::make_shared<Animation>();
@@ -259,6 +259,7 @@ auto image_test_main(int, char **) -> int
     }
 
     animation->update();
+    animation->get_sprite()->rotation += 0.1f;
     animation->get_sprite()->render(*window);
 
     renderer.render();
