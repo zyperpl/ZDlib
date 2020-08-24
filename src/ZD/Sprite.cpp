@@ -41,9 +41,9 @@ namespace ZD
     uv.y = 1.0 - uv.y;
     uv += pixel_size * 0.000002;
 
+    gl_Position.xy *= sprite_scale;
     gl_Position.xy = rotate(gl_Position.xy * frame_size, rotation_angle);
     gl_Position.xy /= view_size;
-    gl_Position.xy *= sprite_scale;
     gl_Position.xy += (vec2(sprite_position.x, -sprite_position.y) / view_size) * 2.;
     gl_Position.z = -sprite_position.z;
   }
