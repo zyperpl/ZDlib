@@ -13,7 +13,7 @@ else()
 endif()
 
 IF(NOT CMAKE_BUILD_TYPE)
-  SET(CMAKE_BUILD_TYPE "Release")
+  SET(CMAKE_BUILD_TYPE "Debug")
 ENDIF()
 MESSAGE("Build type: ${CMAKE_BUILD_TYPE}")
 
@@ -50,24 +50,14 @@ if(NOT "${LIST_OF_SANITIZERS}" STREQUAL "")
   set(SANITIZERS_STR "-fsanitize=${LIST_OF_SANITIZERS}")
 endif()
 
-SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -ggdb ${SANITIZERS_STR} -fno-omit-frame-pointer -Wall -Wextra -DDEBUG -O0")
+SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -ggdb ${SANITIZERS_STR} -fno-omit-frame-pointer -Wall -Wextra -DDEBUG")
 SET(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL} -O3 -s -DNDEBUG")
 SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -DNDEBUG")
-add_compile_options(${CMAKE_CXX_FLAGS} -fopenmp -std=c++2a -Wall)
-
-set(OpenGL_GL_PREFERENCE "GLVND")
-find_package(OpenGL REQUIRED)
-include_directories(${OPENGL_INCLUDE_DIR})
-
-include(cmake/conan/ConanRun.cmake)
-run_conan()
-
-INCLUDE_DIRECTORIES (${GLFW_INCLUDE_DIR})
-INCLUDE_DIRECTORIES (${GLEW_INCLUDE_DIR})
+add_compile_options(${CMAKE_CXX_FLAGS} -std=c++20 -Wall)
 
 FILE(GLOB SOURCES "src/*.cpp" "src/ZD/*.cpp")
 ADD_LIBRARY(${NAME} "${SOURCES}")
-TARGET_LINK_LIBRARIES(${NAME} PRIVATE ${CONAN_LIB_DIRS_OPENMP}/libomp.a stdc++ CONAN_PKG::glew CONAN_PKG::glfw CONAN_PKG::portaudio dl pthread)
+TARGET_LINK_LIBRARIES(${NAME} PRIVATE stdc++ GL GLEW glfw pthread)
 
 if(ENABLE_TESTING)
   message("Building Tests")
