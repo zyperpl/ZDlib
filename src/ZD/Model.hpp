@@ -22,6 +22,7 @@ namespace ZD
   class Model
   {
   public:
+    Model() {}
     Model(ModelDefault default_name);
     Model(std::string_view file_name);
     ~Model();
@@ -32,6 +33,11 @@ namespace ZD
       textures.push_back(texture);
     }
     void draw(const ShaderProgram &program);
+
+    void add_vertex(GLfloat v)
+    {
+      vertices.push_back(v);
+    }
 
   private:
     GLuint vbo { 0 };
