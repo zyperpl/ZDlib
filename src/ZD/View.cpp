@@ -32,7 +32,7 @@ namespace ZD
 
   glm::mat4 View::get_view_matrix() const
   {
-    return glm::lookAt(position, glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+    return glm::lookAt(position, target, glm::vec3(0, 1, 0));
   }
 
 } // namespace ZD

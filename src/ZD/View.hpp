@@ -111,10 +111,12 @@ namespace ZD
     constexpr glm::vec3 get_position() const { return position; }
     constexpr glm::vec3 get_rotation() const { return rotation; }
     constexpr glm::vec3 get_scale() const { return scale; }
+    constexpr glm::vec3 get_target() const { return target; }
 
     constexpr void set_position(glm::vec3 v) { position = v; }
     constexpr void set_rotation(glm::vec3 v) { rotation = v; }
     constexpr void set_scale(glm::vec3 v) { scale = v; }
+    constexpr void set_target(glm::vec3 v) { target = v; }
 
     constexpr void set_fov(Camera::Fov new_fov) { fov = new_fov; }
     constexpr void set_aspect(float new_aspect) { aspect = new_aspect; }
@@ -123,12 +125,13 @@ namespace ZD
     Camera::Projection projection;
     Camera::Fov fov { 180.0 };
     float aspect { 1.0 };
-    Camera::OrthographicBox ortographic_box { -1, 1, 1, -1 };
-    Camera::ClippingPlane clipping_plane { -10, 1000 };
+    Camera::OrthographicBox ortographic_box { -1.0, 1.0, 1.0, -1.0 };
+    Camera::ClippingPlane clipping_plane { -10.0, 1000.0 };
 
-    glm::vec3 position { 0, 0, 0 };
-    glm::vec3 rotation { 0, 0, 0 };
-    glm::vec3 scale { 1, 1, 1 };
+    glm::vec3 position { 0.0, 0.0, 0.0 };
+    glm::vec3 rotation { 0.0, 0.0, 0.0 };
+    glm::vec3 scale { 1.0, 1.0, 1.0 };
+    glm::vec3 target { 0.0, 0.0, 0.0 };
   };
 
 } // namespace ZD
