@@ -39,6 +39,11 @@ namespace ZD
       vertices.push_back(v);
     }
 
+    const std::vector<GLfloat> &get_vertices() const { return vertices; }
+    const std::vector<GLuint>  &get_elements() const { return elements; }
+    const std::vector<GLfloat> &get_uvs()      const { return uvs;      }
+    const std::vector<GLfloat> &get_normals()  const { return normals;  }
+
   private:
     GLuint vbo { 0 };
     GLuint ebo { 0 };
