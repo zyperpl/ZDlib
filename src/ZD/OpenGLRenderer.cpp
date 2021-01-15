@@ -163,7 +163,7 @@ namespace ZD
 
 #endif
 
-    glClearColor(0.9, 1.0, 0.9, 1.0);
+    glClearColor(0.4, 0.5, 0.6, 1.0);
     glfwSwapInterval(1);
 
     if (glewGetExtension("GL_ARB_internalformat_query2"))
