@@ -27,7 +27,6 @@ namespace ZD
     const auto source_data =
       source->get_data() + (id_x * tile_width + (id_y * tile_height) * img_w);
 
-#pragma omp parallel for
     for (ssize_t i = 0; i < tile_width * tile_height; ++i)
     {
       const int px = i % tile_width;

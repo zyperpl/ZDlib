@@ -61,7 +61,7 @@ namespace ZD
     }
     printf(
       "Saving %p to file '%s' (ext=%s).\n",
-      this,
+      (void*)(this),
       file_name.data(),
       file_ext.data());
 

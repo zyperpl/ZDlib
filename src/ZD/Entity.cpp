@@ -16,10 +16,10 @@ namespace ZD
   , rotation { rotation }
   , scale { scale }
   {
-    printf("Entity %p created.\n", this);
+    printf("Entity %p created.\n", (void*)(this));
   }
 
-  void Entity::update() { printf("Updating entity %p...\n", this); }
+  void Entity::update() { printf("Updating entity %p...\n", (void*)(this)); }
 
   glm::mat4 Entity::get_model_matrix() const
   {

@@ -120,7 +120,7 @@ namespace ZD
     printf(
       "Model %p loaded.\nvbo=%d (%zu) ebo=%d (%zu) uvbo=%d (%zu) nbo=%d "
       "(%zu)\n",
-      this,
+      (void*)(this),
       vbo,
       vertices.size(),
       ebo,

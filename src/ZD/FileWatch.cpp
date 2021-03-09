@@ -292,7 +292,7 @@ namespace ZD
   FileWatcher::~FileWatcher()
   {
     std::scoped_lock<std::mutex> lock(watchers_map_mutex);
-    printf("Removing watcher %p for file %s\n", this, file.get_name().data());
+    printf("Removing watcher %p for file %s\n", (void*)(this), file.get_name().data());
     assert(inotify_fd != -1);
     watchers.erase(wd);
 #ifdef __linux

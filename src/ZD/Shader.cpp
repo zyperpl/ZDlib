@@ -28,7 +28,7 @@ namespace ZD
 
     for (GLint i = 0; i < count; i++)
     {
-      GLchar name[max_length];
+      GLchar *name = new GLchar[max_length];
 
       GLint size;
       GLenum type;
@@ -41,7 +41,8 @@ namespace ZD
 
       uniforms.insert(std::make_pair(
         std::string(name), ShaderUniform { id, i, size, type, location }));
-      //printf("%s: shader_id=%d id=%d size=%d type=%d location=%d\n", name, id, i, size, type, location);
+
+      delete[] name;
     }
   }
 
@@ -58,7 +59,7 @@ namespace ZD
 
     for (GLint i = 0; i < count; i++)
     {
-      GLchar name[max_length];
+      GLchar *name = new GLchar[max_length];
 
       GLint size;
       GLenum type;
@@ -70,6 +71,8 @@ namespace ZD
 
       attributes.emplace(
         std::string(name), ShaderAttribute { id, i, size, type, location });
+
+      delete[] name;
     }
   }
 

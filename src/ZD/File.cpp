@@ -132,10 +132,11 @@ namespace ZD
   std::vector<uint8_t> File::read_bytes(int max_size)
   {
     assert(mode == Read || mode == ReadWrite);
-    uint8_t buf[max_size];
-    size_t readed = read(fd, &buf, max_size);
+    uint8_t *buf = new uint8_t[max_size];
+    size_t readed = read(fd, buf, max_size);
 
     std::vector<uint8_t> data(buf, buf + readed);
+    delete[] buf;
     return data;
   }
 

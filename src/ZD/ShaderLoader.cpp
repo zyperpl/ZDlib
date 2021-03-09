@@ -88,7 +88,7 @@ namespace ZD
 
     delete[] log;
     return logLength;
-  };
+  }
 
   std::optional<ShaderInfo::Shader> find_shader_in_cache(
     const std::string_view name_or_data, const GLuint type)

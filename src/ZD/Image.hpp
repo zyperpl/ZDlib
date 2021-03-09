@@ -66,7 +66,7 @@ namespace ZD
 
     inline void print() const
     {
-      printf("Image %p (%d; %d)\n{\n", this, size.width(), size.height());
+      printf("Image %p (%d; %d)\n{\n", (void*)(this), size.width(), size.height());
       for (int y = 0; y < size.height(); y++)
       {
         printf(" ");

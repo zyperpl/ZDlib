@@ -62,7 +62,6 @@ namespace ZD
     if (y < 0)
       ys = -y;
 
-#pragma omp parallel for
     for (ssize_t iy = ys; iy < image_height; ++iy)
     {
       if (y + iy < t_height)
@@ -127,7 +126,6 @@ namespace ZD
     const auto image_height = image.height();
     const auto image_area = image.size.area();
 
-#pragma omp parallel for
     for (ssize_t iy = 0; iy < new_height; ++iy)
     {
       for (ssize_t ix = 0; ix < new_width; ++ix)
@@ -317,7 +315,6 @@ namespace ZD
       yy = t_height;
     }
 
-#pragma omp parallel for
     for (int i = 0; i <= w; i++)
     {
       if (xx + i >= t_width)
@@ -332,7 +329,6 @@ namespace ZD
         target->set_pixel(xx + i, y2, color);
     }
 
-#pragma omp parallel for
     for (int i = 0; i <= h; i++)
     {
       if (yy + i >= t_height)
