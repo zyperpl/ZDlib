@@ -56,6 +56,15 @@ namespace ZD
     }
     void bind_framebuffer(const FramebufferObject &fbo);
 
+    // should be set before window creation
+    void set_multisampling(int value)
+    {
+      if (value > 0)
+        glEnable(GL_MULTISAMPLE);
+
+      glfwWindowHint(GLFW_SAMPLES, value);
+    }
+
   private:
     void generate_vertex_array_object();
     void initialize_gl();

@@ -68,6 +68,7 @@ namespace ZD
       width,
       height,
       name.data());
+
     handle = glfwCreateWindow(width, height, name.data(), NULL, NULL);
     assert(handle != NULL);
     glfwSetInputMode(handle, GLFW_STICKY_KEYS, GLFW_TRUE);
