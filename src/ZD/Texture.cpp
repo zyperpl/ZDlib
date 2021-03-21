@@ -52,11 +52,6 @@ namespace ZD
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, params.mag_filter);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, params.min_filter);
 
-    if (generate_mipmap)
-    {
-      glGenerateMipmap(GL_TEXTURE_2D);
-    }
-
     static const bool IS_GL_4_5_SUPPORTED =
       glewGetExtension("ARB_get_texture_sub_image") &&
       glewGetExtension("ARB_texture_barrier");
@@ -111,6 +106,11 @@ namespace ZD
         GL_STREAM_DRAW);
     }
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
+
+    if (generate_mipmap)
+    {
+      glGenerateMipmap(GL_TEXTURE_2D);
+    }
   }
 
   void Texture::set_image(std::shared_ptr<Image> new_image)
