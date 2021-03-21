@@ -69,21 +69,7 @@ namespace ZD
       default: assert(false);
     }
 
-    this->generate_vbo();
-
-    if (!elements.empty())
-    {
-      this->generate_ebo();
-    }
-
-    if (!uvs.empty())
-    {
-      uvbo = generate_gl_buffer(uvs);
-    }
-    if (!normals.empty())
-    {
-      nbo = generate_gl_buffer(normals);
-    }
+    regenerate_buffers();
   }
 
   Model::Model(std::string_view file_name)
@@ -101,21 +87,7 @@ namespace ZD
       assert(false);
     }
 
-    this->generate_vbo();
-
-    if (!elements.empty())
-    {
-      this->generate_ebo();
-    }
-
-    if (!uvs.empty())
-    {
-      uvbo = generate_gl_buffer(uvs);
-    }
-    if (!normals.empty())
-    {
-      nbo = generate_gl_buffer(normals);
-    }
+    regenerate_buffers();
 
     printf(
       "Model %p loaded.\nvbo=%d (%zu) ebo=%d (%zu) uvbo=%d (%zu) nbo=%d "
@@ -136,6 +108,29 @@ namespace ZD
     glDeleteBuffers(1, &vbo);
     glDeleteBuffers(1, &ebo);
     glDeleteBuffers(1, &uvbo);
+  }
+
+  void Model::regenerate_buffers()
+  {
+    glDeleteBuffers(1, &vbo);
+    glDeleteBuffers(1, &ebo);
+    glDeleteBuffers(1, &uvbo);
+
+    this->generate_vbo();
+
+    if (!elements.empty())
+    {
+      this->generate_ebo();
+    }
+
+    if (!uvs.empty())
+    {
+      uvbo = generate_gl_buffer(uvs);
+    }
+    if (!normals.empty())
+    {
+      nbo = generate_gl_buffer(normals);
+    }
   }
 
   void Model::generate_vbo()
