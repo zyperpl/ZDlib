@@ -35,12 +35,14 @@ namespace ZD
       const ShaderProgram &shader, GLuint sampler_id = 0,
       std::string_view sampler_name = "sampler");
 
+    void set_name(const std::string name) { this->name = name; }
+    void set_image(std::shared_ptr<Image> new_image);
+
+    GLuint get_id() const { return id; }
+    const std::string &get_name() const { return name; }
+    const std::shared_ptr<Image> get_image() const { return this->image; }
     int get_width(int mip_level = 0);
     int get_height(int mip_level = 0);
-    void set_image(std::shared_ptr<Image> new_image);
-    const std::shared_ptr<Image> get_image() const { return this->image; }
-
-    GLuint get_id() { return id; }
 
   private:
     void generate(TextureParameters params);
@@ -56,6 +58,7 @@ namespace ZD
     long frame { 0 };
     int width { 0 };
     int height { 0 };
+    std::string name { "sampler" };
   };
 
 } // namespace ZD
