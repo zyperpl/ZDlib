@@ -38,10 +38,10 @@ namespace ZD
     ~ShaderProgram();
 
     template<typename T>
-    bool set_uniform(std::string name, T value);
+    bool set_uniform(const std::string &name, const T &value);
 
-    std::optional<ShaderUniform> get_uniform(std::string name) const;
-    std::optional<ShaderAttribute> get_attribute(std::string name) const;
+    std::optional<ShaderUniform> get_uniform(const std::string &name) const;
+    std::optional<ShaderAttribute> get_attribute(const std::string &name) const;
     void use() const;
 
     inline GLuint get_id() const { return id; }

@@ -104,7 +104,7 @@ namespace ZD
   }
 
   template<typename T>
-  bool ShaderProgram::set_uniform(std::string name, T value)
+  bool ShaderProgram::set_uniform(const std::string &name, const T &value)
   {
     fprintf(
       stderr,
@@ -116,7 +116,7 @@ namespace ZD
   }
 
   template<>
-  bool ShaderProgram::set_uniform<glm::vec2>(std::string name, glm::vec2 value)
+  bool ShaderProgram::set_uniform<glm::vec2>(const std::string &name, const glm::vec2 &value)
   {
     if (auto uniform = get_uniform(name))
     {
@@ -127,7 +127,7 @@ namespace ZD
   }
 
   template<>
-  bool ShaderProgram::set_uniform<glm::vec3>(std::string name, glm::vec3 value)
+  bool ShaderProgram::set_uniform<glm::vec3>(const std::string &name, const glm::vec3 &value)
   {
     if (auto uniform = get_uniform(name))
     {
@@ -138,7 +138,18 @@ namespace ZD
   }
 
   template<>
-  bool ShaderProgram::set_uniform<int>(std::string name, int value)
+  bool ShaderProgram::set_uniform<int>(const std::string &name, const int &value)
+  {
+    if (auto uniform = get_uniform(name))
+    {
+      glUniform1i(uniform->location, value);
+      return true;
+    }
+    return false;
+  }
+  
+  template<>
+  bool ShaderProgram::set_uniform<bool>(const std::string &name, const bool &value)
   {
     if (auto uniform = get_uniform(name))
     {
@@ -149,7 +160,7 @@ namespace ZD
   }
 
   template<>
-  bool ShaderProgram::set_uniform<float>(std::string name, float value)
+  bool ShaderProgram::set_uniform<float>(const std::string &name, const float &value)
   {
     if (auto uniform = get_uniform(name))
     {
@@ -159,8 +170,7 @@ namespace ZD
     return false;
   }
 
-  std::optional<ShaderUniform> ShaderProgram::get_uniform(
-    std::string name) const
+  std::optional<ShaderUniform> ShaderProgram::get_uniform(const std::string &name) const
   {
     if (uniforms.find(name) == uniforms.end())
     {
@@ -169,8 +179,7 @@ namespace ZD
     return uniforms.at(name);
   }
 
-  std::optional<ShaderAttribute> ShaderProgram::get_attribute(
-    std::string name) const
+  std::optional<ShaderAttribute> ShaderProgram::get_attribute(const std::string &name) const
   {
     if (attributes.find(name) == attributes.end())
     {

@@ -43,7 +43,7 @@ namespace ZD
 
     glm::mat4 get_model_matrix() const;
 
-  private:
+  protected:
     glm::vec3 position { 0.0, 0.0, 0.0 };
     glm::vec3 rotation { 0.0, 0.0, 0.0 };
     glm::vec3 scale { 1.0, 1.0, 1.0 };
