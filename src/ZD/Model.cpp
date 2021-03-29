@@ -168,12 +168,6 @@ namespace ZD
     auto position_attribute = program.get_attribute("position");
     assert(position_attribute);
 
-    for (size_t i = 0; i < textures.size(); ++i)
-    {
-      const auto &texture = textures[i];
-      texture->bind(program, i, texture->get_name());
-    }
-
     int components_per_vertex = 3;
     switch (position_attribute->type)
     {

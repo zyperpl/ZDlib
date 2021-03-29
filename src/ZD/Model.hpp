@@ -29,10 +29,6 @@ namespace ZD
     void regenerate_buffers();
     void generate_vbo();
     void generate_ebo();
-    inline void add_texture(std::shared_ptr<Texture> texture)
-    {
-      textures.push_back(texture);
-    }
     void draw(const ShaderProgram &program);
 
     void add_vertex(const GLfloat v) { vertices.push_back(v); }
@@ -58,7 +54,5 @@ namespace ZD
     std::vector<GLuint> elements;
     std::vector<GLfloat> uvs;
     std::vector<GLfloat> normals;
-
-    std::vector<std::shared_ptr<Texture>> textures;
   };
 } // namespace ZD

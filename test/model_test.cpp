@@ -39,7 +39,7 @@ int model_test_main(int, char **)
   auto input = window->input();
 
   puts("Loading a model");
-  auto cube = Model(ModelDefault::Cube);
+  auto cube = std::make_shared<Model>(ModelDefault::Cube);
   puts("Loading a shader");
   auto model_shader =
     ShaderLoader()
@@ -52,23 +52,23 @@ int model_test_main(int, char **)
 
   auto tank_texture =
     std::make_shared<Texture>(Image::load("images/propane_tank_red.png"));
-  auto tank = Model("images/propane_tank.obj");
-  tank.add_texture(tank_texture);
+  auto tank = std::make_shared<Model>("images/propane_tank.obj");
 
   auto crate_texture =
     std::make_shared<Texture>(Image::load("images/crate_1.jpg"));
-  auto crate = Model("images/Crate1.obj");
-  crate.add_texture(crate_texture);
+  auto crate = std::make_shared<Model>("images/Crate1.obj");
 
   puts("Creating special texture..");
   auto custom_texture = std::make_shared<Texture>();
-  auto crate2 = Model("images/Crate1.obj");
-  crate2.add_texture(custom_texture);
+  auto crate2 = std::make_shared<Model>("images/Crate1.obj");
 
-  puts("Creating an entity...");
-  auto entity = Entity({ 0.2, 0.2, 0.2 }, { 0, 0, 0 }, { .4, .4, .4 });
-  entity.add_model(tank);
-  entity.add_model(crate);
+  puts("Creating an entities...");
+  auto tank_entity = Entity({ 0.2, 0.2, 0.2 }, { 0, 0, 0 }, { .4, .4, .4 });
+  auto crate_entity = Entity({ 0.2, 0.2, 0.2 }, { 0, 0, 0 }, { .4, .4, .4 });
+  tank_entity.add_texture(tank_texture);
+  crate_entity.add_texture(crate_texture);
+  tank_entity.add_model(tank);
+  crate_entity.add_model(crate);
 
   puts("Creating the second entity...");
   const int MONS = 4;
@@ -147,27 +147,27 @@ int model_test_main(int, char **)
 
     if (input->key(Key::R))
     {
-      entity.add_rotation({ 0.001 * step, 0, 0 });
+      tank_entity.add_rotation({ 0.001 * step, 0, 0 });
     }
     if (input->key(Key::F))
     {
-      entity.add_rotation({ 0, 0.001 * step, 0 });
+      tank_entity.add_rotation({ 0, 0.001 * step, 0 });
     }
     if (input->key(Key::V))
     {
-      entity.add_rotation({ 0, 0, 0.001 * step });
+      tank_entity.add_rotation({ 0, 0, 0.001 * step });
     }
     if (input->key(Key::C))
     {
-      entity.multiply_scale(1.00 + 0.001 * step);
+      tank_entity.multiply_scale(1.00 + 0.001 * step);
     }
     if (input->key(Key::Z))
     {
-      entity.multiply_scale(1.00 - 0.001 * step);
+      tank_entity.multiply_scale(1.00 - 0.001 * step);
     }
     if (input->key(Key::X))
     {
-      entity.set_scale({ 1, 1, 1 });
+      tank_entity.set_scale({ 1, 1, 1 });
     }
 
     if (iteration % 12 == 0)
@@ -183,7 +183,10 @@ int model_test_main(int, char **)
     }
 
     view->set_position(camera_position);
-    entity.draw(*model_shader, *view);
+    tank_entity.draw(*model_shader, *view);
+    crate_entity.draw(*model_shader, *view);
+
+    custom_texture->bind(*model_shader, 0, "sampler");
     for (size_t i = 0; i < MONS; i++)
     {
       monoliths[i].draw(*model_shader, *view);

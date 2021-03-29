@@ -23,11 +23,8 @@ namespace ZD
     void update();
     void draw(const ShaderProgram &shader_program, const View &view);
 
-    void add_model(std::shared_ptr<Model> model) { models.push_back(model); }
-    void add_model(Model &model)
-    {
-      models.push_back(std::make_shared<Model>(model));
-    }
+    inline void add_model(std::shared_ptr<Model> model) { models.push_back(model); }
+    inline void add_texture(std::shared_ptr<Texture> texture) { textures.push_back(texture); }
 
     glm::vec3 get_position() const { return position; }
     glm::vec3 get_rotation() const { return rotation; }
@@ -48,6 +45,7 @@ namespace ZD
     glm::vec3 rotation { 0.0, 0.0, 0.0 };
     glm::vec3 scale { 1.0, 1.0, 1.0 };
     std::vector<std::shared_ptr<Model>> models;
+    std::vector<std::shared_ptr<Texture>> textures;
   };
 
 } // namespace ZD

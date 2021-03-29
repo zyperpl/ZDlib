@@ -56,6 +56,12 @@ namespace ZD
     glUniformMatrix4fv(
       p_location->location, 1, GL_FALSE, glm::value_ptr(projection_matrix));
     glCheckError();
+    
+    for (size_t i = 0; i < textures.size(); ++i)
+    {
+      const auto &texture = textures[i];
+      texture->bind(shader_program, i, texture->get_name());
+    }
 
     for (const auto &model : models)
     {
