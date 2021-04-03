@@ -78,7 +78,7 @@ namespace ZD
   : image { image }
   , max_frames { image->width() / frame_size.width() }
   , frame_size { frame_size }
-  , model { std::make_shared<Model>(ModelDefault::Screen) }
+  , model { Model::load(ModelDefault::Screen) }
   , texture { std::make_shared<Texture>(image) }
   , shader_program { ShaderLoader()
                        .add(SPRITE_RENDERER_VERTEX_SHADER, GL_VERTEX_SHADER)
@@ -91,7 +91,7 @@ namespace ZD
   : image { image }
   , max_frames { image->width() / frame_size.width() }
   , frame_size { frame_size }
-  , model { std::make_shared<Model>(ModelDefault::Screen) }
+  , model { Model::load(ModelDefault::Screen) }
   , texture { std::make_shared<Texture>(image) }
   , shader_program { shader_program }
   {

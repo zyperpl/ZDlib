@@ -39,7 +39,7 @@ int model_test_main(int, char **)
   auto input = window->input();
 
   puts("Loading a model");
-  auto cube = std::make_shared<Model>(ModelDefault::Cube);
+  auto cube = Model::load(ModelDefault::Cube);
   puts("Loading a shader");
   auto model_shader =
     ShaderLoader()
@@ -52,15 +52,15 @@ int model_test_main(int, char **)
 
   auto tank_texture =
     std::make_shared<Texture>(Image::load("images/propane_tank_red.png"));
-  auto tank = std::make_shared<Model>("images/propane_tank.obj");
+  auto tank = Model::load("images/propane_tank.obj");
 
   auto crate_texture =
     std::make_shared<Texture>(Image::load("images/crate_1.jpg"));
-  auto crate = std::make_shared<Model>("images/Crate1.obj");
+  auto crate = Model::load("images/Crate1.obj");
 
   puts("Creating special texture..");
   auto custom_texture = std::make_shared<Texture>();
-  auto crate2 = std::make_shared<Model>("images/Crate1.obj");
+  auto crate2 = Model::load("images/Crate1.obj");
 
   puts("Creating an entities...");
   auto tank_entity = Entity({ 0.2, 0.2, 0.2 }, { 0, 0, 0 }, { .4, .4, .4 });

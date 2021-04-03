@@ -8,24 +8,16 @@
 
 #include "Size.hpp"
 #include "Color.hpp"
+#include "File.hpp"
+
 namespace ZD
 {
-  enum class ForceReload
-  {
-    No = 0,
-    Yes = 1
-  };
-
   class Image
   {
   public:
-    static std::shared_ptr<Image> load(
-      std::string_view file_name, ForceReload reload = ForceReload::No);
-    static std::shared_ptr<Image> create(
-      const Size &size, PixelFormat::Type format = PixelFormat::BGR);
-    static std::shared_ptr<Image> create(
-      const Size &size, const Color &color,
-      PixelFormat::Type format = PixelFormat::BGR);
+    static std::shared_ptr<Image> load(std::string_view file_name, ForceReload reload = ForceReload::No);
+    static std::shared_ptr<Image> create(const Size &size, PixelFormat::Type format = PixelFormat::BGR);
+    static std::shared_ptr<Image> create(const Size &, const Color &, PixelFormat::Type format = PixelFormat::BGR);
 
     bool is_empty() const { return !size.is_valid(); }
     bool is_null() const { return data == NULL; }
@@ -36,20 +28,11 @@ namespace ZD
     int height() const { return size.height(); }
     const uint32_t *get_data() const { return data.get(); }
 
-    inline Color get_pixel(int x, int y) const
-    {
-      return data[x + y * size.width()];
-    }
+    inline Color get_pixel(int x, int y) const { return data[x + y * size.width()]; }
 
-    void set_data(const uint32_t *other_data, size_t area)
-    {
-      memcpy(data.get(), other_data, area * sizeof(uint32_t));
-    }
+    void set_data(const uint32_t *other_data, size_t area) { memcpy(data.get(), other_data, area * sizeof(uint32_t)); }
 
-    void set_pixel(int x, int y, Color color)
-    {
-      data[x + y * size.width()] = color.value();
-    }
+    void set_pixel(int x, int y, Color color) { data[x + y * size.width()] = color.value(); }
 
     void clear(Color color = Color(0))
     {
@@ -66,7 +49,7 @@ namespace ZD
 
     inline void print() const
     {
-      printf("Image %p (%d; %d)\n{\n", (void*)(this), size.width(), size.height());
+      printf("Image %p (%d; %d)\n{\n", (void *)(this), size.width(), size.height());
       for (int y = 0; y < size.height(); y++)
       {
         printf(" ");

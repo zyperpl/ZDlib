@@ -18,8 +18,7 @@
 #pragma GCC optimize("O3")
 namespace ZD
 {
-  static std::unordered_map<std::string_view, std::shared_ptr<Image>>
-    loaded_images;
+  static std::unordered_map<std::string_view, std::shared_ptr<Image>> loaded_images;
 
   struct LoadedImage
   {
@@ -30,8 +29,7 @@ namespace ZD
     uint32_t *data;
   };
 
-  uint32_t *ImageLoader::u8_to_u32(
-    uint8_t *bitmap, int width, int height, int channels)
+  uint32_t *ImageLoader::u8_to_u32(uint8_t *bitmap, int width, int height, int channels)
   {
     const int size = width * height;
     uint32_t *data = new uint32_t[size];
@@ -54,8 +52,7 @@ namespace ZD
     return data;
   }
 
-  uint8_t *ImageLoader::u32_to_u8(
-    uint32_t *bitmap, int width, int height, int channels)
+  uint8_t *ImageLoader::u32_to_u8(uint32_t *bitmap, int width, int height, int channels)
   {
     const int size = width * height * channels;
     uint8_t *data = new uint8_t[size];
@@ -84,8 +81,7 @@ namespace ZD
 
     LoadedImage loaded;
     int channels = -1;
-    stbi_uc *data = stbi_load(
-      file_name.data(), &loaded.width, &loaded.height, &channels, CHANNEL_NUM);
+    stbi_uc *data = stbi_load(file_name.data(), &loaded.width, &loaded.height, &channels, CHANNEL_NUM);
 
     if (!data)
     {
@@ -94,8 +90,7 @@ namespace ZD
       return std::nullopt;
     }
 
-    auto u32_data =
-      ImageLoader::u8_to_u32(data, loaded.width, loaded.height, CHANNEL_NUM);
+    auto u32_data = ImageLoader::u8_to_u32(data, loaded.width, loaded.height, CHANNEL_NUM);
 
     stbi_image_free(data);
 
@@ -105,7 +100,7 @@ namespace ZD
     return loaded;
   }
 
-  std::optional<std::shared_ptr<Image>> find_in_loaded(std::string_view path)
+  static std::optional<std::shared_ptr<Image>> find_in_loaded(std::string_view path)
   {
     auto name_image_pair = loaded_images.find(path);
     if (name_image_pair != loaded_images.end())
@@ -117,8 +112,7 @@ namespace ZD
     return std::nullopt;
   }
 
-  std::shared_ptr<Image> ImageLoader::load(
-    std::string_view path, ForceReload reload)
+  std::shared_ptr<Image> ImageLoader::load(std::string_view path, ForceReload reload)
   {
     Image *image = NULL;
     if (reload != ForceReload::Yes)

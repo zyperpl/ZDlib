@@ -13,25 +13,20 @@
 #pragma GCC optimize("O3")
 namespace ZD
 {
-  std::shared_ptr<Image> Image::load(
-    std::string_view file_name, ForceReload reload)
+  std::shared_ptr<Image> Image::load(std::string_view file_name, ForceReload reload)
   {
     return ImageLoader::load(file_name, reload);
   }
 
-  std::shared_ptr<Image> Image::create(
-    const Size &size, PixelFormat::Type format)
+  std::shared_ptr<Image> Image::create(const Size &size, PixelFormat::Type format)
   {
-    std::shared_ptr<Image> image =
-      std::shared_ptr<Image>(new Image(size, format));
+    std::shared_ptr<Image> image = std::shared_ptr<Image>(new Image(size, format));
     return image;
   }
 
-  std::shared_ptr<Image> Image::create(
-    const Size &size, const Color &color, PixelFormat::Type format)
+  std::shared_ptr<Image> Image::create(const Size &size, const Color &color, PixelFormat::Type format)
   {
-    std::shared_ptr<Image> image =
-      std::shared_ptr<Image>(new Image(size, format));
+    std::shared_ptr<Image> image = std::shared_ptr<Image>(new Image(size, format));
     image->clear(color);
     return image;
   }
@@ -59,11 +54,7 @@ namespace ZD
       file_name += ".";
       file_name += file_ext;
     }
-    printf(
-      "Saving %p to file '%s' (ext=%s).\n",
-      (void*)(this),
-      file_name.data(),
-      file_ext.data());
+    printf("Saving %p to file '%s' (ext=%s).\n", (void *)(this), file_name.data(), file_ext.data());
 
     const auto w = size.width();
     const auto h = size.height();
@@ -74,8 +65,7 @@ namespace ZD
     bool ret = false;
     if (file_ext == "png")
     {
-      ret = stbi_write_png(
-              file_name.data(), w, h, comp, u8_data, size.width() * comp) > 0;
+      ret = stbi_write_png(file_name.data(), w, h, comp, u8_data, size.width() * comp) > 0;
     }
     else if (file_ext == "bmp")
     {
@@ -88,8 +78,7 @@ namespace ZD
     }
     else if (file_ext == "jpg")
     {
-      ret =
-        stbi_write_jpg(file_name.data(), w, h, comp, u8_data, JPEG_QUALITY) > 0;
+      ret = stbi_write_jpg(file_name.data(), w, h, comp, u8_data, JPEG_QUALITY) > 0;
     }
 
     delete[] u8_data;

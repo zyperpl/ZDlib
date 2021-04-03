@@ -9,9 +9,26 @@
 
 namespace ZD
 {
-  std::optional<std::vector<ModelData>> ModelLoader::load(
-    std::string_view file_name)
+  std::unordered_map<std::string, std::vector<ModelData>> loaded_models;
+
+  static std::optional<std::vector<ModelData>> find_in_loaded(std::string_view name)
   {
+    for (auto &&name_data_pair : loaded_models)
+    {
+      if (name_data_pair.first == name)
+        return name_data_pair.second;
+    }
+    return {};
+  }
+
+  std::optional<std::vector<ModelData>> ModelLoader::load(std::string_view file_name, ForceReload reload)
+  {
+    if (reload != ForceReload::Yes)
+    {
+      if (auto loaded_data = find_in_loaded(file_name))
+        return loaded_data.value();
+    }
+
     std::vector<ModelData> models;
 
     tinyobj::attrib_t attrib;
@@ -20,8 +37,7 @@ namespace ZD
 
     std::string warn, err;
 
-    bool ret = tinyobj::LoadObj(
-      &attrib, &shapes, &materials, &warn, &err, file_name.data());
+    bool ret = tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, file_name.data());
 
     if (!warn.empty())
     {
@@ -81,6 +97,7 @@ namespace ZD
       models.push_back(md);
     }
 
+    loaded_models.insert({ std::string(file_name), models });
     return models;
   }
 

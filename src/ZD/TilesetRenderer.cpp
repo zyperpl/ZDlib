@@ -73,7 +73,7 @@ namespace ZD
         .compile();
 
     map_texture = std::make_shared<Texture>();
-    model = std::make_shared<Model>(ModelDefault::Screen);
+    model = Model::load(ModelDefault::Screen);
     tileset_texture = std::make_shared<Texture>(tileset->source);
   }
 
@@ -83,7 +83,7 @@ namespace ZD
   , shader_program { shader }
   {
     map_texture = std::make_shared<Texture>();
-    model = std::make_shared<Model>(ModelDefault::Screen);
+    model = Model::load(ModelDefault::Screen);
     tileset_texture = std::make_shared<Texture>(tileset->source);
   }
 

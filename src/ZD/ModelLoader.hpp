@@ -4,6 +4,8 @@
 #include <string_view>
 #include <vector>
 
+#include "File.hpp"
+
 namespace ZD
 {
   struct ModelData
@@ -17,8 +19,7 @@ namespace ZD
   class ModelLoader
   {
   public:
-    static std::optional<std::vector<ModelData>> load(
-      std::string_view file_name);
+    static std::optional<std::vector<ModelData>> load(std::string_view file_name, ForceReload reload = ForceReload::No);
   };
 
 } // namespace ZD

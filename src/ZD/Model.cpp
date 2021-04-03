@@ -12,27 +12,58 @@
 #pragma GCC optimize("O3")
 namespace ZD
 {
-  const std::vector<GLfloat> z_screen_vertices { 1.0,  -1.0, -1.0, -1.0,
-                                                 -1.0, 1.0,  1.0,  1.0 };
+  static std::unordered_map<std::string, std::shared_ptr<Model>> loaded_models;
+
+  static std::optional<std::shared_ptr<Model>> find_in_loaded(std::string_view name)
+  {
+    for (auto &&name_model_pair : loaded_models)
+    {
+      if (name_model_pair.first == name)
+        return name_model_pair.second;
+    }
+    return {};
+  }
+
+  std::shared_ptr<Model> Model::load(std::string_view file_name, ForceReload reload)
+  {
+    if (reload != ForceReload::Yes)
+    {
+      if (auto model = find_in_loaded(file_name))
+        return model.value();
+    }
+
+    std::optional<std::vector<ModelData>> model_data = ModelLoader::load(file_name, reload);
+    if (!model_data)
+      return {};
+
+    std::shared_ptr<Model> model { new Model { model_data.value() } };
+    loaded_models.insert({ std::string(file_name), model });
+    return model;
+  }
+
+  std::shared_ptr<Model> Model::load(ModelDefault default_name)
+  {
+    return std::shared_ptr<Model>(new Model { default_name });
+  }
+
+  std::shared_ptr<Model> Model::create() { return std::shared_ptr<Model> { new Model {} }; }
+
+  const std::vector<GLfloat> z_screen_vertices { 1.0, -1.0, -1.0, -1.0, -1.0, 1.0, 1.0, 1.0 };
 
   const std::vector<GLuint> z_screen_elements { 0, 1, 2, 0, 2, 3 };
 
   const std::vector<GLfloat> z_cube_vertices {
-    -1., -1., -1., -1., -1., 1.,  -1., 1.,  1.,  1.,  1.,  -1., -1., -1.,
-    -1., -1., 1.,  -1., 1.,  -1., 1.,  -1., -1., -1., 1.,  -1., -1., 1.,
-    1.,  -1., 1.,  -1., -1., -1., -1., -1., -1., -1., -1., -1., 1.,  1.,
-    -1., 1.,  -1., 1.,  -1., 1.,  -1., -1., 1.,  -1., -1., -1., -1., 1.,
-    1.,  -1., -1., 1.,  1.,  -1., 1.,  1.,  1.,  1.,  1.,  -1., -1., 1.,
-    1.,  -1., 1.,  -1., -1., 1.,  1.,  1.,  1.,  -1., 1.,  1.,  1.,  1.,
-    1.,  1.,  -1., -1., 1.,  -1., 1.,  1.,  1.,  -1., 1.,  -1., -1., 1.,
-    1.,  1.,  1.,  1.,  -1., 1.,  1.,  1.,  -1., 1.
+    -1., -1., -1., -1., -1., 1.,  -1., 1.,  1.,  1.,  1.,  -1., -1., -1., -1., -1., 1.,  -1., 1.,  -1., 1.,  -1.,
+    -1., -1., 1.,  -1., -1., 1.,  1.,  -1., 1.,  -1., -1., -1., -1., -1., -1., -1., -1., -1., 1.,  1.,  -1., 1.,
+    -1., 1.,  -1., 1.,  -1., -1., 1.,  -1., -1., -1., -1., 1.,  1.,  -1., -1., 1.,  1.,  -1., 1.,  1.,  1.,  1.,
+    1.,  -1., -1., 1.,  1.,  -1., 1.,  -1., -1., 1.,  1.,  1.,  1.,  -1., 1.,  1.,  1.,  1.,  1.,  1.,  -1., -1.,
+    1.,  -1., 1.,  1.,  1.,  -1., 1.,  -1., -1., 1.,  1.,  1.,  1.,  1.,  -1., 1.,  1.,  1.,  -1., 1.
   };
 
   const std::vector<GLfloat> z_cube_uvs {
-    0., 0., 1., 0., 1., 1., 0., 1., 1., 1., 0., 0., 0., 1., 1., 0., 0., 0.,
-    0., 0., 0., 1., 1., 1., 0., 0., 1., 0., 1., 1., 0., 0., 0., 1., 1., 1.,
-    0., 0., 1., 0., 1., 1., 0., 0., 0., 1., 1., 1., 0., 0., 1., 0., 1., 1.,
-    0., 0., 0., 1., 1., 1., 0., 0., 1., 0., 1., 1., 0., 0., 0., 1., 1., 1.,
+    0., 0., 1., 0., 1., 1., 0., 1., 1., 1., 0., 0., 0., 1., 1., 0., 0., 0., 0., 0., 0., 1., 1., 1.,
+    0., 0., 1., 0., 1., 1., 0., 0., 0., 1., 1., 1., 0., 0., 1., 0., 1., 1., 0., 0., 0., 1., 1., 1.,
+    0., 0., 1., 0., 1., 1., 0., 0., 0., 1., 1., 1., 0., 0., 1., 0., 1., 1., 0., 0., 0., 1., 1., 1.,
   };
 
   template<typename T>
@@ -43,8 +74,7 @@ namespace ZD
     glGenBuffers(1, &id);
 
     glBindBuffer(GL_ARRAY_BUFFER, id);
-    glBufferData(
-      GL_ARRAY_BUFFER, data.size() * sizeof(T), data.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, data.size() * sizeof(T), data.data(), GL_STATIC_DRAW);
     printf("generated buffer id=%u\n", id);
 
     return id;
@@ -72,27 +102,20 @@ namespace ZD
     regenerate_buffers();
   }
 
-  Model::Model(std::string_view file_name)
+  Model::Model(std::vector<ModelData> &model_data)
   {
-    if (auto models = ModelLoader::load(file_name))
-    {
-      auto model_data = (*models).at(0);
-      vertices = std::move(model_data.vertices);
-      uvs = std::move(model_data.uvs);
-      elements = std::move(model_data.indices);
-      normals = std::move(model_data.normals);
-    }
-    else
-    {
-      assert(false);
-    }
+    auto model_data_first = model_data.at(0);
+    vertices = std::move(model_data_first.vertices);
+    uvs = std::move(model_data_first.uvs);
+    elements = std::move(model_data_first.indices);
+    normals = std::move(model_data_first.normals);
 
     regenerate_buffers();
 
     printf(
       "Model %p loaded.\nvbo=%d (%zu) ebo=%d (%zu) uvbo=%d (%zu) nbo=%d "
       "(%zu)\n",
-      (void*)(this),
+      (void *)(this),
       vbo,
       vertices.size(),
       ebo,
@@ -140,11 +163,7 @@ namespace ZD
     glGenBuffers(1, &vbo);
 
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(
-      GL_ARRAY_BUFFER,
-      vertices.size() * sizeof(GLfloat),
-      vertices.data(),
-      GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GLfloat), vertices.data(), GL_STATIC_DRAW);
 
     assert(vbo > 0);
   }
@@ -154,11 +173,7 @@ namespace ZD
     glGenBuffers(1, &ebo);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-    glBufferData(
-      GL_ELEMENT_ARRAY_BUFFER,
-      elements.size() * sizeof(GLint),
-      elements.data(),
-      GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, elements.size() * sizeof(GLint), elements.data(), GL_STATIC_DRAW);
 
     assert(ebo > 0);
   }
@@ -181,8 +196,7 @@ namespace ZD
 
     glEnableVertexAttribArray(pos_attr_index);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glVertexAttribPointer(
-      pos_attr_index, components_per_vertex, GL_FLOAT, GL_FALSE, 0, (void *)0);
+    glVertexAttribPointer(pos_attr_index, components_per_vertex, GL_FLOAT, GL_FALSE, 0, (void *)0);
 
     if (uvbo > 0)
     {
@@ -191,8 +205,7 @@ namespace ZD
 
       glEnableVertexAttribArray(uv_attribute->index);
       glBindBuffer(GL_ARRAY_BUFFER, uvbo);
-      glVertexAttribPointer(
-        uv_attribute->index, 2, GL_FLOAT, GL_FALSE, 0, (void *)0);
+      glVertexAttribPointer(uv_attribute->index, 2, GL_FLOAT, GL_FALSE, 0, (void *)0);
     }
 
     if (nbo > 0)
@@ -202,8 +215,7 @@ namespace ZD
       {
         glEnableVertexAttribArray(normal_attribute->index);
         glBindBuffer(GL_ARRAY_BUFFER, nbo);
-        glVertexAttribPointer(
-          normal_attribute->index, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
+        glVertexAttribPointer(normal_attribute->index, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
       }
     }
 

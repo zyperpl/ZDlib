@@ -8,6 +8,8 @@
 
 #include "Texture.hpp"
 #include "Shader.hpp"
+#include "ModelLoader.hpp"
+
 namespace ZD
 {
   enum class ModelDefault
@@ -22,9 +24,13 @@ namespace ZD
   class Model
   {
   public:
+    static std::shared_ptr<Model> load(std::string_view file_name, ForceReload reload = ForceReload::No);
+    static std::shared_ptr<Model> load(ModelDefault default_name);
+    static std::shared_ptr<Model> create();
+
+    // notice: constructors with data are private
+
     Model() {}
-    Model(ModelDefault default_name);
-    Model(std::string_view file_name);
     ~Model();
     void regenerate_buffers();
     void generate_vbo();
@@ -32,18 +38,32 @@ namespace ZD
     void draw(const ShaderProgram &program);
 
     void add_vertex(const GLfloat v) { vertices.push_back(v); }
-    void add_vertex(const GLfloat v1, const GLfloat v2, const GLfloat v3) { vertices.insert(vertices.end(), { v1, v2, v3 }); }
+    void add_vertex(const GLfloat v1, const GLfloat v2, const GLfloat v3)
+    {
+      vertices.insert(vertices.end(), { v1, v2, v3 });
+    }
 
     void add_uv(const GLfloat u_or_v) { uvs.push_back(u_or_v); }
-    void add_uv(const GLfloat u, const GLfloat v) { uvs.push_back(u); uvs.push_back(v); }
+    void add_uv(const GLfloat u, const GLfloat v)
+    {
+      uvs.push_back(u);
+      uvs.push_back(v);
+    }
 
     void add_normal(const GLfloat n) { normals.push_back(n); }
-    void add_normal(const GLfloat nv1, const GLfloat nv2, const GLfloat nv3) { normals.insert(normals.end(), { nv1, nv2, nv3 }); }
+    void add_normal(const GLfloat nv1, const GLfloat nv2, const GLfloat nv3)
+    {
+      normals.insert(normals.end(), { nv1, nv2, nv3 });
+    }
 
     const std::vector<GLfloat> &get_vertices() const { return vertices; }
     const std::vector<GLuint> &get_elements() const { return elements; }
     const std::vector<GLfloat> &get_uvs() const { return uvs; }
     const std::vector<GLfloat> &get_normals() const { return normals; }
+
+  protected:
+    Model(std::vector<ModelData> &model_data);
+    Model(ModelDefault default_name);
 
   private:
     GLuint vbo { 0 };
@@ -54,5 +74,8 @@ namespace ZD
     std::vector<GLuint> elements;
     std::vector<GLfloat> uvs;
     std::vector<GLfloat> normals;
+
+    friend class Screen;
+    friend class Screen_GL;
   };
 } // namespace ZD

@@ -11,6 +11,12 @@
 #define FILE_BUF_SIZE 4096
 namespace ZD
 {
+  enum class ForceReload
+  {
+    No = 0,
+    Yes = 1
+  };
+
   class File
   {
   public:
@@ -27,9 +33,7 @@ namespace ZD
       Yes = 1
     };
 
-    File(
-      std::string_view file_name, OpenMode mode = OpenMode::Read,
-      CreateFile create = No);
+    File(std::string_view file_name, OpenMode mode = OpenMode::Read, CreateFile create = No);
     ~File();
 
     void rewind();
