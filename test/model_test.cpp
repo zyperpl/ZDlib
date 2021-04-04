@@ -21,7 +21,6 @@ static int r(int m = 100)
   return dist(g);
 }
 
-
 int model_test_main(int, char **)
 {
   using namespace ZD;
@@ -63,8 +62,8 @@ int model_test_main(int, char **)
   auto crate2 = Model::load("images/Crate1.obj");
 
   puts("Creating an entities...");
-  auto tank_entity = Entity({ 0.2, 0.2, 0.2 }, { 0, 0, 0 }, { .4, .4, .4 });
-  auto crate_entity = Entity({ 0.2, 0.2, 0.2 }, { 0, 0, 0 }, { .4, .4, .4 });
+  auto tank_entity = Entity({ 0.2, 0.2, 0.2 }, {}, { .4, .4, .4 });
+  auto crate_entity = Entity({ 0.2, 0.2, 0.2 }, {}, { .4, .4, .4 });
   tank_entity.add_texture(tank_texture);
   crate_entity.add_texture(crate_texture);
   tank_entity.add_model(tank);
@@ -75,7 +74,7 @@ int model_test_main(int, char **)
   Entity monoliths[MONS];
   for (ssize_t i = 0; i < MONS; ++i)
   {
-    monoliths[i] = Entity({ 3.0 + (i * 3.), 0.2, 0.2 }, { 0, 0, 0 }, { 1., 4., 1. });
+    monoliths[i] = Entity({ 3.0 + (i * 3.), 0.2, 0.2 }, {}, { 1., 4., 1. });
     monoliths[i].add_model(crate2);
   }
 
@@ -172,12 +171,13 @@ int model_test_main(int, char **)
 
     if (iteration % 12 == 0)
     {
-      int w = 5+r(120);
-      int h = 2+r(100);
+      int w = 5 + r(120);
+      int h = 2 + r(100);
       std::shared_ptr<Image> custom_img = Image::create(Size(w, h));
       for (int i = 0; i < 100; i++)
       {
-        custom_img->set_pixel(r(w-1), r(h-1), Color(r(250), r(255), 55+r(200)));
+        custom_img->set_pixel(
+          r(w - 1), r(h - 1), Color(r(250), r(255), 55 + r(200)));
       }
       custom_texture->set_image(custom_img);
     }
