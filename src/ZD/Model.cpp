@@ -75,7 +75,6 @@ namespace ZD
 
     glBindBuffer(GL_ARRAY_BUFFER, id);
     glBufferData(GL_ARRAY_BUFFER, data.size() * sizeof(T), data.data(), GL_STATIC_DRAW);
-    printf("generated buffer id=%u\n", id);
 
     return id;
   }
@@ -112,6 +111,7 @@ namespace ZD
 
     regenerate_buffers();
 
+#ifdef DEBUG_PRINT_MODEL_INDICES
     printf(
       "Model %p loaded.\nvbo=%d (%zu) ebo=%d (%zu) uvbo=%d (%zu) nbo=%d "
       "(%zu)\n",
@@ -124,6 +124,7 @@ namespace ZD
       uvs.size(),
       nbo,
       normals.size());
+#endif
   }
 
   Model::~Model()

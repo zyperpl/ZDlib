@@ -16,7 +16,6 @@ namespace ZD
   , rotation { rotation }
   , scale { scale }
   {
-    printf("Entity %p created.\n", (void *)(this));
   }
 
   void Entity::update() { printf("Updating entity %p...\n", (void *)(this)); }
