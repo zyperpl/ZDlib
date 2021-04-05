@@ -39,6 +39,12 @@ namespace ZD
     return texture;
   }
 
+  std::shared_ptr<Texture> Texture::load(
+    const std::string image_name, const TextureParameters params, ForceReload reload)
+  {
+    return Texture::load(Image::load(image_name), params, reload);
+  }
+
   Texture::Texture(const TextureParameters params)
   : texture_wrap { params.wrap }
   , generate_mipmap { params.generate_mipmap }

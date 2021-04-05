@@ -18,7 +18,7 @@
 #pragma GCC optimize("O3")
 namespace ZD
 {
-  static std::unordered_map<std::string_view, std::shared_ptr<Image>> loaded_images;
+  static std::unordered_map<std::string, std::shared_ptr<Image>> loaded_images;
 
   struct LoadedImage
   {
@@ -100,7 +100,7 @@ namespace ZD
     return loaded;
   }
 
-  static std::optional<std::shared_ptr<Image>> find_in_loaded(std::string_view path)
+  static std::optional<std::shared_ptr<Image>> find_in_loaded(std::string path)
   {
     auto name_image_pair = loaded_images.find(path);
     if (name_image_pair != loaded_images.end())
@@ -112,7 +112,7 @@ namespace ZD
     return std::nullopt;
   }
 
-  std::shared_ptr<Image> ImageLoader::load(std::string_view path, ForceReload reload)
+  std::shared_ptr<Image> ImageLoader::load(std::string path, ForceReload reload)
   {
     Image *image = NULL;
     if (reload != ForceReload::Yes)

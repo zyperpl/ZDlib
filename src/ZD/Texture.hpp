@@ -30,6 +30,9 @@ namespace ZD
     static std::shared_ptr<Texture> load(
       std::shared_ptr<Image> image, const TextureParameters params = TextureParameters {},
       ForceReload reload = ForceReload::No);
+    static std::shared_ptr<Texture> load(
+      const std::string image_name, const TextureParameters params = TextureParameters {},
+      ForceReload reload = ForceReload::No);
 
     virtual ~Texture();
 

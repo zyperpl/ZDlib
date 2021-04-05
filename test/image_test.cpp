@@ -20,7 +20,7 @@
 #define W 1280
 #define H 720
 
-std::shared_ptr<ZD::Image> load_image(std::string_view name)
+std::shared_ptr<ZD::Image> load_image(std::string name)
 {
   auto img = ZD::Image::load(name);
   if (!img)

@@ -47,9 +47,9 @@ int model_test_main(int, char **)
       .compile();
 
   puts("Creating a texture");
-  auto lena_texture = Texture::load(Image::load("images/lena.png"));
+  auto lena_texture = Texture::load("images/lena.png");
 
-  auto tank_texture = Texture::load(Image::load("images/propane_tank_red.png"));
+  auto tank_texture = Texture::load("images/propane_tank_red.png");
   auto tank = Model::load("images/propane_tank.obj");
 
   auto crate_texture = Texture::load(Image::load("images/crate_1.jpg"));

@@ -13,7 +13,7 @@
 #pragma GCC optimize("O3")
 namespace ZD
 {
-  std::shared_ptr<Image> Image::load(std::string_view file_name, ForceReload reload)
+  std::shared_ptr<Image> Image::load(std::string file_name, ForceReload reload)
   {
     return ImageLoader::load(file_name, reload);
   }

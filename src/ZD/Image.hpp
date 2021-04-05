@@ -15,7 +15,7 @@ namespace ZD
   class Image
   {
   public:
-    static std::shared_ptr<Image> load(std::string_view file_name, ForceReload reload = ForceReload::No);
+    static std::shared_ptr<Image> load(std::string file_name, ForceReload reload = ForceReload::No);
     static std::shared_ptr<Image> create(const Size &size, PixelFormat::Type format = PixelFormat::BGR);
     static std::shared_ptr<Image> create(const Size &, const Color &, PixelFormat::Type format = PixelFormat::BGR);
 
