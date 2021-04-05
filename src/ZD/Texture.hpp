@@ -5,6 +5,7 @@
 
 #include "Image.hpp"
 #include "Shader.hpp"
+#include "File.hpp"
 
 namespace ZD
 {
@@ -25,15 +26,15 @@ namespace ZD
   class Texture
   {
   public:
-    Texture(TextureParameters params = {});
-    Texture(std::shared_ptr<Image> image);
-    Texture(std::shared_ptr<Image> image, TextureParameters params);
+    static std::shared_ptr<Texture> create(const TextureParameters params = TextureParameters {});
+    static std::shared_ptr<Texture> load(
+      std::shared_ptr<Image> image, const TextureParameters params = TextureParameters {},
+      ForceReload reload = ForceReload::No);
+
     virtual ~Texture();
 
     void update();
-    void bind(
-      const ShaderProgram &shader, GLuint sampler_id = 0,
-      std::string_view sampler_name = "sampler");
+    void bind(const ShaderProgram &shader, GLuint sampler_id = 0, std::string_view sampler_name = "sampler");
 
     void set_name(const std::string name) { this->name = name; }
     void set_image(std::shared_ptr<Image> new_image);
@@ -45,7 +46,10 @@ namespace ZD
     int get_height(int mip_level = 0);
 
   private:
-    void generate(TextureParameters params);
+    Texture(const TextureParameters params = TextureParameters {});
+    Texture(const std::shared_ptr<Image> image, const TextureParameters params = TextureParameters {});
+
+    void generate(const TextureParameters params);
     void set_buffer_data();
     bool set_uniform(const ShaderUniform &uniform);
 

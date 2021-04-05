@@ -8,23 +8,45 @@
 
 namespace ZD
 {
-  Texture::Texture(TextureParameters params)
+  static std::unordered_map<const Image *, std::shared_ptr<Texture>> loaded_textures;
+
+  static std::optional<std::shared_ptr<Texture>> find_in_loaded(const Image *ptr)
+  {
+    for (auto &&ptr_tex_pair : loaded_textures)
+    {
+      if (ptr_tex_pair.first == ptr)
+        return ptr_tex_pair.second;
+    }
+    return {};
+  }
+
+  std::shared_ptr<Texture> Texture::create(const TextureParameters params)
+  {
+    return std::shared_ptr<Texture>(new Texture { params });
+  }
+
+  std::shared_ptr<Texture> Texture::load(
+    std::shared_ptr<Image> image, const TextureParameters params, ForceReload reload)
+  {
+    if (image && reload != ForceReload::Yes)
+    {
+      if (auto model = find_in_loaded(image.get()))
+        return model.value();
+    }
+
+    std::shared_ptr<Texture> texture { new Texture { image, params } };
+    loaded_textures.insert({ image.get(), texture });
+    return texture;
+  }
+
+  Texture::Texture(const TextureParameters params)
   : texture_wrap { params.wrap }
   , generate_mipmap { params.generate_mipmap }
   {
     this->generate(params);
   }
 
-  Texture::Texture(std::shared_ptr<Image> image)
-  : image { image }
-  {
-    this->generate(TextureParameters {});
-    this->set_buffer_data();
-    width = image->width();
-    height = image->height();
-  }
-
-  Texture::Texture(std::shared_ptr<Image> image, TextureParameters params)
+  Texture::Texture(const std::shared_ptr<Image> image, const TextureParameters params)
   : image { image }
   , texture_wrap { params.wrap }
   , generate_mipmap { params.generate_mipmap }
@@ -41,7 +63,7 @@ namespace ZD
     glDeleteBuffers(2, pbo);
   }
 
-  void Texture::generate(TextureParameters params)
+  void Texture::generate(const TextureParameters params)
   {
     glGenTextures(1, &this->id);
     glBindTexture(GL_TEXTURE_2D, this->id);
@@ -53,8 +75,7 @@ namespace ZD
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, params.min_filter);
 
     static const bool IS_GL_4_5_SUPPORTED =
-      glewGetExtension("ARB_get_texture_sub_image") &&
-      glewGetExtension("ARB_texture_barrier");
+      glewGetExtension("ARB_get_texture_sub_image") && glewGetExtension("ARB_texture_barrier");
 
     if (
       glewGetExtension("GL_ARB_pixel_buffer_object") &&
@@ -91,19 +112,13 @@ namespace ZD
     {
       glBindBuffer(GL_PIXEL_UNPACK_BUFFER, pbo[0]);
       glBufferData(
-        GL_PIXEL_UNPACK_BUFFER,
-        image->get_size().area() * sizeof(uint32_t),
-        image->get_data(),
-        GL_STREAM_DRAW);
+        GL_PIXEL_UNPACK_BUFFER, image->get_size().area() * sizeof(uint32_t), image->get_data(), GL_STREAM_DRAW);
     }
     if (pbo[1] > 0)
     {
       glBindBuffer(GL_PIXEL_UNPACK_BUFFER, pbo[1]);
       glBufferData(
-        GL_PIXEL_UNPACK_BUFFER,
-        image->get_size().area() * sizeof(uint32_t),
-        image->get_data(),
-        GL_STREAM_DRAW);
+        GL_PIXEL_UNPACK_BUFFER, image->get_size().area() * sizeof(uint32_t), image->get_data(), GL_STREAM_DRAW);
     }
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 
@@ -125,9 +140,7 @@ namespace ZD
     this->image = new_image;
     width = this->image->width();
     height = this->image->height();
-    if (
-      current_width != new_image->width() ||
-      current_height != new_image->height())
+    if (current_width != new_image->width() || current_height != new_image->height())
     {
       set_buffer_data();
     }
@@ -171,10 +184,7 @@ namespace ZD
       auto *pbo_ptr = glMapBuffer(GL_PIXEL_UNPACK_BUFFER, GL_WRITE_ONLY);
       if (pbo_ptr)
       {
-        memcpy(
-          pbo_ptr,
-          &image->get_data()[0],
-          image->get_size().area() * sizeof(uint32_t));
+        memcpy(pbo_ptr, &image->get_data()[0], image->get_size().area() * sizeof(uint32_t));
         glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER);
       }
       glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
@@ -182,9 +192,7 @@ namespace ZD
     }
   }
 
-  void Texture::bind(
-    const ShaderProgram &shader, GLuint sampler_id,
-    std::string_view sampler_name)
+  void Texture::bind(const ShaderProgram &shader, GLuint sampler_id, std::string_view sampler_name)
   {
     glActiveTexture(GL_TEXTURE0 + sampler_id);
     glBindTexture(GL_TEXTURE_2D, this->id);
@@ -198,8 +206,7 @@ namespace ZD
     if (auto wrap_uniform = shader.get_uniform("texture_wrap"))
     {
       assert(wrap_uniform->type == GL_FLOAT_VEC2);
-      glUniform2f(
-        wrap_uniform->location, this->texture_wrap.x, this->texture_wrap.y);
+      glUniform2f(wrap_uniform->location, this->texture_wrap.x, this->texture_wrap.y);
     }
 
     glCheckError();
@@ -215,8 +222,7 @@ namespace ZD
     if (mip_level <= 0 && width > 0)
       return width;
 
-    glGetTexLevelParameteriv(
-      GL_TEXTURE_2D, mip_level, GL_TEXTURE_WIDTH, &width);
+    glGetTexLevelParameteriv(GL_TEXTURE_2D, mip_level, GL_TEXTURE_WIDTH, &width);
     return width;
   }
 
@@ -225,8 +231,7 @@ namespace ZD
     if (mip_level <= 0 && height > 0)
       return height;
 
-    glGetTexLevelParameteriv(
-      GL_TEXTURE_2D, mip_level, GL_TEXTURE_HEIGHT, &height);
+    glGetTexLevelParameteriv(GL_TEXTURE_2D, mip_level, GL_TEXTURE_HEIGHT, &height);
     return height;
   }
 

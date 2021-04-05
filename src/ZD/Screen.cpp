@@ -33,14 +33,14 @@ namespace ZD
   : Screen(x, y, width, height)
   , shader_program { shader }
   {
-    texture = std::make_shared<Texture>(canvas_image);
+    texture = Texture::load(canvas_image);
     model = std::unique_ptr<Model>(new Model { ModelDefault::Screen });
   }
 
   Screen_GL::Screen_GL(int x, int y, int width, int height)
   : Screen(x, y, width, height)
   {
-    texture = std::make_shared<Texture>(canvas_image);
+    texture = Texture::load(canvas_image);
     model = std::unique_ptr<Model>(new Model { ModelDefault::Screen });
 
     shader_program = ShaderLoader()

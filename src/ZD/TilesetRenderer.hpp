@@ -15,15 +15,11 @@ namespace ZD
   {
   public:
     TilesetRenderer(std::shared_ptr<Tileset> tileset);
-    TilesetRenderer(
-      std::shared_ptr<Tileset> tileset, std::shared_ptr<ShaderProgram> shader);
+    TilesetRenderer(std::shared_ptr<Tileset> tileset, std::shared_ptr<ShaderProgram> shader);
     void update(const Tilemap &tilemap);
     void render(const RenderTarget &target);
 
-    std::shared_ptr<Texture> get_tileset_texture() const
-    {
-      return tileset_texture;
-    }
+    std::shared_ptr<Texture> get_tileset_texture() const { return tileset_texture; }
     std::shared_ptr<Texture> get_map_texture() const { return map_texture; }
 
     glm::vec3 position { 0., 0., 0. };

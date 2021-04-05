@@ -314,7 +314,7 @@ namespace ZD
     glGenFramebuffers(1, &fbo.id);
     glBindFramebuffer(GL_FRAMEBUFFER, fbo.id);
 
-    fbo.texture = std::make_shared<Texture>();
+    fbo.texture = Texture::create();
 
     glBindTexture(GL_TEXTURE_2D, fbo.texture->get_id());
     glTexImage2D(

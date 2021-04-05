@@ -47,18 +47,16 @@ int model_test_main(int, char **)
       .compile();
 
   puts("Creating a texture");
-  auto lena_texture = std::make_shared<Texture>(Image::load("images/lena.png"));
+  auto lena_texture = Texture::load(Image::load("images/lena.png"));
 
-  auto tank_texture =
-    std::make_shared<Texture>(Image::load("images/propane_tank_red.png"));
+  auto tank_texture = Texture::load(Image::load("images/propane_tank_red.png"));
   auto tank = Model::load("images/propane_tank.obj");
 
-  auto crate_texture =
-    std::make_shared<Texture>(Image::load("images/crate_1.jpg"));
+  auto crate_texture = Texture::load(Image::load("images/crate_1.jpg"));
   auto crate = Model::load("images/Crate1.obj");
 
   puts("Creating special texture..");
-  auto custom_texture = std::make_shared<Texture>();
+  auto custom_texture = Texture::create();
   auto crate2 = Model::load("images/Crate1.obj");
 
   puts("Creating an entities...");
