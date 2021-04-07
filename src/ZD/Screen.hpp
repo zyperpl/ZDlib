@@ -62,7 +62,7 @@ namespace ZD
   class Screen_GL : public Screen
   {
   public:
-    Screen_GL(std::shared_ptr<Texture> texture, int x, int y, int width, int height);
+    Screen_GL(std::shared_ptr<Texture> texture, int x = 0, int y = 0);
     Screen_GL(std::shared_ptr<ShaderProgram> shader, int x, int y, int width, int height);
     Screen_GL(int x, int y, int width, int height);
     void render(const RenderTarget &target);

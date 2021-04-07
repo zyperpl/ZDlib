@@ -17,8 +17,8 @@ namespace ZD
   {
   }
 
-  Screen_GL::Screen_GL(std::shared_ptr<Texture> texture, int x, int y, int width, int height)
-  : Screen(x, y, width, height)
+  Screen_GL::Screen_GL(std::shared_ptr<Texture> texture, int x, int y)
+  : Screen(x, y, texture->get_width(), texture->get_height())
   , texture { texture }
   {
     model = std::unique_ptr<Model>(new Model { ModelDefault::Screen });
