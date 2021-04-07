@@ -32,8 +32,7 @@ namespace ZD
 
     void render_screens();
 
-    void enable_blend(
-      GLenum sfactor = GL_SRC_ALPHA, GLenum dfactor = GL_ONE_MINUS_SRC_ALPHA);
+    void enable_blend(GLenum sfactor = GL_SRC_ALPHA, GLenum dfactor = GL_ONE_MINUS_SRC_ALPHA);
     void disable_blend();
     void enable_cull_face(GLenum mode = GL_FRONT, GLenum front_face = GL_CW);
     void disable_cull_face();
@@ -47,13 +46,16 @@ namespace ZD
 
     inline void set_events_poll_rate(double rate) { this->poll_rate = rate; }
 
-    FramebufferObject generate_framebuffer(size_t width, size_t height);
+    FramebufferObject generate_framebuffer(
+      size_t width, size_t height, const TextureParameters parameters = TextureParameters {});
+
     void unbind_framebuffer()
     {
       glBindFramebuffer(GL_FRAMEBUFFER, 0);
       clear();
       window()->set_current();
     }
+
     void bind_framebuffer(const FramebufferObject &fbo);
 
     // should be set before window creation
