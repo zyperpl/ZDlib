@@ -40,6 +40,7 @@ namespace ZD
 
     void move_position(const glm::vec3 v) { position += v; }
     void add_rotation(const glm::vec3 v) { rotation *= glm::quat(v); }
+    void add_rotation(const glm::quat q) { rotation = glm::normalize(q) * glm::normalize(rotation); }
     void multiply_scale(const float a) { scale *= a; }
 
     glm::mat4 get_model_matrix() const;
