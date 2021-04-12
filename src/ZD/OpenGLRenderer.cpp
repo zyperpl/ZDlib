@@ -307,7 +307,7 @@ namespace ZD
 
     glGenRenderbuffers(1, &fbo.renderbuffer_id);
     glBindRenderbuffer(GL_RENDERBUFFER, fbo.renderbuffer_id);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH32F_STENCIL8, width, height);
 
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, fbo.renderbuffer_id);
 
