@@ -1,10 +1,13 @@
 #pragma once
 
+#include <cstdio>
+#include <cstring>
 #include <string>
 #include <string_view>
 #include <optional>
 #include <vector>
 #include <functional>
+#include <unistd.h>
 
 #include "FileWatch.hpp"
 
@@ -37,13 +40,14 @@ namespace ZD
     ~File();
 
     void rewind();
+
     std::optional<std::string> read_line(int max_size = FILE_BUF_SIZE);
     std::vector<std::string> read_lines() const;
-    std::vector<uint8_t> read_bytes(int max_size = FILE_BUF_SIZE);
-    std::vector<uint8_t> read_all_bytes() const;
+    std::vector<char> read_bytes(int max_size = FILE_BUF_SIZE);
+    std::vector<char> read_all_bytes() const;
     std::string read_all_chars() const;
 
-    ssize_t write(std::vector<uint8_t> data);
+    ssize_t write(std::vector<char> data);
     ssize_t write(std::string_view str);
 
     void set_watch(FileCallback callback);

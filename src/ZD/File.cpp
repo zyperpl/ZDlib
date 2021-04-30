@@ -74,12 +74,12 @@ namespace ZD
   {
     assert(mode == Read || mode == ReadWrite);
 
-    std::unique_ptr<uint8_t[]> buf(new uint8_t[max_size]);
-    const uint8_t *beg = buf.get();
+    std::unique_ptr<char[]> buf(new char[max_size]);
+    const char *beg = buf.get();
     size_t readed = 0;
     while ((readed = read(fd, buf.get(), max_size)) > 0)
     {
-      uint8_t *p = (uint8_t *)memchr(buf.get(), '\n', readed);
+      char *p = (char*)memchr(buf.get(), '\n', readed);
       if (p)
       {
         size_t offset = p - buf.get();
@@ -102,15 +102,15 @@ namespace ZD
 
     std::vector<std::string> strings;
 
-    std::unique_ptr<uint8_t[]> buf(new uint8_t[FILE_BUF_SIZE]);
+    std::unique_ptr<char[]> buf(new char[FILE_BUF_SIZE]);
     memset(buf.get(), 0, FILE_BUF_SIZE);
-    const uint8_t *beg = buf.get();
+    const char *beg = buf.get();
     size_t readed = 0;
     while ((readed = read(fd, buf.get(), FILE_BUF_SIZE)) > 0)
     {
-      const uint8_t *prev_p = beg;
-      for (const uint8_t *p = prev_p;
-           (p = (uint8_t *)memchr(p, '\n', readed + (prev_p - p)));
+      const char *prev_p = beg;
+      for (const char*p = prev_p;
+           (p = (char*)memchr(p, '\n', readed + (prev_p - p)));
            ++p)
       {
         if (p)
@@ -129,27 +129,27 @@ namespace ZD
     return strings;
   }
 
-  std::vector<uint8_t> File::read_bytes(int max_size)
+  std::vector<char> File::read_bytes(int max_size)
   {
     assert(mode == Read || mode == ReadWrite);
-    uint8_t *buf = new uint8_t[max_size];
+    char *buf = new char[max_size];
     size_t readed = read(fd, buf, max_size);
 
-    std::vector<uint8_t> data(buf, buf + readed);
+    std::vector<char> data(buf, buf + readed);
     delete[] buf;
     return data;
   }
 
-  std::vector<uint8_t> File::read_all_bytes() const
+  std::vector<char> File::read_all_bytes() const
   {
     assert(mode == Read || mode == ReadWrite);
     lseek(fd, 0, SEEK_SET);
     assert(lseek(fd, 0, SEEK_CUR) == 0);
     obtain_size();
-    std::vector<uint8_t> data(this->size);
+    std::vector<char> data(this->size);
 
     auto *ptr = data.data();
-    std::unique_ptr<uint8_t[]> buf(new uint8_t[FILE_BUF_SIZE]);
+    std::unique_ptr<char[]> buf(new char[FILE_BUF_SIZE]);
     size_t readed = 0;
     size_t saved = 0;
     while ((readed = read(fd, buf.get(), FILE_BUF_SIZE)) > 0)
@@ -173,7 +173,7 @@ namespace ZD
     str.resize(this->size);
 
     auto *ptr = str.data();
-    std::unique_ptr<uint8_t[]> buf(new uint8_t[FILE_BUF_SIZE]);
+    std::unique_ptr<char[]> buf(new char[FILE_BUF_SIZE]);
     size_t readed = 0;
     size_t saved = 0;
     while ((readed = read(fd, buf.get(), FILE_BUF_SIZE)) > 0)
@@ -193,7 +193,7 @@ namespace ZD
     return str;
   }
 
-  ssize_t File::write(std::vector<uint8_t> data)
+  ssize_t File::write(std::vector<char> data)
   {
     if (mode != Write && mode != ReadWrite)
     {

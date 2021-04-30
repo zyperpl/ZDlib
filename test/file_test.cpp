@@ -123,7 +123,7 @@ int file_test_main(int, char **)
   {
     ZD::File f("images/test.txt", ZD::File::Write, ZD::File::CreateFile::Yes);
     assert(f.is_open());
-    std::vector<uint8_t> data = { 't', 'e', 's', 't', '\n' };
+    std::vector<char> data = { 't', 'e', 's', 't', '\n' };
     ssize_t ret = f.write(data);
     if (ret <= 0) {
       printf("Write error!");
