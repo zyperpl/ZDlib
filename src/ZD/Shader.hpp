@@ -5,6 +5,7 @@
 #include <string_view>
 #include <variant>
 #include <vector>
+#include <optional>
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
