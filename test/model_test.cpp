@@ -181,13 +181,13 @@ int model_test_main(int, char **)
     }
 
     view->set_position(camera_position);
-    tank_entity.draw(*model_shader, *view);
-    crate_entity.draw(*model_shader, *view);
+    tank_entity.render(*model_shader, *view);
+    crate_entity.render(*model_shader, *view);
 
     custom_texture->bind(*model_shader, 0, "sampler");
     for (size_t i = 0; i < MONS; i++)
     {
-      monoliths[i].draw(*model_shader, *view);
+      monoliths[i].render(*model_shader, *view);
     }
     renderer.render();
 

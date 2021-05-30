@@ -23,8 +23,7 @@ namespace ZD
     Entity(const glm::vec3 position, const glm::quat rotation, const glm::vec3 scale);
     virtual ~Entity() = default;
 
-    virtual void update();
-    virtual void draw(const ShaderProgram &shader_program, const View &view);
+    virtual void render(const ShaderProgram &shader_program, const View &view);
 
     inline void add_model(const std::shared_ptr<Model> model) { models.push_back(model); }
     inline void add_texture(const std::shared_ptr<Texture> texture) { textures.push_back(texture); }

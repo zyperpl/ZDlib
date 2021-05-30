@@ -18,8 +18,6 @@ namespace ZD
   {
   }
 
-  void Entity::update() { printf("Updating entity %p...\n", (void *)(this)); }
-
   glm::mat4 Entity::get_model_matrix() const
   {
     glm::mat4 translate_mat = glm::translate(glm::mat4(1), glm::vec3(position.x, position.y, position.z));
@@ -29,7 +27,7 @@ namespace ZD
     return translate_mat * rotate_mat * scale_mat;
   }
 
-  void Entity::draw(const ShaderProgram &shader_program, const View &view)
+  void Entity::render(const ShaderProgram &shader_program, const View &view)
   {
     shader_program.use();
 
