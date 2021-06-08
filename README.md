@@ -17,6 +17,7 @@ Library provides many features:
 
 ## Showcase
 <img src=test/images/screenshot2.png width=600 height=320/>
+<img src=test/images/screenshot_mech.png width=600 height=320/>
 <img src=test/images/screenshot3.png width=600 height=320/>
 <img src=test/images/screenshot1.png width=600 height=320/>
 <img src=test/images/zdlib3.gif width=600 height=320/>
